@@ -17,7 +17,9 @@ import UniversityPortal  from '@/components/UniversityPortalPage.vue';
 const routes = [
   { path: '/', component: MainPage },
   { path: '/Specialties/Universities/GlobalSpecialties', component: UniversitiesSpecialtiesPage },
-  { path: '/Specialties/Universities/GlobalSpecialties/Qualifications/:id', component: UniversitiesSpecialtiesMinorPage },
+
+
+  { path: "/Specialties/Universities/GlobalSpecialties/Qualifications/:specialty_id", component: UniversitiesSpecialtiesMinorPage },
   { path: '/Specialties/Colleges', component: CollegesSpecialtiesPage },
   { path: '/UniversityAbout', component: UniversityAboutPage },
   { path: '/Universities', component: UniversityListPage },

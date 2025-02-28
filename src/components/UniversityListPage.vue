@@ -1,255 +1,67 @@
 <template>
-  <header class="header fixed-top">
+  <header class="header fixed-top"></header>
 
-  </header>
+  <body>
+    <div class="list-container">
+      <div class="sidebar-left-minor"></div>
+      <div class="sidebar-left fixed-sidebar">
+        <h class="sidebar-text">Type of educational institution</h>
+        <router-link to="/Universities" class="sidebar-active-choice"
+          :class="{ active: currentPage === 'Universities' }">University</router-link>
+        <router-link to="/Colleges" class="sidebar-choice"
+          :class="{ active: currentPage === 'Colleges' }">College</router-link>
+        <div class="active-indicator" :style="{ top: indicatorPosition + 'px' }"></div>
+      </div>
 
+      <div class="main-content">
+        <div class="search-container">
+          <input type="text" placeholder="Search.." />
+          <button type="submit">Submit</button>
+        </div>
 
-<body>
-  <div class="list-container">
-    <div class="sidebar-left-minor"></div>
-    <div class="sidebar-left fixed-sidebar">
-      <h class="sidebar-text">Type of educational institution</h>
-      <router-link
-        to="/Universities"
-        class="sidebar-active-choice"
-        :class="{ active: currentPage === 'Universities' }"
-        >University</router-link
-      >
-      <router-link
-        to="/Colleges"
-        class="sidebar-choice"
-        :class="{ active: currentPage === 'Colleges' }"
-        >College</router-link
-      >
-      <div
-        class="active-indicator"
-        :style="{ top: indicatorPosition + 'px' }"
-      ></div>
+        <!-- Отображение карточек университетов -->
+        <div v-if="loading">Загрузка...</div>
+        <div v-else-if="error">{{ error }}</div>
+        <div v-else>
+          <div v-for="institution in institutions" :key="institution.id" class="list-card">
+            <div class="card-img">
+              <img :src="institution.photo_url || '@/components/img/UnCard.png'" class="card-img" />
+            </div>
+            <div class="card-info">
+              <div class="card-info-up">
+                <h style="margin-top: -10px">
+                  {{ institution.name }}
+                  <!-- Отображение звездочек -->
+                  <span v-for="star in 5" :key="star" class="fa fa-star" :class="{ checked: star <= Math.round(institution.reviews_avg_rating) }"></span>
+                </h>
+                <p>{{ institution.location }}</p>
+                <p style="margin-top: -10px">Open 10:00 - 22:00</p>
+              </div>
+
+              <div class="card-info-down">
+                <div class="card-info-down-feature">
+                  <p>Grants</p>
+                  <p class="feature">{{ institution.grants ? 'Yes' : 'No' }}</p>
+                </div>
+                <div class="card-info-down-feature">
+                  <p>Student dormitory</p>
+                  <p class="feature">{{ institution.dormitory ? 'Yes' : 'No' }}</p>
+                </div>
+                <button type="button" class="university-button" @click="$router.push(`/UniversityAbout/${institution.id}`)">
+                  More details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div class="main-content">
-      <div class="search-container">
-        <input type="text" placeholder="Search.." />
-        <button type="submit">Submit</button>
-      </div>
-
-      <div class="list-card">
-        <div class="card-img">
-          <img src="@/components/img/UnCard.png" class="card-img" />
-        </div>
-        <div class="card-info">
-          <div class="card-info-up">
-            <h style="margin-top: -10px"
-              >Astana IT University
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-            </h>
-            <p>Ave. Mangilik El., Astana 020000</p>
-            <p style="margin-top: -10px">Open 10:00 - 22:00</p>
-          </div>
-
-          <div class="card-info-down">
-            <div class="card-info-down-feature">
-              <p>Direction of study</p>
-              <p class="feature">IT</p>
-            </div>
-            <div class="card-info-down-feature">
-              <p>Grants</p>
-              <p class="feature">Yes</p>
-            </div>
-            <div class="card-info-down-feature">
-              <p>Student dormitory</p>
-              <p class="feature">Yes</p>
-            </div>
-            <button type="button" class="university-button"  @click="$router.push('/UniversityAbout')">More details</button>
-
-          </div>
-
-        </div>
-      </div>
-
-      <div class="list-card">
-        <div class="card-img">
-          <img src="@/components/img/UnCard.png" class="card-img" />
-        </div>
-        <div class="card-info">
-          <div class="card-info-up">
-            <h style="margin-top: -10px"
-              >Astana IT University
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-            </h>
-            <p>Ave. Mangilik El., Astana 020000</p>
-            <p style="margin-top: -10px">Open 10:00 - 22:00</p>
-          </div>
-
-          <div class="card-info-down">
-            <div class="card-info-down-feature">
-              <p>Direction of study</p>
-              <p class="feature">IT</p>
-            </div>
-            <div class="card-info-down-feature">
-              <p>Grants</p>
-              <p class="feature">Yes</p>
-            </div>
-            <div class="card-info-down-feature">
-              <p>Student dormitory</p>
-              <p class="feature">Yes</p>
-            </div>
-            <button type="button" class="university-button"  @click="$router.push('/UniversityAbout')">More details</button>
-
-          </div>
-
-        </div>
-      </div>
-
-      <div class="list-card">
-        <div class="card-img">
-          <img src="@/components/img/UnCard.png" class="card-img" />
-        </div>
-        <div class="card-info">
-          <div class="card-info-up">
-            <h style="margin-top: -10px"
-              >Astana IT University
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-            </h>
-            <p>Ave. Mangilik El., Astana 020000</p>
-            <p style="margin-top: -10px">Open 10:00 - 22:00</p>
-          </div>
-
-          <div class="card-info-down">
-            <div class="card-info-down-feature">
-              <p>Direction of study</p>
-              <p class="feature">IT</p>
-            </div>
-            <div class="card-info-down-feature">
-              <p>Grants</p>
-              <p class="feature">Yes</p>
-            </div>
-            <div class="card-info-down-feature">
-              <p>Student dormitory</p>
-              <p class="feature">Yes</p>
-            </div>
-            <button type="button" class="university-button"  @click="$router.push('/UniversityAbout')">More details</button>
-
-          </div>
-
-
-        </div>
-      </div>
-
-
-
-
-
-
-
-
-    </div>
-    <div class="filter-container">
-        <div>
-          <button
-            class="sidebar-toggle-button"
-            :class="{ visible: !isSidebarOpen }"
-            @click="toggleSidebar"
-          >
-            <img
-              v-if="isSidebarOpen"
-              src="@/components/img/ForwardArrow.png"
-              alt="Back"
-            />
-            <img v-else src="@/components/img/BackArrow.png" alt="Forward" />
-          </button>
-        </div>
-
-        <aside
-          id="sidebar"
-          ref="sidebar"
-          class="sidebar sidebar-default open"
-          :class="{
-            'sidebar-stacked': isStacked,
-            scrolled: isScrolled,
-          }"
-        >
-          <div class="sidebar-header">
-            <div class="SearchBox">
-              <input type="text" placeholder="Search.." />
-              <button type="submit">Submit</button>
-            </div>
-          </div>
-
-          <ul class="nav sidebar-nav">
-            <h>Filter institutions</h>
-
-
-            <div class="sidebar-nav-filtration">
-
-              <p>Type of educational institution</p>
-              <button
-                v-for="(item, index) in type"
-                :key="'type-' + index"
-                @click="toggleSelection('type-' + index)"
-                :class="{ selected: selectedIndexes.includes('type-' + index) }"
-              >
-                {{ item }}
-              </button>
-
-              <p>Direction of study</p>
-              <button
-                v-for="(item, index) in directions"
-                :key="'direction-' + index"
-                @click="toggleSelection('direction-' + index)"
-                :class="{
-                  selected: selectedIndexes.includes('direction-' + index),
-                }"
-              >
-                {{ item }}
-              </button>
-
-              <p>Grants</p>
-              <button
-                v-for="(item, index) in Grants"
-                :key="'Grants-' + index"
-                @click="toggleSelection('Grants-' + index)"
-                :class="{
-                  selected: selectedIndexes.includes('Grants-' + index),
-                }"
-              >
-                {{ item }}
-              </button>
-
-              <p>Availability of a dormitory for students</p>
-              <button
-                v-for="(item, index) in dormitory"
-                :key="'dormitory-' + index"
-                @click="toggleSelection('dormitory-' + index)"
-                :class="{
-                  selected: selectedIndexes.includes('dormitory-' + index),
-                }"
-              >
-                {{ item }}
-              </button>
-
-
-            </div>
-          </ul>
-        </aside>
-      </div>
-  </div>
   </body>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
@@ -270,6 +82,9 @@ export default {
       Grants: ["Yes", "No", "Partial"],
       dormitory: ["Yes", "No"],
       selectedIndexes: [],
+      institutions: [], // Добавляем массив для хранения данных об университетах
+      loading: false, // Добавляем состояние загрузки
+      error: null, // Добавляем состояние ошибки
     };
   },
   watch: {
@@ -281,7 +96,7 @@ export default {
   mounted() {
     this.updateIndicator();
     window.addEventListener("scroll", this.handleScroll);
-
+    this.fetchInstitutions(); // Загружаем данные при монтировании компонента
   },
   beforeUnmount() {
     window.removeEventListener("scroll", this.handleScroll);
@@ -304,19 +119,32 @@ export default {
       this.selectedIndex = index;
     },
     toggleSelection(key) {
-  if (this.selectedIndexes.includes(key)) {
-    this.selectedIndexes = this.selectedIndexes.filter((i) => i !== key);
-  } else {
-    this.selectedIndexes.push(key);
-  }
-},
+      if (this.selectedIndexes.includes(key)) {
+        this.selectedIndexes = this.selectedIndexes.filter((i) => i !== key);
+      } else {
+        this.selectedIndexes.push(key);
+      }
+    },
+    async fetchInstitutions() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await axios.get("http://localhost:8000/api/institutions");
+        this.institutions = response.data.data; // Предполагаем, что данные возвращаются в поле `data`
+      } catch (error) {
+        console.error("Ошибка при загрузке университетов:", error);
+        this.error = "Ошибка загрузки данных";
+      } finally {
+        this.loading = false;
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
-
-html, body {
+html,
+body {
   height: 100%;
   overflow-y: auto;
   width: 100vw;
@@ -324,7 +152,13 @@ html, body {
   padding: 0;
 }
 
+.fa-star {
+  color: #ccc; /* Цвет пустой звезды */
+}
 
+.fa-star.checked {
+  color: #ffd700; /* Цвет заполненной звезды */
+}
 
 
 .header {
@@ -337,9 +171,11 @@ html, body {
   background-color: rgba(255, 255, 255, 0.9);
   transition: background-color 0.3s ease;
 }
+
 .nav-item {
   margin-left: 10px;
 }
+
 .navbar-logo {
   font-size: 2rem;
   font-weight: bolder;
@@ -385,6 +221,7 @@ html, body {
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   z-index: 1;
 }
+
 .sidebar-text {
   font-size: 1.6rem;
   margin-bottom: 20px;
@@ -398,11 +235,13 @@ html, body {
   flex-grow: 1;
   background-color: #d4e5ed;
   display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  /* Расстояние между карточками */
   justify-content: center;
-  align-items: flex-start;
-  flex-direction: column;
+  /* Центрируем карточки */
   padding: 0% 8% 0% 8%;
-
+  margin: 0 0 0 0;
 }
 
 .sidebar-choice {
@@ -577,7 +416,7 @@ p {
 }
 
 .sidebar-toggle-button.visible {
-  transform: translateX(-417px) ;
+  transform: translateX(-417px);
 }
 
 .sidebar-nav-filtration {
@@ -611,7 +450,7 @@ h {
 .university-button {
   margin-bottom: 20px;
   border-radius: 6px;
-  background-color: #577C8E ;
+  background-color: #577C8E;
   color: white;
   border: none;
   margin-left: 40%;
@@ -622,7 +461,6 @@ h {
 }
 
 .university-button:hover {
-        transform: scale(1.1);
-    }
-
+  transform: scale(1.1);
+}
 </style>
