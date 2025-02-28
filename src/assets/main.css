@@ -1,0 +1,46 @@
+@import './base.css';
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+
+#app {
+  width: 100%; 
+  margin: 0 auto;
+  font-weight: normal;
+  box-sizing: border-box;
+}
+
+.background-image {
+  padding: 0 !important
+}
+
+.container {
+  width: 100%; 
+  grid-column: 1 / -1; 
+}
+
+a,
+.gray {
+  text-decoration: none;
+  color: rgb(55, 56, 55);
+  transition: transform 0.4s ease, background-color 0.4s ease; 
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover,
+  .gray:hover {
+    background-color: hsla(0, 0%, 0%, 0.2);
+    transform: scale(1.1); 
+  }
+}
+
+.checked {
+  color: orange;
+}
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center; 
+  }
+
+  
+}
