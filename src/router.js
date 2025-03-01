@@ -21,6 +21,12 @@ const routes = [
 
   { path: "/Specialties/Universities/GlobalSpecialties/Qualifications/:specialty_id", component: UniversitiesSpecialtiesMinorPage },
   { path: '/Specialties/Colleges', component: CollegesSpecialtiesPage },
+  {
+    path: '/UniversityAbout/:id',
+    name: 'UniversityAbout',
+    component: UniversityAboutPage,
+    props: true, // Передача `id` в качестве пропса
+  },
   { path: '/UniversityAbout', component: UniversityAboutPage },
   { path: '/Universities', component: UniversityListPage },
   { path: '/Colleges', component: CollegesListPage },

@@ -1,177 +1,90 @@
 <template>
   <div class="university-container">
-    <div class="university-background">
-      <img
-        src="@/components/img/UnFonimg.png"
-        class="university-backgroundImg"
-      />
-    </div>
-
-    <div class="university-main">
-      <div class="university-logo">
-        <img src="@/components/img/UnLogo.png" class="university-logo-img" />
-      </div>
-      <div class="university-name">
-        <h1>
-          Назарбаев <br />
-          Университет
-        </h1>
-      </div>
-    </div>
-
-    <div class="university-info">
-      <div class="university-description">
-        <p2>
-          Назарбаев Университет (NU) – ведущий исследовательский университет
-          <br />
-          Казахстана, основанный в 2010 году в Астанe. Университет предлагает
-          <br />
-          образование на английском языке по международным стандартам,
-          сотрудничая с мировыми вузами, такими как University of Cambridge,
-          University of Wisconsin-Madison и другими.
-        </p2>
-        <ul>
-          Особенности NU:
-        </ul>
-        <li>
-          Обучение на английском языке с привлечением международных
-          преподавателей
-        </li>
-        <li>
-          Подготовительная программа (NUFYP) для поступления в бакалавриат.
-        </li>
-        <li>
-          Сильные научные исследования в области медицины, инженерии,
-          информационных технологий и гуманитарных наук
-        </li>
-        <li>
-          Гранты и стипендии – большинство студентов обучаются на полностью
-          оплачиваемой основе
-        </li>
-        <li>
-          Современный кампус с лабораториями, общежитиями и развитой
-          инфраструктурой.
-        </li>
-        <li>
-          Выпускники получают диплом международного уровня, востребованный в
-          Казахстане и за рубежом.
-        </li>
-        <li>
-          Выпускники получают диплом международного уровня, востребованный в
-          Казахстане и за рубежом.
-        </li>
-        <br />
-        <p2>
-          Это один из самых престижных университетов Казахстана, который
-          привлекает талантливых студентов и ученых со всего мира
-        </p2>
+    <div v-if="loading">Загрузка...</div>
+    <div v-else-if="error">{{ error }}</div>
+    <div v-else>
+      <div class="university-background">
+        <img :src="university.photo_url || '@/components/img/UnFonimg.png'" class="university-backgroundImg" />
       </div>
 
-      <div class="university-info-block">
-        <div class="university-info-card">
-          <h3 class="info-title">
-            Основная <br />
-            информация
-          </h3>
-          <ul class="info-list">
-            <li><span class="dot"></span> Университет</li>
-            <li><span class="dot"></span> Есть общежитие</li>
-            <li><span class="dot"></span> Есть гранты</li>
-          </ul>
-          <div class="info-details">
-            <p>
-              <img src="@/components/img/location.png" class="icon" /> Astana,
-              Kabanbay Batyr Ave., 53
-            </p>
-            <p>
-              <img src="@/components/img/Phone.png" class="icon" />
-              <a href="tel:+77172706688">+7 (7172) 70-66-88</a>
-            </p>
-            <p>
-              <img src="@/components/img/Website.png" class="icon" />
-              <a href="https://nu.edu.kz/ru" target="_blank"
-                >https://nu.edu.kz/ru</a
-              >
-            </p>
-          </div>
+      <div class="university-main">
+        <div class="university-logo">
+          <img :src="university.logo_url || '@/components/img/UnLogo.png'" class="university-logo-img" />
+        </div>
+        <div class="university-name">
+          <h1>{{ university.name }}</h1>
         </div>
       </div>
-    </div>
 
-    <div class="user-events">
-      <div class="tabset">
-        <input
-          type="radio"
-          name="tabset"
-          id="tab1"
-          aria-controls="Specialties"
-          checked
-        />
-        <label for="tab1">Specialties</label>
+      <div class="university-info" style="margin: 100px 0 0 0 ;">
+        <div class="university-description" >
+          <p2>{{ university.description1 }}</p2><br><br>
+          
+          <p2>{{ university.description2 }}</p2><br><br>
+          <p2>{{ university.description3 }}</p2>
+        </div>
 
-        <input
-          type="radio"
-          name="tabset"
-          id="tab2"
-          aria-controls="Events"
-        />
-        <label for="tab2">Events</label>
-
-        <input
-          type="radio"
-          name="tabset"
-          id="tab3"
-          aria-controls="location"
-        />
-        <label for="tab3">location</label>
-
-        <div class="tab-panels">
-          <section id="Specialties" class="tab-panel">
-            <div class="specialties-list">
-              <div class="specialty">
-                <h4> 6B07107 КОПАТЕЛЬ КАРТОШКИ и оборудование нефтяной и газовой промышленности</h4>
-              </div>
-              <div class="specialty">
-                <h4> 6B07107 КОПАТЕЛЬ КАРТОШКИ и оборудование нефтяной и газовой промышленности</h4>
-              </div>
-              <div class="specialty">
-                <h4> 6B07107 КОПАТЕЛЬ КАРТОШКИ и оборудование нефтяной и газовой промышленности</h4>
-              </div>
-              <div class="specialty">
-                <h4> 6B07107 КОПАТЕЛЬ КАРТОШКИ и оборудование нефтяной и газовой промышленности</h4>
-              </div>
+        <div class="university-info-block">
+          <div class="university-info-card">
+            <h3 class="info-title">Основная информация</h3>
+            <ul class="info-list">
+              <li><span class="dot"></span> Университет</li>
+              <li><span class="dot"></span> {{ university.dormitory ? 'Есть общежитие' : 'Нет общежития' }}</li>
+              <li><span class="dot"></span> {{ university.grants ? 'Есть гранты' : 'Нет грантов' }}</li>
+            </ul>
+            <div class="info-details">
+              <p>
+                <img src="@/components/img/location.png" class="icon" /> {{ university.location }}
+              </p>
+              <p>
+                <img src="@/components/img/Phone.png" class="icon" />
+                <a :href="`tel:${university.phone}`">{{ university.phone }}</a>
+              </p>
+              <p>
+                <img src="@/components/img/Website.png" class="icon" />
+                <a :href="university.website" target="_blank">{{ university.website }}</a>
+              </p>
             </div>
-          </section>
-          <section id="Events" class="tab-panel">
-            <div class="event-card">
-              <div class="event-logo">
-                <img src="@/components/img/UnLogo.png" class="event-logo-img" />
-                <img src="@/components/img/Favourite.png" class="event-logo-img" />
-              </div>
-              <div class="event-view">
-                <h3 class="event-view-text">University</h3>
-                <p2 class="event-view-text">  Added 18 days ago</p2>
-              </div>
-              <div class="event-info">
-                <h3 class="event-info-text"> Nazarbayev University</h3>
-                <hr class="event-line">
-                <h3 class="event-info-text">Open day</h3>
-              </div>
-              <div class="event-terms">
-                <p3 class="terms-text">Need: Nothing</p3>
-              </div>
-            </div>
-          </section>
-          <section id="location" class="tab-panel">
-
-          </section>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script></script>
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      university: null,
+      loading: true,
+      error: null,
+    };
+  },
+  created() {
+    this.fetchUniversity();
+  },
+  methods: {
+    async fetchUniversity() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const id = this.$route.params.id;
+        const response = await axios.get(`http://localhost:8000/api/institutions/${id}`);
+        this.university = response.data;
+      } catch (error) {
+        console.error("Ошибка при загрузке университета:", error);
+        this.error = "Ошибка загрузки данных";
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
+};
+</script>
+
 <style scoped>
 .university-container {
   width: 100%;
