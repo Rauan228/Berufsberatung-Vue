@@ -5,7 +5,7 @@
     <div class="list-container">
       <div class="sidebar-left-minor"></div>
       <div class="sidebar-left fixed-sidebar">
-        <h class="sidebar-text">Type of educational institution</h>
+        <h class="sidebar-text">Type of educational institution</h> 
         <router-link to="/Universities" class="sidebar-active-choice"
           :class="{ active: currentPage === 'Universities' }">University</router-link>
         <router-link to="/Colleges" class="sidebar-choice"
@@ -13,12 +13,12 @@
         <div class="active-indicator" :style="{ top: indicatorPosition + 'px' }"></div>
       </div>
 
-      <div class="main-content">
+      <div class="main-content" style="margin: -200px 0 0 0 ; height: 10%;">
         <div class="search-container">
           <input type="text" placeholder="Search.." />
           <button type="submit">Submit</button>
         </div>
-
+        
         <!-- Отображение карточек университетов -->
         <div v-if="loading">Загрузка...</div>
         <div v-else-if="error">{{ error }}</div>
@@ -231,7 +231,7 @@ body {
 
 .main-content {
   overflow-y: auto;
-  max-height: 100vh;
+  max-height: 150vh;
   flex-grow: 1;
   background-color: #d4e5ed;
   display: flex;
@@ -463,4 +463,5 @@ h {
 .university-button:hover {
   transform: scale(1.1);
 }
+
 </style>

@@ -26,32 +26,24 @@
           </ol>
         </nav>
 
-        <div class="qualifications">
-          <div v-if="loading">Загрузка...</div>
-          <div v-else-if="error">{{ error }}</div>
-          <div v-else-if="qualifications.length === 0">Квалификации не найдены</div>
-          <div v-else>
-            <div v-for="qualification in qualifications" :key="qualification.id" class="qualifications-card">
-              <div class="qualifications-card-title">
-                <h1>{{ qualification.qualification_name }}</h1>
-              </div>
-
-
-              <!-- Проверяем, что specializations существует -->
-              <div v-if="qualification.specializations && qualification.specializations.length > 0"
-                class="specializations" style="  background-color: rgba(255, 255, 255, 0.9); ">
-                <ul>
-                  <li v-for="specialization in qualification.specializations" :key="specialization.id">
-                    {{ specialization.name }}
-                  </li>
-                </ul>
-              </div>
-              <div v-else>
-                <p style="  background-color: rgba(255, 255, 255, 0.9);">Нет специальностей</p>
-              </div>
-            </div>
+        <div class="specialties-list">
+    <div v-if="loading">Загрузка...</div>
+    <div v-else-if="error">{{ error }}</div>
+    <div v-else-if="qualifications.length === 0">Квалификации не найдены</div>
+    <div v-else>
+      <div v-for="qualification in qualifications" :key="qualification.id" class="qualification">
+        <h4>{{ qualification.qualification_name }}</h4>
+        <div v-if="qualification.specializations && qualification.specializations.length > 0">
+          <div v-for="specialization in qualification.specializations" :key="specialization.id" class="specialty">
+            <p>{{ specialization.name }}</p>
           </div>
         </div>
+        <div v-else>
+          <p>Нет специальностей</p>
+        </div>
+      </div>
+    </div>
+  </div>
       </div>
     </div>
   </body>
@@ -282,4 +274,21 @@ h2:hover {
   transform: scale(1.2);
   color: #577c8e;
 }
+.specialties-list {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.qualification {
+  margin-bottom: 20px;
+}
+
+.specialty {
+  width: 70%;
+  background-color: #f4f4f4;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+} 
 </style>
