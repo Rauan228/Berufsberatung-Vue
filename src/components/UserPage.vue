@@ -9,7 +9,7 @@
       </div>
       <div class="user-info">
         <div class="user-name">
-          <h>{{ username }}</h> <!-- Отображаем имя пользователя -->
+          <h>{{ username }}</h>
           <p class="profession">student</p>
         </div>
         <div class="user-logout">
@@ -20,156 +20,106 @@
 
     <div class="user-events">
       <div class="tabset">
-        <input
-          type="radio"
-          name="tabset"
-          id="tab1"
-          aria-controls="Notifications"
-          checked
-        />
+        <input type="radio" name="tabset" id="tab1" aria-controls="Notifications" checked />
         <label for="tab1">Notifications</label>
 
-        <input
-          type="radio"
-          name="tabset"
-          id="tab2"
-          aria-controls="Institution"
-        />
+        <input type="radio" name="tabset" id="tab2" aria-controls="Institution" />
         <label for="tab2">Universities/Colleges</label>
 
-        <input
-          type="radio"
-          name="tabset"
-          id="tab3"
-          aria-controls="planned events"
-        />
+        <input type="radio" name="tabset" id="tab3" aria-controls="planned events" />
         <label for="tab3">planned events Bock</label>
 
         <div class="tab-panels">
           <section id="Notifications" class="tab-panel">
-            <div class="Notification-content">
-              <div class="Notification-status-indicator">
-                <div class="indicator"></div>
-              </div>
-              <div class="Notification-text">
-                <h3>Institution name</h3>
-                <p1
-                  >В университете имени Месси, начинается день открытых дверей!
-                </p1>
-                <button
-                  type="button"
-                  class="button-info"
-                  data-bs-toggle="modal"
-                  data-bs-target="#exampleModal"
-                >
-                  Поподробнее
-                </button>
+            <div v-if="notifications.length > 0">
+              <div v-for="notification in notifications" :key="notification.id" class="Notification-content" style="margin-top: 20px;">
+                <div class="Notification-status-indicator">
+                  <div class="indicator"></div>
+                </div>
+                <div class="Notification-text">
+                  <h3>{{ notification.event ? notification.event.title : 'No Event' }}</h3>
+                  <p1>{{ notification.message }}</p1>
+                  <button type="button" class="button-info" data-bs-toggle="modal"
+                    :data-bs-target="'#exampleModal' + notification.id">
+                    Подробнее
+                  </button>
 
-                <div
-                  class="modal fade"
-                  id="exampleModal"
-                  tabindex="-1"
-                  aria-labelledby="exampleModalLabel"
-                  aria-hidden="true"
-                >
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h1 class="modal-title fs-6" id="exampleModalLabel">
-                          Modal title
-                        </h1>
-                        <button
-                          type="button"
-                          class="btn-close"
-                          data-bs-dismiss="modal"
-                          aria-label="Close"
-                        ></button>
-                      </div>
-                      <div class="modal-body">...</div>
-                      <div class="modal-footer">
-                        <button
-                          type="button"
-                          class="btn btn-secondary"
-                          data-bs-dismiss="modal"
-                        >
-                          Close
-                        </button>
-                        <button type="button" class="btn btn-primary">
-                          Save changes
-                        </button>
+                  <!-- Модальное окно для уведомления -->
+                  <div class="modal fade" :id="'exampleModal' + notification.id" tabindex="-1"
+                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-6" id="exampleModalLabel">
+                            {{ notification.event ? notification.event.title : 'No Event' }}
+                          </h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>{{ notification.message }}</p>
+                          <p v-if="notification.event">
+                            Дата: {{ notification.event.date }}
+                          </p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            Закрыть
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div v-else>
+              <p>Уведомлений нет.</p>
+            </div>
           </section>
-          <section id="Institution" class="tab-panel">
-            <div class="list-card">
-              <div class="card-img">
-                <img src="@/components/img/UnCard.png" class="card-img" />
-              </div>
-              <div class="card-info">
-                <div class="card-info-up">
-                  <h style="margin-top: -10px"
-                    >Astana IT University
-                    <span class="fa fa-star checked"></span>
-                    <span class="fa fa-star checked"></span>
-                    <span class="fa fa-star checked"></span>
-                    <span class="fa fa-star checked"></span>
-                    <span class="fa fa-star checked"></span>
-                  </h>
-                  <p>Ave. Mangilik El., Astana 020000</p>
-                  <p style="margin-top: -10px">Open 10:00 - 22:00</p>
-                </div>
+          <section id="LikedInstitutions" class="tab-panel">
+            <div v-if="likedInstitutions.length > 0">
+  <div v-for="institution in likedInstitutions" :key="institution.id" class="list-card">
+    <div class="card-img">
+      <img :src="institution.photo_url || '@/components/img/UnCard.png'" class="card-img" />
+    </div>
+    <div class="card-info">
+      <div class="card-info-up">
+        <h style="margin-top: -10px">
+          {{ institution.name }} <button @click="removeLike(institution.id)" class="unlike-button">
+            <i class="fas fa-heart"></i>
+          </button><br>
+          <span v-for="star in 5" :key="star" class="fa fa-star" 
+            :class="{ checked: star <= Math.round(institution.reviews_avg_rating || 0) }"></span>
+        </h>
+        <p>{{ institution.location }}</p>
+        <p style="margin-top: -10px">Open 10:00 - 22:00</p>
+      </div>
+      <div class="card-info-down">
+        <div class="card-info-down-feature">
+          <p>Grants</p>
+          <p class="feature">{{ institution.grants ? 'Yes' : 'No' }}</p>
+        </div>
+        <div class="card-info-down-feature">
+          <p>Student dormitory</p>
+          <p class="feature">{{ institution.dormitory ? 'Yes' : 'No' }}</p>
+        </div>
+        <div class="card-buttons">
+          <button type="button" class="university-button" 
+            @click="$router.push(`/UniversityAbout/${institution.id}`)">
+            More details
+          </button>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  <div v-else>
+    <p>Вы не лайкнули ни одного университета.</p>
+  </div>
+</section>
 
-                <div class="card-info-down">
-                  <div class="card-info-down-feature">
-                    <p>Direction of study</p>
-                    <p class="feature">IT</p>
-                  </div>
-                  <div class="card-info-down-feature">
-                    <p>Grants</p>
-                    <p class="feature">Yes</p>
-                  </div>
-                  <div class="card-info-down-feature">
-                    <p>Student dormitory</p>
-                    <p class="feature">Yes</p>
-                  </div>
-                  <button
-                    type="button"
-                    class="university-button"
-                    @click="$router.push('/UniversityAbout')"
-                  >
-                    More details
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-          <section id="planned events" class="tab-panel">
-            <div class="event-card">
-              <div class="event-logo">
-                <img src="@/components/img/UnLogo.png" class="event-logo-img" />
-                <img
-                  src="@/components/img/Favourite.png"
-                  class="event-logo-img"
-                />
-              </div>
-              <div class="event-view">
-                <h3 class="event-view-text">University</h3>
-                <p2 class="event-view-text">Added 18 days ago</p2>
-              </div>
-              <div class="event-info">
-                <h3 class="event-info-text">Nazarbayev University</h3>
-                <hr class="event-line" />
-                <h3 class="event-info-text">Open day</h3>
-              </div>
-              <div class="event-terms">
-                <p3 class="terms-text">Need: Nothing</p3>
-              </div>
-            </div>
-          </section>
+
         </div>
       </div>
     </div>
@@ -185,19 +135,66 @@ import { authStore } from '@/store/authStore';
 export default {
   setup() {
     const router = useRouter();
-    const username = ref(''); // Состояние для имени пользователя
+    const likedInstitutions = ref([]);
+    const username = ref('');
+    const notifications = ref([]); // Состояние для уведомлений
+
+    // Получаем лайкнутые университеты
+    const fetchLikedInstitutions = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/liked-institutions', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        likedInstitutions.value = response.data;
+      } catch (error) {
+        console.error('Ошибка при получении лайкнутых университетов:', error);
+      }
+    };
+
+    // Удаляем лайк
+    const removeLike = async (institutionId) => {
+      try {
+        await axios.delete(`http://localhost:8000/api/likes/${institutionId}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        // Обновляем список лайкнутых университетов
+        likedInstitutions.value = likedInstitutions.value.filter(
+          (institution) => institution.id !== institutionId
+        );
+      } catch (error) {
+        console.error('Ошибка при удалении лайка:', error);
+      }
+    };
 
     // Получаем данные текущего пользователя
     const fetchCurrentUser = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/current-user', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, // Передаем токен
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        username.value = response.data.username; // Сохраняем имя пользователя
+        username.value = response.data.username;
       } catch (error) {
         console.error('Ошибка при получении данных пользователя:', error);
+      }
+    };
+
+    // Получаем уведомления пользователя
+    const fetchNotifications = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/notifications', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+        notifications.value = response.data;
+      } catch (error) {
+        console.error('Ошибка при получении уведомлений:', error);
       }
     };
 
@@ -212,19 +209,107 @@ export default {
       }
     };
 
-    // При монтировании компонента загружаем данные пользователя
+    // При монтировании компонента загружаем данные
     onMounted(() => {
       fetchCurrentUser();
+      fetchNotifications();
+      fetchLikedInstitutions();
     });
 
     return {
       username,
+      notifications,
       handleLogout,
+      likedInstitutions,
+      removeLike,
     };
   },
 };
 </script>
 <style scoped>
+
+.fa-star {
+  color: #ccc;
+  /* Цвет пустой звезды */
+}
+
+.fa-star.checked {
+  color: #ffd700;
+  /* Цвет заполненной звезды */
+}
+
+.list-card {
+  display: flex;
+  align-items: center;
+  height: 350px !important; 
+  width: 100%;
+  padding: 20px;
+  background-color: #F5F5F5;
+  border-radius: 12px;
+  margin-bottom: 50px;
+  border-color: #C9C9C9;
+}
+
+.card-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  height: 300px;
+}
+
+.card-info-down {
+  display: flex;
+  align-items: flex-end;
+}
+
+.card-info-up {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.card-info-down-feature {
+  margin-right: 15px;
+}
+
+.card-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Расстояние между кнопками */
+}
+
+.university-button {
+  border-radius: 6px;
+  background-color: #577C8E;
+  color: white;
+  border: none;
+  width: 270px;
+  height: 120px;
+  position: absolute;
+  transition: transform 0.3s ease;
+}
+
+.university-button:hover {
+  transform: scale(1.1);
+}
+
+.unlike-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #ff4b2b;
+  font-size: 1.5em;
+  transition: color 0.3s ease;
+}
+
+.unlike-button:hover {
+  color: #cc0000;
+}
+
+.fa-heart {
+  font-size: 1.5em;
+}
 .logout-button {
   padding: 10px 20px;
   background-color: #ff4d4d;
@@ -238,6 +323,7 @@ export default {
 .logout-button:hover {
   background-color: #cc0000;
 }
+
 .header {
   position: fixed;
   top: 0;
@@ -248,9 +334,11 @@ export default {
   background-color: rgba(255, 255, 255, 0.9);
   transition: background-color 0.3s ease;
 }
+
 .nav-item {
   margin-left: 10px;
 }
+
 .navbar-logo {
   font-size: 2rem;
   font-weight: bolder;
@@ -321,7 +409,7 @@ h {
   margin-top: 7%;
 }
 
-.tabset > input[type="radio"] {
+.tabset>input[type="radio"] {
   position: absolute;
   left: -200px;
 }
@@ -330,16 +418,16 @@ h {
   display: none;
 }
 
-.tabset > input:first-child:checked ~ .tab-panels > .tab-panel:first-child,
-.tabset > input:nth-child(3):checked ~ .tab-panels > .tab-panel:nth-child(2),
-.tabset > input:nth-child(5):checked ~ .tab-panels > .tab-panel:nth-child(3),
-.tabset > input:nth-child(7):checked ~ .tab-panels > .tab-panel:nth-child(4),
-.tabset > input:nth-child(9):checked ~ .tab-panels > .tab-panel:nth-child(5),
-.tabset > input:nth-child(11):checked ~ .tab-panels > .tab-panel:nth-child(6) {
+.tabset>input:first-child:checked~.tab-panels>.tab-panel:first-child,
+.tabset>input:nth-child(3):checked~.tab-panels>.tab-panel:nth-child(2),
+.tabset>input:nth-child(5):checked~.tab-panels>.tab-panel:nth-child(3),
+.tabset>input:nth-child(7):checked~.tab-panels>.tab-panel:nth-child(4),
+.tabset>input:nth-child(9):checked~.tab-panels>.tab-panel:nth-child(5),
+.tabset>input:nth-child(11):checked~.tab-panels>.tab-panel:nth-child(6) {
   display: block;
 }
 
-.tabset > label {
+.tabset>label {
   position: relative;
   display: inline-block;
   padding: 15px 15px 15px;
@@ -351,21 +439,21 @@ h {
   font-size: 1.5em;
 }
 
-.tabset > label:hover,
-.tabset > input:focus + label,
-.tabset > input:checked + label {
+.tabset>label:hover,
+.tabset>input:focus+label,
+.tabset>input:checked+label {
   color: #10222e;
   border-bottom: solid;
 }
 
-.tabset > label:hover::after,
-.tabset > input:focus + label::after,
-.tabset > input:checked + label::after {
+.tabset>label:hover::after,
+.tabset>input:focus+label::after,
+.tabset>input:checked+label::after {
   background: #10222e;
   color: #10222e;
 }
 
-.tabset > input:checked + label {
+.tabset>input:checked+label {
   margin-bottom: -1px;
   border-bottom: solid #10222e;
 }
@@ -399,6 +487,7 @@ h {
   display: flex;
   flex-direction: column;
 }
+
 .Notification-status-indicator {
   width: 4%;
   height: 100px;
@@ -446,7 +535,7 @@ h3 {
   background-color: #F5F5F5;
   border-radius: 12px;
   margin-bottom: 50px;
-  border-color:#C9C9C9;
+  border-color: #C9C9C9;
 }
 
 .card-img {
@@ -492,25 +581,25 @@ p {
 .university-button {
   margin-bottom: 20px;
   border-radius: 6px;
-  background-color: #577C8E ;
+  background-color: #577C8E;
   color: white;
   border: none;
   margin-left: 40%;
   width: 150px;
   height: 40px;
-transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
 
 }
 
 .university-button:hover {
-        transform: scale(1.1);
-    }
+  transform: scale(1.1);
+}
 
 .event-card {
   width: 25%;
-background-color: #536274;
-padding: 20px;
-border-radius: 12px;
+  background-color: #536274;
+  padding: 20px;
+  border-radius: 12px;
 }
 
 .event-logo-img {
@@ -523,14 +612,14 @@ border-radius: 12px;
 
 .event-logo {
   display: flex;
-  justify-content:space-between;
+  justify-content: space-between;
   margin-bottom: 10%;
 }
 
 .event-view {
   display: flex;
   justify-content: space-between;
-  align-items:flex-end;
+  align-items: flex-end;
   margin-bottom: 5%;
 }
 
@@ -542,7 +631,7 @@ border-radius: 12px;
   color: #CDCCCC;
   display: flex;
   justify-content: space-between;
-  align-items:flex-end;
+  align-items: flex-end;
   margin-bottom: 0px;
 }
 
@@ -550,10 +639,10 @@ border-radius: 12px;
   color: white;
 }
 
-.event-terms{
+.event-terms {
   color: #CDCCCC;
   height: 200px;
   display: flex;
   align-items: center;
- }
+}
 </style>
