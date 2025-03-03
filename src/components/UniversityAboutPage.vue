@@ -1,128 +1,141 @@
-  <template>
-    <div class="university-container">
-      <div v-if="loading">Загрузка...</div>
-      <div v-else-if="error">{{ error }}</div>
-      <div v-else>
-        <div class="university-background">
-          <img :src="university.photo_url || '@/components/img/UnFonimg.png'" class="university-backgroundImg" />
+<template>
+  <div class="university-container">
+    <div v-if="loading">Загрузка...</div>
+    <div v-else-if="error">{{ error }}</div>
+    <div v-else>
+      <div class="university-background">
+        <img :src="university.photo_url || '@/components/img/UnFonimg.png'" class="university-backgroundImg" />
+      </div>
+
+      <div class="university-main">
+        <div class="university-logo">
+          <img :src="university.logo_url || '@/components/img/UnLogo.png'" class="university-logo-img" />
+        </div>
+        <div class="university-name">
+          <h1>{{ university.name }}</h1>
+        </div>
+      </div>
+
+      <div class="university-info">
+        <div class="university-description">
+          <p>{{ university.description1 }}</p><br>
+          <p>{{ university.description2 }}</p><br>
+          <p>{{ university.description3 }}</p>
         </div>
 
-        <div class="university-main">
-          <div class="university-logo">
-            <img :src="university.logo_url || '@/components/img/UnLogo.png'" class="university-logo-img" />
-          </div>
-          <div class="university-name">
-            <h1>{{ university.name }}</h1>
-          </div>
-        </div>
-
-        <div class="university-info">
-          <div class="university-description">
-            <p>{{ university.description1 }}</p><br>
-            <p>{{ university.description2 }}</p><br>
-            <p>{{ university.description3 }}</p>
-          </div>
-
-          <div class="university-info-block">
-            <div class="university-info-card">
-              <h3 class="info-title">Основная информация</h3>
-              <ul class="info-list">
-                <li><span class="dot"></span> Университет</li>
-                <li><span class="dot"></span> {{ university.dormitory ? 'Есть общежитие' : 'Нет общежития' }}</li>
-                <li><span class="dot"></span> {{ university.grants ? 'Есть гранты' : 'Нет грантов' }}</li>
-              </ul>
-              <div class="info-details">
-                <p>
-                  <img src="@/components/img/location.png" class="icon" /> {{ university.location }}
-                </p>
-                <p>
-                  <img src="@/components/img/Phone.png" class="icon" />
-                  <a :href="`tel:${university.phone}`">{{ university.phone }}</a>
-                </p>
-                <p>
-                  <img src="@/components/img/Website.png" class="icon" />
-                  <a :href="university.website" target="_blank">{{ university.website }}</a>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Вкладки -->
-        <div class="user-events">
-          <div class="tabset">
-            <input type="radio" name="tabset" id="tab1" aria-controls="Specialties" checked />
-            <label for="tab1">Specialties</label>
-
-            <input type="radio" name="tabset" id="tab2" aria-controls="Events" />
-            <label for="tab2">Events</label>
-
-            <input type="radio" name="tabset" id="tab3" aria-controls="location" />
-            <label for="tab3">Location</label>
-
-            <div class="tab-panels">
-              <section id="Specialties" class="tab-panel">
-                <div class="specialties-list">
-                  <div v-if="university.specializations && university.specializations.length > 0">
-                    <div v-for="(specializations, qualificationName) in groupedSpecializations" :key="qualificationName"
-                      class="qualification">
-                      <h4>{{ qualificationName }}</h4>
-                      <div v-for="specialization in specializations" :key="specialization.id" class="specialty">
-                        <p>{{ specialization.name }}</p>
-                        <p>Cost: {{ specialization.pivot.cost }}₸</p>
-                        <p>Duration: {{ specialization.pivot.duration }} {{ getYearText(specialization.pivot.duration)
-                        }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div v-else>
-                    <p>Нет данных о квалификациях и специальностях.</p>
-                  </div>
-                </div>
-              </section>
-
-              <section id="Events" class="tab-panel">
-                <div class="event-cards-container">
-                  <div v-if="events.length > 0">
-                    <div class="events-cont">
-                      <div v-for="event in events" :key="event.id" class="event-card">
-                        <div class="event-logo">
-                          <img :src="university.logo_url || '@/components/img/UnLogo.png'" class="event-logo-img" />
-                          <img src="@/components/img/Favourite.png" class="event-logo-img" />
-                        </div>
-                        <div class="event-view">
-                          <h3 class="event-view-text">University</h3>
-                          <p2 class="event-view-text">Added {{ formatDate(event.created_at) }}</p2>
-                        </div>
-                        <div class="event-info">
-                          <h3 class="event-info-text">{{ university.name }}</h3>
-                          <hr class="event-line">
-                          <h3 class="event-info-text">{{ event.event_name }}</h3>
-                        </div>
-                        <div class="event-terms" >
-                          <p3 class="terms-text">Description: {{ event.description || 'Nothing' }}</p3>
-                          <p3 class="terms-text">Date: {{ formatEventDate(event.event_date) }}</p3>
-                        </div>
-
-                      </div>
-                    </div>
-                  </div>
-                  <div v-else>
-                    <p>Нет доступных событий.</p>
-                  </div>
-                </div>
-              </section>
-
-              <section id="location" class="tab-panel">
-                <!-- Здесь можно добавить карту или другую информацию о местоположении -->
-              </section>
+        <div class="university-info-block">
+          <div class="university-info-card">
+            <h3 class="info-title">Основная информация</h3>
+            <ul class="info-list">
+              <li><span class="dot"></span> Университет</li>
+              <li><span class="dot"></span> {{ university.dormitory ? 'Есть общежитие' : 'Нет общежития' }}</li>
+              <li><span class="dot"></span> {{ university.grants ? 'Есть гранты' : 'Нет грантов' }}</li>
+            </ul>
+            <div class="info-details">
+              <p>
+                <img src="@/components/img/location.png" class="icon" /> {{ university.address }}
+              </p>
+              <p>
+                <img src="@/components/img/Phone.png" class="icon" />
+                <a :href="`tel:${university.phone}`">{{ university.phone }}</a>
+              </p>
+              <p>
+                <img src="@/components/img/Website.png" class="icon" />
+                <a :href="university.website" target="_blank">{{ university.website }}</a>
+              </p>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Вкладки -->
+      <div class="user-events">
+        <div class="tabset">
+          <input type="radio" name="tabset" id="tab1" aria-controls="Specialties" checked />
+          <label for="tab1">Specialties</label>
+
+          <input type="radio" name="tabset" id="tab2" aria-controls="Events" />
+          <label for="tab2">Events</label>
+
+          <input type="radio" name="tabset" id="tab3" aria-controls="Reviews" />
+          <label for="tab3">Reviews</label>
+
+          <div class="tab-panels">
+            <section id="Specialties" class="tab-panel">
+              <div class="specialties-list">
+                <div v-if="university.specializations && university.specializations.length > 0">
+                  <div v-for="(specializations, qualificationName) in groupedSpecializations" :key="qualificationName"
+                    class="qualification">
+                    <h4>{{ qualificationName }}</h4>
+                    <div v-for="specialization in specializations" :key="specialization.id" class="specialty">
+                      <p>{{ specialization.name }}</p>
+                      <p>Cost: {{ specialization.pivot.cost }}₸</p>
+                      <p>Duration: {{ specialization.pivot.duration }} {{ getYearText(specialization.pivot.duration) }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <p>Нет данных о квалификациях и специальностях.</p>
+                </div>
+              </div>
+            </section>
+
+            <section id="Events" class="tab-panel">
+              <div class="event-cards-container">
+                <div v-if="events.length > 0">
+                  <div class="events-cont">
+                    <div v-for="event in events" :key="event.id" class="event-card">
+                      <div class="event-logo">
+                        <img :src="university.logo_url || '@/components/img/UnLogo.png'" class="event-logo-img" />
+                        <img src="@/components/img/Favourite.png" class="event-logo-img" />
+                      </div>
+                      <div class="event-view">
+                        <h3 class="event-view-text">University</h3>
+                        <p2 class="event-view-text">Added {{ formatDate(event.created_at) }}</p2>
+                      </div>
+                      <div class="event-info">
+                        <h3 class="event-info-text">{{ university.name }}</h3>
+                        <hr class="event-line">
+                        <h3 class="event-info-text">{{ event.event_name }}</h3>
+                      </div>
+                      <div class="event-terms">
+                        <p3 class="terms-text">Description: {{ event.description || 'Nothing' }}</p3>
+                        <p3 class="terms-text">Date: {{ formatEventDate(event.event_date) }}</p3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <p>Нет доступных событий.</p>
+                </div>
+              </div>
+            </section>
+
+            <section id="Reviews" class="tab-panel">
+              <div v-if="reviews.length > 0">
+                <div v-for="review in reviews" :key="review.id" class="review-item">
+                  <div class="review-rating">
+                    {{ getStarRating(review.rating) }}
+                  </div>
+                  <div class="review-comment">
+                    <p>{{ review.comment }}</p>
+                  </div>
+                  <div class="review-user">
+                    <p>Отзыв от: {{ review.user.username }}</p>
+                    <p>Дата: {{ formatDate(review.created_at) }}</p>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <p>Нет отзывов.</p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
     </div>
-  </template>
+  </div>
+</template>
 
 <script>
 import axios from "axios";
@@ -131,7 +144,8 @@ export default {
   data() {
     return {
       university: null,
-      events: [], // Добавляем массив для хранения событий
+      events: [],
+      reviews: [], // Массив для хранения отзывов
       loading: true,
       error: null,
     };
@@ -164,13 +178,19 @@ export default {
         const id = this.$route.params.id;
         const response = await axios.get(`http://localhost:8000/api/institutions/${id}`);
         this.university = response.data;
-        console.log("University data:", this.university); // Отладка
-        await this.fetchEventsByInstitution(id); // Загружаем события после загрузки университета
+        console.log("University data:", this.university);
+        await this.fetchEventsByInstitution(id);
+        await this.fetchReviewsByInstitution(id); // Загружаем отзывы
       } catch (error) {
         console.error("Ошибка при загрузке университета:", error);
         this.error = "Ошибка загрузки данных";
         if (error.response) {
-          console.error("Response data:", error.response.data); // Отладка
+          console.error("Response data:", error.response.data);
+          console.error("Status code:", error.response.status);
+        } else if (error.request) {
+          console.error("No response received:", error.request);
+        } else {
+          console.error("Request setup error:", error.message);
         }
       } finally {
         this.loading = false;
@@ -180,11 +200,30 @@ export default {
       try {
         const response = await axios.get(`http://localhost:8000/api/institutions/${institutionId}/events`);
         this.events = response.data;
-        console.log("Events data:", this.events); // Отладка
+        console.log("Events data:", this.events);
       } catch (error) {
         console.error("Ошибка при загрузке событий:", error);
         this.error = "Ошибка загрузки событий";
       }
+    },
+    async fetchReviewsByInstitution(institutionId) {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/institutions/${institutionId}/reviews`);
+        this.reviews = response.data;
+        console.log("Reviews data:", this.reviews);
+      } catch (error) {
+        console.error("Ошибка при загрузке отзывов:", error);
+        this.error = "Ошибка загрузки отзывов";
+      }
+    },
+    getStarRating(rating) {
+      const fullStar = '★';
+      const emptyStar = '☆';
+      return fullStar.repeat(rating) + emptyStar.repeat(5 - rating);
+    },
+    formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("ru-RU");
     },
     getYearText(duration) {
       if (duration === 1) {
@@ -195,11 +234,6 @@ export default {
         return "лет";
       }
     },
-    formatDate(dateString) {
-      const date = new Date(dateString);
-      const daysAgo = Math.floor((new Date() - date) / (1000 * 60 * 60 * 24));
-      return `${daysAgo} дней назад`;
-    },
   },
   created() {
     this.fetchUniversity();
@@ -208,6 +242,32 @@ export default {
 </script>
 
 <style scoped>
+.review-item {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.review-rating {
+  font-size: 1.5rem;
+  color: #ffd700; /* Золотой цвет для звезд */
+}
+
+.review-comment {
+  font-size: 1rem;
+  color: #555;
+  margin-top: 10px;
+}
+
+.review-user {
+  font-size: 0.9rem;
+  color: #777;
+  margin-top: 10px;
+}
+
+
 .events-cont {
   display: grid;
   grid-template-columns: 1fr;

@@ -11,6 +11,8 @@ import EventsPage  from '@/components/EventsPage.vue';
 import UserPage  from '@/components/UserPage.vue';
 import MapPage  from '@/components/MapPage.vue';
 
+import LoginForm from '@/components/LoginForm.vue';
+import { authStore } from '@/store/authStore';
 import UniversityPortal  from '@/components/UniversityPortalPage.vue';
 
 
@@ -18,6 +20,18 @@ const routes = [
   { path: '/', component: MainPage },
   { path: '/Specialties/Universities/GlobalSpecialties', component: UniversitiesSpecialtiesPage },
 
+  { path: '/login', component: LoginForm },
+  { 
+    path: '/user', 
+    component: UserPage,
+    beforeEnter: (to, from, next) => {
+      if (!authStore.token) {
+        next('/login');
+      } else {
+        next();
+      }
+    }
+  },
 
   { path: "/Specialties/Universities/GlobalSpecialties/Qualifications/:specialty_id", component: UniversitiesSpecialtiesMinorPage },
   { path: '/Specialties/Colleges', component: CollegesSpecialtiesPage },

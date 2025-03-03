@@ -13,7 +13,7 @@
         <div class="active-indicator" :style="{ top: indicatorPosition + 'px' }"></div>
       </div>
 
-      <div class="main-content" style="margin: -200px 0 0 0 ; height: 10%;">
+      <div class="main-content" style="margin: -150px 0 0 0 ; height: 10%;">
         <div class="search-container">
           <input type="text" placeholder="Search.." />
           <button type="submit">Submit</button>
@@ -30,7 +30,7 @@
             <div class="card-info">
               <div class="card-info-up">
                 <h style="margin-top: -10px">
-                  {{ institution.name }}
+                  {{ institution.name }}<br>
                   <!-- Отображение звездочек -->
                   <span v-for="star in 5" :key="star" class="fa fa-star" :class="{ checked: star <= Math.round(institution.reviews_avg_rating) }"></span>
                 </h>

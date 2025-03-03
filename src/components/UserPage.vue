@@ -1,7 +1,5 @@
 <template>
-  <header class="header fixed-top">
-
-  </header>
+  <header class="header fixed-top"></header>
 
   <div class="user-container">
     <div class="user-background"></div>
@@ -11,18 +9,11 @@
       </div>
       <div class="user-info">
         <div class="user-name">
-          <h> Login name</h>
+          <h>{{ username }}</h> <!-- Отображаем имя пользователя -->
           <p class="profession">student</p>
         </div>
         <div class="user-logout">
-          <button
-            class="logout-button"
-            data-bs-toggle="modal"
-            data-bs-target="#exampleModal"
-            @click="logout()"
-          >
-            logout
-          </button>
+          <button class="logout-button" @click="handleLogout">Logout</button>
         </div>
       </div>
     </div>
@@ -115,56 +106,63 @@
           </section>
           <section id="Institution" class="tab-panel">
             <div class="list-card">
-        <div class="card-img">
-          <img src="@/components/img/UnCard.png" class="card-img" />
-        </div>
-        <div class="card-info">
-          <div class="card-info-up">
-            <h style="margin-top: -10px"
-              >Astana IT University
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-              <span class="fa fa-star checked"></span>
-            </h>
-            <p>Ave. Mangilik El., Astana 020000</p>
-            <p style="margin-top: -10px">Open 10:00 - 22:00</p>
-          </div>
+              <div class="card-img">
+                <img src="@/components/img/UnCard.png" class="card-img" />
+              </div>
+              <div class="card-info">
+                <div class="card-info-up">
+                  <h style="margin-top: -10px"
+                    >Astana IT University
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                  </h>
+                  <p>Ave. Mangilik El., Astana 020000</p>
+                  <p style="margin-top: -10px">Open 10:00 - 22:00</p>
+                </div>
 
-          <div class="card-info-down">
-            <div class="card-info-down-feature">
-              <p>Direction of study</p>
-              <p class="feature">IT</p>
+                <div class="card-info-down">
+                  <div class="card-info-down-feature">
+                    <p>Direction of study</p>
+                    <p class="feature">IT</p>
+                  </div>
+                  <div class="card-info-down-feature">
+                    <p>Grants</p>
+                    <p class="feature">Yes</p>
+                  </div>
+                  <div class="card-info-down-feature">
+                    <p>Student dormitory</p>
+                    <p class="feature">Yes</p>
+                  </div>
+                  <button
+                    type="button"
+                    class="university-button"
+                    @click="$router.push('/UniversityAbout')"
+                  >
+                    More details
+                  </button>
+                </div>
+              </div>
             </div>
-            <div class="card-info-down-feature">
-              <p>Grants</p>
-              <p class="feature">Yes</p>
-            </div>
-            <div class="card-info-down-feature">
-              <p>Student dormitory</p>
-              <p class="feature">Yes</p>
-            </div>
-            <button type="button" class="university-button"   @click="$router.push('/UniversityAbout')">More details</button>
-
-          </div>
-
-        </div>
-      </div>
           </section>
           <section id="planned events" class="tab-panel">
             <div class="event-card">
               <div class="event-logo">
                 <img src="@/components/img/UnLogo.png" class="event-logo-img" />
-                <img src="@/components/img/Favourite.png" class="event-logo-img" />
+                <img
+                  src="@/components/img/Favourite.png"
+                  class="event-logo-img"
+                />
               </div>
               <div class="event-view">
                 <h3 class="event-view-text">University</h3>
-                <p2 class="event-view-text">  Added 18 days ago</p2>
+                <p2 class="event-view-text">Added 18 days ago</p2>
               </div>
               <div class="event-info">
-                <h3 class="event-info-text"> Nazarbayev University</h3>
-                <hr class="event-line">
+                <h3 class="event-info-text">Nazarbayev University</h3>
+                <hr class="event-line" />
                 <h3 class="event-info-text">Open day</h3>
               </div>
               <div class="event-terms">
@@ -179,10 +177,67 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import { authStore } from '@/store/authStore';
+
+export default {
+  setup() {
+    const router = useRouter();
+    const username = ref(''); // Состояние для имени пользователя
+
+    // Получаем данные текущего пользователя
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/current-user', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, // Передаем токен
+          },
+        });
+        username.value = response.data.username; // Сохраняем имя пользователя
+      } catch (error) {
+        console.error('Ошибка при получении данных пользователя:', error);
+      }
+    };
+
+    // Выход из системы
+    const handleLogout = async () => {
+      try {
+        await authStore.logoutUser();
+        alert('Выход выполнен');
+        router.push('/');
+      } catch (error) {
+        alert('Ошибка выхода: ' + error.message);
+      }
+    };
+
+    // При монтировании компонента загружаем данные пользователя
+    onMounted(() => {
+      fetchCurrentUser();
+    });
+
+    return {
+      username,
+      handleLogout,
+    };
+  },
+};
 </script>
-
 <style scoped>
+.logout-button {
+  padding: 10px 20px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
+.logout-button:hover {
+  background-color: #cc0000;
+}
 .header {
   position: fixed;
   top: 0;
