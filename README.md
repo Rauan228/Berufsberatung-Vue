@@ -124,7 +124,42 @@ php artisan serve
 Убедитесь, что в настройках фронтенда (например, в `vite.config.js` или в файле конфигурации API) указан правильный адрес бэкенда (по умолчанию `http://localhost:8000`).
 
 ---
+
+
 ## Скриншоты
+
+#### Главная страница
+![Главная страница](public/screenshots/main_menu.jpg)
+
+#### Страница личного кабинета
+![Личный кабинет](public/screenshots/user_personal_account.jpg)
+![Заявки на мероприятия](public/screenshots/user_event_applications.jpg)
+![Избранные университеты](public/screenshots/user_selected_universities.jpg)
+![Отзывы пользователя](public/screenshots/user-reviews.jpg)
+
+#### Страница специальностей университетов
+![Специальности университетов](public/screenshots/university_specialties.jpg)
+![Глобальные специальности](public/screenshots/university%20global_specialties.jpg)
+
+#### Страница списка университетов
+![Список университетов](public/screenshots/list%20of%20universities.jpg)
+![Список университетов (альтернатива)](public/screenshots/list%20of%20universities%20(2).jpg)
+
+#### Страница подробностей университета
+![Подробности университета](public/screenshots/university_about.jpg)
+![Подробности университета (2)](public/screenshots/university_about%20(2).jpg)
+![Подробности университета (3)](public/screenshots/university_about%20(3).jpg)
+![Подробности университета (4)](public/screenshots/university_about%20(4).jpg)
+![Подробности университета (5)](public/screenshots/university_about%20(5).jpg)
+
+#### Главная страница для представителей универа
+![Страница для представителей](public/screenshots/page_for_university_representatives.jpg)
+![Страница для представителей (альтернатива)](public/screenshots/page_for_university_representatives%20(2).jpg)
+
+#### Страница мероприятий
+![Страница мероприятий](public/screenshots/events_page.jpg)
+![Страница мероприятий (альтернатива)](public/screenshots/events_page%20(2).jpg)
+
 
 
 
