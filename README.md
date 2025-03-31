@@ -1,4 +1,5 @@
 # Berufsberatung (B/B)
+~~~I think you need remove part with installing and running the project. Because, everyone have knowledge how this will be work
 
 ## Описание проекта
 
