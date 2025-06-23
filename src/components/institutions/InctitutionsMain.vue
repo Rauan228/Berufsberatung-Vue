@@ -1,15 +1,19 @@
 <template>
     <div class="institutions-main-container">
+        <!-- Loader -->
+        <div v-if="isLoading" class="loader-container">
+            <div class="spinner"></div>
+        </div>
         <div class="sidebar">
             <div class="sidebar-header">
-                <img v-if="institution.logo_url" :src="institution.logo_url" alt="Логотип университета" class="logo" />
+                <img v-if="logoSrc" :src="logoSrc" alt="Логотип университета" class="logo" />
                 <h2>{{ institution.name || 'Название университета' }}</h2>
             </div>
             <div class="sidebar-buttons">
                 <button @click="$router.push('/InctitutionsMain')" 
                         :class="{ active: $route.path === '/InctitutionsMain' }" 
                         class="sidebar-button">
-                    Main menu
+                    Главное меню
                 </button>
                 <button @click="$router.push('/InctitutionsMain/InstitutionData')" 
                         :class="{ active: $route.path === '/InctitutionsMain/InstitutionData' }" 
@@ -32,18 +36,32 @@
                     Специальности
                 </button>
                 <button @click="logout" class="sidebar-button logout-button">
-                    Logout
+                    Выход
                 </button>
             </div>
         </div>
         <div class="main-content">
+            <div v-if="$route.path === '/InctitutionsMain'" class="cards-wrapper">
+                <div class="info-card">
+                    <h3>Специальности</h3>
+                    <p>{{ counts.specs }}</p>
+                </div>
+                <div class="info-card">
+                    <h3>События</h3>
+                    <p>{{ counts.events }}</p>
+                </div>
+                <div class="info-card">
+                    <h3>Заявки</h3>
+                    <p>{{ counts.apps }}</p>
+                </div>
+            </div>
             <router-view></router-view>
         </div>
     </div>
 </template>
 
 <script>
-import axios from 'axios';
+import api from '@/services/api';
 
 export default {
     name: 'InctitutionsMain',
@@ -53,6 +71,13 @@ export default {
                 name: '',
                 logo_url: '',
             },
+            counts: {
+                specs: 0,
+                events: 0,
+                apps: 0
+            },
+            loadingCounts: false,
+            loadingInst: true,
         };
     },
     mounted() {
@@ -66,15 +91,20 @@ export default {
         const savedData = localStorage.getItem('institution_data');
         if (savedData) {
             this.institution = JSON.parse(savedData);
+            // локальные данные уже есть – загрузку по учреждению завершаем
+            this.loadingInst = false;
         } else {
             this.fetchInstitutionData(token);
         }
+
+        // Загружаем счётчики
+        this.fetchCounts();
     },
     methods: {
         async fetchInstitutionData(token) {
             try {
                 console.log('Токен:', token);
-                const response = await axios.get('http://localhost:8000/api/institutions/current', {
+                const response = await api.get('/institutions/current', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Accept': 'application/json',
@@ -89,6 +119,8 @@ export default {
             } catch (error) {
                 console.error('Ошибка загрузки данных учреждения:', error.response ? error.response.data : error.message);
                 this.$router.push('/LoginInstitution');
+            } finally {
+                this.loadingInst = false;
             }
         },
         async logout() {
@@ -96,7 +128,7 @@ export default {
                 const token = localStorage.getItem('institution_token');
                 if (token) {
                     // Выполняем запрос на сервер для выхода (опционально, если у вас есть эндпоинт)
-                    await axios.post('http://localhost:8000/api/institutions/logout', {}, {
+                    await api.post('/institutions/logout', {}, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Accept': 'application/json',
@@ -118,6 +150,34 @@ export default {
                 this.$router.push('/');
             }
         },
+        async fetchCounts() {
+            this.loadingCounts = true
+            try {
+                const [specRes, evRes, appRes] = await Promise.all([
+                    api.get('/institution/specialties'),
+                    api.get('/institution/events'),
+                    api.get('/institution/applications')
+                ])
+                this.counts.specs  = specRes.data.length
+                this.counts.events = evRes.data.length
+                this.counts.apps   = appRes.data.length
+            } catch (e) {
+                console.error('Ошибка загрузки счётчиков')
+            } finally {
+                this.loadingCounts = false
+            }
+        },
+    },
+    computed: {
+        logoSrc() {
+            if (!this.institution.logo_url) return null;
+            return this.institution.logo_url.startsWith('http')
+                ? this.institution.logo_url
+                : `http://localhost:8000${this.institution.logo_url}`;
+        },
+        isLoading(){
+            return this.loadingCounts || this.loadingInst;
+        }
     },
 };
 </script>
@@ -197,5 +257,31 @@ export default {
     flex: 1;
     padding: 20px;
     background-color: #fff;
+}
+
+/* Loader styles */
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.8);
+  z-index: 1000;
+}
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #577C8E;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

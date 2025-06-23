@@ -1,10 +1,11 @@
 <template>
   <div>
     <router-view></router-view>
+    <ToastNotifications />
   </div>
-  <nav :class="['navbar', isScrolled ? 'bg-body-tertiary' : 'transparent-header', 'fixed-top']">
+  <nav v-if="!isInstitutionPage" :class="['navbar', isScrolled ? 'bg-body-tertiary' : 'transparent-header', 'fixed-top']">
     <div class="container-fluid">
-      <a class="navbar-logo" @click="$router.push('/')"><img src="C:\Users\Рауан\coding\Berufsberatung-Vue-main\src\components\icons\B_B.png" alt="logo" style="width: 35px; height: 35px;"></a>
+      <a class="navbar-logo" @click="$router.push('/')"><img src="C:\Users\Рауан\coding\Berufsberatung-Vue-main\public\B_B.png" alt="" style="width: 50px;"></a>
       <button
         class="navbar-toggler"
         type="button"
@@ -64,31 +65,58 @@
 
   <!-- Модальное окно для неавторизованных пользователей -->
   <div v-if="showAuthModal" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Требуется авторизация</h5>
-      </div>
-      <div class="modal-body">
-        Пожалуйста, войдите в аккаунт, чтобы продолжить.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" @click="showAuthModal = false">Отмена</button>
-        <button type="button" class="btn btn-primary" style="background-color: #10222E;" @click="redirectToLogin">Войти</button>
+      <!-- Обёртка для клика по пустому пространству (закрывает) -->
+      <div class="modal-wrapper" @click.self="closeModal">
+        <div class="modal-container">
+          <!-- Верхняя тёмная секция с изображением -->
+          <div class="modal-header">
+            <img
+              src="@/components/img/auth-image.png"
+              alt="Auth Illustration"
+              class="header-img"
+            />
+          </div>
+
+          <!-- Нижняя белая карточка -->
+          <div class="modal-body">
+            <h2>Требуется авторизация</h2>
+            <p>Пожалуйста, войдите в аккаунт, чтобы продолжить.</p>
+            <div class="buttons-row">
+              <button class="btn-cancel" @click="showAuthModal">
+                Отмена
+              </button>
+              <button class="btn-login" @click="redirectToLogin">
+                Войти
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+
 </template>
 
 <script>
 import { Modal, Offcanvas } from 'bootstrap'; // Импортируем Offcanvas для управления сайдбаром
+import axios from 'axios';
+import ToastNotifications from '@/components/ToastNotifications.vue';
+import { notificationsStore } from '@/store/notificationsStore';
 
 export default {
+  components: { ToastNotifications },
   data() {
     return {
       isScrolled: false,
-      offcanvasInstance: null, // Экземпляр Offcanvas
-      showAuthModal: false, // Управление видимостью модального окна
+      offcanvasInstance: null,
+      showAuthModal: false,
+      notifTimer: null,
     };
+  },
+  computed: {
+    // Проверяем, находится ли пользователь на странице института
+    isInstitutionPage() {
+      return this.$route.path.startsWith('/InctitutionsMain');
+    },
   },
   methods: {
     // Проверка авторизации пользователя
@@ -130,109 +158,168 @@ export default {
         });
       }
     },
+    async fetchNotifications(){
+      const token = localStorage.getItem('token');
+      if(!token) return;
+      try{
+        const { data } = await axios.get('http://localhost:8000/api/notifications',{
+          headers:{ Authorization:`Bearer ${token}` }
+        });
+        notificationsStore.addNotifications(Array.isArray(data)?data:data.data||[]);
+      }catch(e){ console.warn('notif fetch error'); }
+    },
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll);
     this.initializeOffcanvas(); // Инициализируем Offcanvas при монтировании
+    this.fetchNotifications();
+    this.notifTimer = setInterval(this.fetchNotifications, 30000);
   },
   beforeUnmount() {
     window.removeEventListener('scroll', this.handleScroll);
     document.removeEventListener('click', this.handleOutsideClick); // Очищаем слушатель кликов
+    if(this.notifTimer) clearInterval(this.notifTimer);
   },
 };
 </script>
 
 <style scoped>
-/* Стили для модального окна */
+.auth-check-container {
+  padding: 40px;
+  text-align: center;
+}
+
+.btn-check {
+  padding: 10px 24px;
+  font-size: 16px;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.btn-check:hover {
+  background-color: #3a78c2;
+}
+
+
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 
-.modal-content {
-  background-color: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
-  animation: slideIn 0.3s ease-out;
+.modal-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-container {
+  width: 510px;
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  justify-content: center;
+  align-items: center;
 }
 
 .modal-header {
-  border-bottom: none;
-  padding: 20px;
-  background: #04202D;
-  color: white;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
+  background-color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 160px;
+  position: relative;
+  width: 70%;
+  border-radius: 12px;
 }
 
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+.header-img {
+  max-height: 120%;
+  object-fit: cover;
 }
 
 .modal-body {
-  padding: 20px;
-  font-size: 1.1rem;
-  color: #333;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 56px 20px 20px;
+  text-align: center;
+  transform: translateY(-20px);
 }
 
-.modal-footer {
-  border-top: none;
-  padding: 15px 20px;
-  background: #f8f9fa;
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
+.modal-body h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #333333;
+}
+
+/* Параграф с текстом */
+.modal-body p {
+  margin: 8px 0 20px;
+  font-size: 14px;
+  color: #555555;
+  line-height: 1.4;
+}
+
+/* Ряд с кнопками */
+.buttons-row {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
 }
 
-.btn-secondary {
-  background-color: #e0e0e0;
-  color: #333;
+/* Кнопка «Отмена» */
+.btn-cancel {
+  flex: 1;
+  background-color: #eeeeee;
+  color: #555555;
   border: none;
-  padding: 10px 20px;
   border-radius: 8px;
-  transition: background-color 0.3s ease;
+  padding: 10px 0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.btn-cancel:hover {
+  background-color: #dddddd;
 }
 
-.btn-secondary:hover {
-  background-color: #d0d0d0;
-}
-
-.btn-primary {
-  background: #10222E;
+/* Кнопка «Войти» */
+.btn-login {
+  flex: 1;
+  background-color: #4a90e2;
   color: white;
   border: none;
-  padding: 10px 20px;
   border-radius: 8px;
-  transition: background-color 0.3s ease;
+  padding: 10px 0;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.btn-login:hover {
+  background-color: #3a78c2;
 }
 
-.btn-primary:hover {
-  transition: 0.3s;
-  background: #3977a1;
-}
-
-/* Анимация появления модального окна */
-@keyframes slideIn {
+/* Анимация появления */
+@keyframes fadeIn {
   from {
-    transform: translateY(-50px);
     opacity: 0;
+    transform: scale(0.95);
   }
   to {
-    transform: translateY(0);
     opacity: 1;
+    transform: scale(1);
   }
 }
 

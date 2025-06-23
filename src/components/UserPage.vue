@@ -1,7 +1,11 @@
 <template>
   <header class="header fixed-top"></header>
 
-  <div class="user-container">
+  <div v-if="loading" class="loader-container">
+    <div class="spinner"></div>
+  </div>
+
+  <div v-else class="user-container">
     <div class="user-background"></div>
     <div class="user-content">
       <div class="user-img">
@@ -9,7 +13,7 @@
       </div>
       <div class="user-info">
         <div class="user-name">
-          <h1>{{ username }}</h1>
+          <h1 style="font-size: 70px;">{{ username }}</h1>
           <p class="profession">студент</p>
         </div>
         <div class="user-logout">
@@ -41,14 +45,17 @@
         <input type="radio" name="tabset" id="tab1" aria-controls="Notifications" checked />
         <label for="tab1">Уведомления</label>
 
-        <input type="radio" name="tabset" id="tab2" aria-controls="Institution" />
-        <label for="tab2">Университеты/Колледжи</label>
+        <input type="radio" name="tabset" id="tab2" aria-controls="Universities" />
+        <label for="tab2">Университеты</label>
 
-        <input type="radio" name="tabset" id="tab3" aria-controls="planned events" />
-        <label for="tab3">Запланированные мероприятия</label>
+        <input type="radio" name="tabset" id="tab3" aria-controls="Colleges" />
+        <label for="tab3">Колледжи</label>
 
-        <input type="radio" name="tabset" id="tab4" aria-controls="Reviews" />
-        <label for="tab4">Мои отзывы</label>
+        <input type="radio" name="tabset" id="tab4" aria-controls="planned events" />
+        <label for="tab4">Запланированные мероприятия</label>
+
+        <input type="radio" name="tabset" id="tab5" aria-controls="Reviews" />
+        <label for="tab5">Мои отзывы</label>
 
         <div class="tab-panels">
           <section id="Notifications" class="tab-panel">
@@ -91,11 +98,11 @@
             </div>
           </section>
 
-          <section id="LikedInstitutions" class="tab-panel">
-            <div v-if="likedInstitutions.length > 0" class="cards-container">
-              <div v-for="institution in likedInstitutions" :key="institution.id" class="list-card">
+          <section id="Universities" class="tab-panel">
+            <div v-if="likedUniversities.length > 0" class="cards-container">
+              <div v-for="institution in likedUniversities" :key="institution.id" class="list-card">
                 <div class="card-img">
-                  <img :src="institution.photo_url || UnCardImage" class="card-img" />
+                  <img :src="getImageUrl(institution.photo_url, UnCardImage)" class="card-img" />
                 </div>
                 <div class="card-info">
                   <div class="heart-container">
@@ -106,7 +113,9 @@
                   <div class="card-info-up">
                     <h>
                       {{ institution.name }}
-                      <br>
+                      <span class="likes-count">
+                        <i class="bi bi-heart-fill"></i> {{ institution.likes_count || 0 }}
+                      </span><br>
                       <span v-for="star in 5" :key="star" class="fa fa-star" :class="{ checked: star <= Math.round(institution.reviews_avg_rating || 0) }"></span>
                     </h>
                     <p>{{ institution.location }}</p>
@@ -133,9 +142,53 @@
             </div>
           </section>
 
+          <section id="Colleges" class="tab-panel">
+            <div v-if="likedColleges.length > 0" class="cards-container">
+              <div v-for="institution in likedColleges" :key="institution.id" class="list-card">
+                <div class="card-img">
+                  <img :src="getImageUrl(institution.photo_url, ColCardImage)" class="card-img" />
+                </div>
+                <div class="card-info">
+                  <div class="heart-container">
+                    <span class="heart-icon" @click="removeLike(institution.id)">
+                      <img :src="HeartFill" alt="Убрать лайк" />
+                    </span>
+                  </div>
+                  <div class="card-info-up">
+                    <h>
+                      {{ institution.name }}
+                      <span class="likes-count">
+                        <i class="bi bi-heart-fill"></i> {{ institution.likes_count || 0 }}
+                      </span><br>
+                      <span v-for="star in 5" :key="star" class="fa fa-star" :class="{ checked: star <= Math.round(institution.reviews_avg_rating || 0) }"></span>
+                    </h>
+                    <p>{{ institution.location }}</p>
+                    <p>{{ institution.address }}</p>
+                  </div>
+                  <div class="card-info-down">
+                    <div class="card-info-down-feature">
+                      <p>Гранты</p>
+                      <p class="feature">{{ institution.grants ? 'Да' : 'Нет' }}</p>
+                    </div>
+                    <div class="card-info-down-feature">
+                      <p>Студенческое общежитие</p>
+                      <p class="feature">{{ institution.dormitory ? 'Да' : 'Нет' }}</p>
+                    </div>
+                    <button type="button" class="university-button" @click="$router.push(`/UniversityAbout/${institution.id}`)">
+                      Подробнее
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-else>
+              <p>Вы не лайкнули ни одного колледжа.</p>
+            </div>
+          </section>
+
           <section id="planned events" class="tab-panel">
             <div v-if="userApplications.length > 0" class="cards-container">
-              <div v-for="application in userApplications" :key="application.id" class="event-card">
+              <div v-for="application in userApplications" :key="application.id" class="event-card" :data-ticket="application.ticket_code" @click="openApplication(application)" style="cursor:pointer;">
                 <div class="event-logo">
                   <img src="@/components/img/UnLogo.png" class="event-logo-img" alt="Логотип университета" />
                 </div>
@@ -152,7 +205,13 @@
                 </div>
                 <div class="event-terms">
                   <p class="terms-text">{{ formatEventDate(application.event.event_date) }}</p>
-                  <p class="terms-text">Статус: {{ application.status }}</p>
+                  <p class="terms-text" :class="{
+                    'status-accepted': application.status === 'accepted',
+                    'status-rejected': application.status === 'rejected',
+                    'status-pending': application.status === 'pending'
+                  }">Статус: {{ application.status }}</p>
+                  <p><strong>Билет:</strong> {{ application.ticket_code }}</p>
+                  <img v-if="application.ticket_code" :src="getQrUrl(application.ticket_code)" alt="QR" style="max-width:120px;margin-top:6px;" />
                 </div>
               </div>
             </div>
@@ -183,38 +242,67 @@
         </div>
       </div>
     </div>
+
+    <!-- Fullscreen modal for selected application -->
+    <div v-if="selectedApplication" class="app-overlay" @click.self="closeApplication">
+      <div class="app-modal">
+        <button class="close-btn" @click="closeApplication">&times;</button>
+        <div class="event-logo" style="justify-content:center;">
+           <img :src="getImageUrl(selectedApplication.event.institution?.logo_url, UnLogo)" class="event-logo-img" alt="Логотип" />
+        </div>
+        <div class="event-info" style="margin-top:10px; text-align:center;">
+           <h3 class="event-info-text">{{ selectedApplication.event.event_name }}</h3>
+           <p style="color:#CDCCCC;margin:4px 0;">{{ formatEventDate(selectedApplication.event.event_date) }}</p>
+           <hr class="event-line" />
+           <h3 class="event-info-text" style="font-size:16px;">{{ selectedApplication.event.institution ? selectedApplication.event.institution.name : 'Неизвестное учреждение' }}</h3>
+        </div>
+        <div class="event-terms" style="margin-top:20px; align-items:center;">
+           <p style="color:white;font-size:18px;"><strong>Номер билета:</strong> {{ selectedApplication.ticket_code }}</p>
+           <p class="terms-text" :class="{
+              'status-accepted': selectedApplication.status === 'accepted',
+              'status-rejected': selectedApplication.status === 'rejected',
+              'status-pending': selectedApplication.status === 'pending'}">Статус: {{ selectedApplication.status }}</p>
+           <img v-if="selectedApplication.ticket_code" :src="getQrUrl(selectedApplication.ticket_code)" alt="QR" style="max-width:240px;margin-top:12px;" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { authStore } from '@/store/authStore';
+import { notificationsStore } from '@/store/notificationsStore';
 import UnCardImage from "@/components/img/UnCard.png";
+import ColCardImage from "@/components/img/CollegeCard.png";
 import HeartFill from "@/components/icons/heart-fill.png";
+import UnLogo from "@/components/img/UnLogo.png";
 
 export default {
   setup() {
     const router = useRouter();
-    const likedInstitutions = ref([]);
+    const likedUniversities = ref([]);
+    const likedColleges = ref([]);
     const username = ref('');
     const notifications = ref([]);
     const userApplications = ref([]);
-    const userReviews = ref([]); // Добавляем для отзывов
-    const showLogoutModal = ref(false); // Состояние для модального окна
-
+    const userReviews = ref([]);
+    const showLogoutModal = ref(false);
+    const loading = ref(true);
+    const selectedApplication = ref(null);
 
     const confirmLogout = async () => {
       try {
         await authStore.logoutUser();
-        showLogoutModal.value = false; // Закрываем модальное окно
-        router.push('/'); // Перенаправляем на главную страницу
+        showLogoutModal.value = false;
+        router.push('/');
       } catch (error) {
         alert('Ошибка выхода: ' + error.message);
       }
-    };   
-    
+    };
+
     const fetchLikedInstitutions = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/liked-institutions', {
@@ -222,9 +310,10 @@ export default {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        likedInstitutions.value = response.data;
+        likedUniversities.value = response.data.filter(inst => inst.type === 'university');
+        likedColleges.value = response.data.filter(inst => inst.type === 'college');
       } catch (error) {
-        console.error('Ошибка при получении лайкнутых университетов:', error);
+        console.error('Ошибка при получении избранных учреждений:', error);
       }
     };
 
@@ -235,7 +324,10 @@ export default {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
-        likedInstitutions.value = likedInstitutions.value.filter(
+        likedUniversities.value = likedUniversities.value.filter(
+          (institution) => institution.id !== institutionId
+        );
+        likedColleges.value = likedColleges.value.filter(
           (institution) => institution.id !== institutionId
         );
       } catch (error) {
@@ -295,16 +387,6 @@ export default {
       }
     };
 
-    const handleLogout = async () => {
-      try {
-        await authStore.logoutUser();
-        alert('Выход выполнен');
-        router.push('/');
-      } catch (error) {
-        alert('Ошибка выхода: ' + error.message);
-      }
-    };
-
     const getDaysAgo = (createdAt) => {
       const eventDate = new Date(createdAt);
       const currentDate = new Date();
@@ -327,45 +409,126 @@ export default {
 
     const formatDate = (date) => {
       const d = new Date(date);
-      return d.toLocaleDateString('ru-RU'); // Формат даты, например, "06.03.2025"
+      return d.toLocaleDateString('ru-RU');
     };
 
     const getStarRating = (rating) => {
-      return '★'.repeat(rating) + '☆'.repeat(5 - rating); // Отображаем звезды
+      return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    };
+
+    const getImageUrl = (url, fallback) => {
+      if (!url) return fallback;
+      if (url.startsWith('http')) return url;
+      const base = 'http://localhost:8000';
+      if (url.startsWith('/')) return `${base}${url}`;
+      return `${base}/storage/${url}`;
+    };
+
+    const getQrUrl = (ticketCode) => {
+      return `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(ticketCode)}`;
+    };
+
+    const openApplication = (application) => {
+      selectedApplication.value = application;
+    };
+
+    const closeApplication = () => {
+      selectedApplication.value = null;
+    };
+
+    const fetchData = async () => {
+      loading.value = true;
+      try {
+        await Promise.all([
+          fetchCurrentUser(),
+          fetchLikedInstitutions(),
+          fetchNotifications(),
+          fetchUserApplications(),
+          fetchUserReviews()
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        loading.value = false;
+      }
     };
 
     onMounted(() => {
-      fetchCurrentUser();
-      fetchNotifications();
-      fetchLikedInstitutions();
-      fetchUserApplications();
-      fetchUserReviews(); // Добавляем загрузку отзывов
+      fetchData();
+
+      // синхронизация с глобальным стором (новые уведомления)
+      watch(()=>notificationsStore.state.list,(list)=>{
+        notifications.value = list;
+      },{ immediate:true });
+
+      const q = router.currentRoute.value.query;
+      if(q.tab==='planned'){
+        nextTick(()=>{
+          document.getElementById('tab4')?.click();
+        });
+      }
+    });
+
+    watch(userApplications,(apps)=>{
+      const highlight = router.currentRoute.value.query.highlight;
+      if(highlight){
+        nextTick(()=>{
+          const el = document.querySelector(`[data-ticket="${highlight}"]`);
+          if(el){
+            el.classList.add('blink');
+            setTimeout(()=>el.classList.remove('blink'),5000);
+          }
+        });
+      }
     });
 
     return {
+      likedUniversities,
+      likedColleges,
       username,
       notifications,
-      handleLogout,
-      likedInstitutions,
-      removeLike,
-      UnCardImage,
-      HeartFill,
       userApplications,
-      userReviews, // Возвращаем отзывы
+      userReviews,
+      showLogoutModal,
+      removeLike,
+      confirmLogout,
+      UnCardImage,
+      ColCardImage,
+      HeartFill,
       getDaysAgo,
       formatEventDate,
       formatDate,
       getStarRating,
-      showLogoutModal, // Возвращаем состояние модального окна
-      confirmLogout,
+      loading,
+      getImageUrl,
+      getQrUrl,
+      UnLogo,
+      selectedApplication,
+      openApplication,
+      closeApplication
     };
   },
 };
 </script>
 
 <style scoped>
+.likes-count {
+  font-size: 0.9em;
+  color: #577c8e;
+  font-weight: normal;
+  background-color: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 
-/* Стили для вкладки Reviews */
+.likes-count i {
+  font-size: 0.9em;
+}
+
 .review-item {
   background-color: #f9f9f9;
   padding: 15px;
@@ -376,7 +539,7 @@ export default {
 
 .review-rating {
   font-size: 1.5rem;
-  color: #ffd700; /* Золотой цвет для звезд */
+  color: #ffd700;
 }
 
 .review-comment {
@@ -391,7 +554,6 @@ export default {
   margin-top: 10px;
 }
 
-/* Стили для карточек мероприятий в Planned Events */
 .cards-container {
   display: flex;
   flex-wrap: wrap;
@@ -471,7 +633,7 @@ export default {
 }
 
 .terms-text {
-  color: #cdcccc;
+  color: #CDCCCC;
   margin: 0;
   font-size: 14px;
   overflow: hidden;
@@ -479,12 +641,19 @@ export default {
   white-space: nowrap;
 }
 
-/* Стили для карточек университетов */
-.cards-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
+.event-terms .terms-text.status-accepted {
+  color: #4CAF50 !important;
+  font-weight: bold;
+}
+
+.event-terms .terms-text.status-rejected {
+  color: #FF5252 !important;
+  font-weight: bold;
+}
+
+.event-terms .terms-text.status-pending {
+  color: #FFC107 !important;
+  font-weight: bold;
 }
 
 .list-card {
@@ -615,7 +784,6 @@ export default {
   color: #ffd700;
 }
 
-/* Медиа-запросы для карточек */
 @media (max-width: 1024px) {
   .list-card {
     max-width: 100%;
@@ -667,7 +835,6 @@ export default {
   }
 }
 
-/* Остальные стили оставлены без изменений */
 .logout-button {
   padding: 10px 20px;
   background-color: #ff4d4d;
@@ -935,4 +1102,77 @@ h3 {
   display: flex;
   align-items: center;
 }
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #577c8e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.status-accepted {
+  color: #4CAF50 !important;
+  font-weight: bold;
+}
+
+.status-rejected {
+  color: #FF5252 !important;
+  font-weight: bold;
+}
+
+.status-pending {
+  color: #FFC107 !important;
+  font-weight: bold;
+}
+
+.app-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.app-modal {
+  background-color: #536274;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+  position: relative;
+  color: white;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+@keyframes blinkAnim{0%,100%{box-shadow:0 0 10px 2px #ff9800;}50%{box-shadow:0 0 10px 4px #ff9800;}}
+.blink{animation:blinkAnim 1s ease-in-out 5;}
 </style>

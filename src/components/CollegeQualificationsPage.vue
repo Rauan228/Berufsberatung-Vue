@@ -8,14 +8,14 @@
         <h1 class="sidebar-text">Специальности для</h1>
         <router-link
           to="/Specialties/Universities/GlobalSpecialties"
-          class="sidebar-active-choice"
+          class="sidebar-choice"
           :class="{ active: currentPage === 'Universities' }"
         >
           Университетов
         </router-link>
         <router-link
           to="/Specialties/Colleges"
-          class="sidebar-choice"
+          class="sidebar-active-choice"
           :class="{ active: currentPage === 'Colleges' }"
         >
           Колледжей
@@ -30,10 +30,10 @@
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb">
             <li class="breadcrumb-item">
-              <router-link to="/universities">Университеты</router-link>
+              <router-link to="/colleges">Колледжи</router-link>
             </li>
             <li class="breadcrumb-item">
-              <router-link to="/Specialties/Universities/GlobalSpecialties">
+              <router-link to="/Specialties/Colleges">
                 Специальности
               </router-link>
             </li>
@@ -93,20 +93,46 @@
   </body>
 </template>
 
-<script>
-import axios from "axios";
+<script lang="ts">
+import { defineComponent } from 'vue'
+import axios from 'axios'
 
-export default {
+interface Specialization {
+  id: number
+  name: string
+  description: string
+  college_qualification_id: number
+}
+
+interface CollegeQualification {
+  id: number
+  qualification_name: string
+  description: string
+  college_global_specialty_id: number
+  specializations: Specialization[]
+}
+
+interface CollegeGlobalSpecialty {
+  id: number
+  name: string
+  description: string
+  college_qualifications: CollegeQualification[]
+}
+
+export default defineComponent({
+  name: 'CollegeQualificationsPage',
+  
   data() {
     return {
-      currentPage: this.$route.name,
-      indicatorPosition: 0,
+      currentPage: 'Colleges',
+      indicatorPosition: 180,
       qualifications: [],
       loading: false,
       error: null,
       currentSpecialtyName: '',
-    };
+    }
   },
+
   watch: {
     "$route.params.specialty_id": {
       immediate: true,
@@ -122,12 +148,14 @@ export default {
       this.updateIndicator();
     },
   },
+
   mounted() {
     this.updateIndicator();
     if (this.$route.params.specialty_id) {
       this.fetchSpecialtyName(this.$route.params.specialty_id);
     }
   },
+
   methods: {
     updateIndicator() {
       this.indicatorPosition = this.currentPage === "Colleges" ? 180 : 220;
@@ -135,7 +163,7 @@ export default {
     async fetchSpecialtyName(specialtyId) {
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/specialties/${specialtyId}?type=university`
+          `http://localhost:8000/api/specialties/${specialtyId}?type=college`
         );
         if (response.data.success) {
           this.currentSpecialtyName = response.data.data.name;
@@ -149,7 +177,7 @@ export default {
       this.error = null;
       try {
         const response = await axios.get(
-          `http://localhost:8000/api/specialties/${specialtyId}/qualifications`
+          `http://localhost:8000/api/specialties/${specialtyId}/qualifications?type=college`
         );
         if (response.data.success) {
           this.qualifications = response.data.data;
@@ -172,7 +200,7 @@ export default {
         name: specialization.name,
         qualification_name: this.getCurrentQualificationName(specialization),
         specialty_name: this.currentSpecialtyName,
-        type: 'university'
+        type: 'college'
       }));
       
       // Переходим на страницу About
@@ -189,8 +217,8 @@ export default {
       );
       return qualification ? qualification.qualification_name : '';
     }
-  },
-};
+  }
+})
 </script>
 
 <style scoped>
@@ -212,6 +240,16 @@ body {
   z-index: 1001;
   background-color: rgba(255, 255, 255, 0.9);
   transition: background-color 0.3s ease;
+}
+
+.nav-item {
+  margin-left: 10px;
+}
+
+.navbar-logo {
+  font-size: 2rem;
+  font-weight: bolder;
+  color: red;
 }
 
 .list-container {
@@ -301,7 +339,7 @@ body {
 .active-indicator {
   position: absolute;
   right: -1px;
-  margin-top: 20px;
+  margin-top: 125px;
   width: 5px;
   height: 30px;
   background-color: #577c8e;
@@ -322,7 +360,7 @@ body {
 .qualifications-card {
   width: 100%;
   border-radius: 6px;
-  margin-bottom: 20px; /* Добавляем отступ между карточками */
+  margin-bottom: 20px;
 }
 
 .qualifications-card-title {
@@ -350,7 +388,7 @@ body {
 
 h1 {
   font-size: 1.7rem;
-  margin: 0; /* Убираем лишние отступы */
+  margin: 0;
 }
 
 h2 {
@@ -362,11 +400,11 @@ h2 {
   text-decoration: none;
   color: black;
   margin-left: 15px;
-  margin: 0; /* Убираем лишние отступы */
+  margin: 0;
 }
 
 h2:hover {
   transform: scale(1.2);
   color: #577c8e;
 }
-</style>
+</style> 

@@ -6,12 +6,18 @@
       <div class="sidebar-left-minor"></div>
       <div class="sidebar-left fixed-sidebar">
         <h class="sidebar-text">Специальности для</h>
-        <router-link to="/Specialties/Universities/GlobalSpecialties" class="sidebar-active-choice"
-          :class="{ active: currentPage === 'Universities' }">
+        <router-link 
+          to="/Specialties/Universities/GlobalSpecialties" 
+          class="sidebar-choice"
+          :class="{ 'sidebar-active-choice': currentPage === 'Universities' }"
+        >
           Университетов
         </router-link>
-        <router-link to="/Specialties/Colleges" class="sidebar-choice"
-          :class="{ active: currentPage === 'Colleges' }">
+        <router-link 
+          to="/Specialties/Colleges" 
+          class="sidebar-choice"
+          :class="{ 'sidebar-active-choice': currentPage === 'Colleges' }"
+        >
           Колледжей
         </router-link>
         <div class="active-indicator" :style="{ top: indicatorPosition + 'px' }"></div>
@@ -27,13 +33,28 @@
           </ol>
         </nav>
 
+        <div v-if="loading" class="loader-container">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Error message -->
+        <div v-if="error" class="error-message">
+          {{ error }}
+        </div>
+
         <!-- Список глобальных специальностей -->
-        <div class="global_specialties">
+        <div v-if="!loading && !error" class="global_specialties">
           <div v-for="specialty in globalSpecialties" :key="specialty.id" class="global_specialties-card">
             <h2 class="global_specialties-card-title"
-              @click="$router.push(`/Specialties/Universities/GlobalSpecialties/Qualifications/${specialty.id}`)">
-              {{ specialty.specialty_name }}
+              @click="navigateToQualifications(specialty.id)">
+              {{ specialty.name }}
             </h2>
+            <p class="global_specialties-card-description">
+              {{ specialty.description }}
+            </p>
+            <div class="qualifications-count" v-if="specialty.qualifications">
+              Квалификаций: {{ specialty.qualifications.length }}
+            </div>
           </div>
         </div>
       </div>
@@ -47,9 +68,11 @@ import axios from "axios";
 export default {
   data() {
     return {
-      currentPage: this.$route.name,
-      indicatorPosition: 0,
-      globalSpecialties: [], // Сюда загрузим данные с API
+      currentPage: "Universities",
+      indicatorPosition: 220,
+      globalSpecialties: [],
+      loading: false,
+      error: null
     };
   },
   watch: {
@@ -67,16 +90,35 @@ export default {
       this.indicatorPosition = this.currentPage === "Colleges" ? 180 : 220;
     },
     async fetchGlobalSpecialties() {
+      this.loading = true;
+      this.error = null;
+      
       try {
-        const response = await axios.get("http://localhost:8000/api/global-specialitiez");
-        this.globalSpecialties = response.data;
+        const response = await axios.get("http://localhost:8000/api/specialties", {
+          params: {
+            type: 'university'
+          }
+        });
+
+        if (response.data.success) {
+          this.globalSpecialties = response.data.data;
+        } else {
+          this.error = "Не удалось загрузить специальности";
+        }
       } catch (error) {
         console.error("Ошибка при загрузке специальностей:", error);
+        this.error = "Произошла ошибка при загрузке данных";
+      } finally {
+        this.loading = false;
       }
     },
+    navigateToQualifications(specialtyId) {
+      this.$router.push(`/Specialties/Universities/GlobalSpecialties/Qualifications/${specialtyId}`);
+    }
   },
 };
 </script>
+
 
 
 <style scoped>
@@ -234,5 +276,27 @@ body {
 
 .global_specialties-card-title {
   font-size: 1.3em;
+}
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #577c8e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

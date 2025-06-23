@@ -5,10 +5,10 @@
     <div class="list-container">
       <div class="sidebar-left-minor"></div>
       <div class="sidebar-left fixed-sidebar">
-        <h class="sidebar-text">Тип образовательного учреждения</h>
-        <router-link to="/Universities" class="sidebar-active-choice" :class="{ active: currentPage === 'Universities' }">Университет</router-link>
-        <router-link to="/Colleges" class="sidebar-choice" :class="{ active: currentPage === 'Colleges' }">Колледж</router-link>
-        <div class="active-indicator" :style="{ top: indicatorPosition + 'px' }"></div>
+        <h1 class="sidebar-text">Тип образовательного учреждения</h1>
+        <router-link ref="universityLink" to="/Universities" class="sidebar-active-choice" :class="{ active: currentPage === 'Universities' }">Университет</router-link>
+        <router-link ref="collegeLink" to="/Colleges" class="sidebar-choice" :class="{ active: currentPage === 'Colleges' }">Колледж</router-link>
+        <div class="active-indicator" :class="{ 'colleges': currentPage === 'Colleges', 'universities': currentPage === 'Universities' }"></div>
       </div>
 
       <div class="main-content" style="padding: 100px 0 0 0;">
@@ -20,7 +20,15 @@
         <div v-else class="cards-container">
           <div v-for="institution in filteredInstitutions" :key="institution.id" class="list-card">
             <div class="card-img">
-              <img :src="institution.photo_url || UnCardImage" class="card-img" />
+              <div v-if="!imageLoaded[institution.id]" class="image-loader">
+                <div class="spinner"></div>
+              </div>
+              <img 
+                :src="getImageUrl(institution.photo_url, UnCardImage)" 
+                class="card-img" 
+                @load="imageLoaded[institution.id] = true"
+                :style="{ display: imageLoaded[institution.id] ? 'block' : 'none' }"
+              />
             </div>
             <div class="card-info">
               <div class="heart-container">
@@ -30,9 +38,12 @@
               </div>
 
               <div class="card-info-up">
-                <h>{{ institution.name }}<br>
+                <h3>{{ institution.name }} 
+                  <span class="likes-count">
+                    <i class="bi bi-heart-fill"></i> {{ institution.likes_count || 0 }}
+                  </span><br>
                   <span v-for="star in 5" :key="star" class="fa fa-star" :class="{ checked: star <= Math.round(institution.reviews_avg_rating) }"></span>
-                </h>
+                </h3>
                 <p>{{ institution.location }}</p>
                 <p>{{ institution.address }}</p>
               </div>
@@ -63,7 +74,7 @@
 
         <aside id="sidebar" class="sidebar sidebar-default" :class="{ 'open': isSidebarOpen }">
           <div class="sidebar-header">
-            <h>Фильтр учреждений</h>
+            <h1>Фильтр учреждений</h1>
             <div class="search-container">
               <input type="text" v-model="searchQuery" placeholder="Поиск по названию..." @input="filterInstitutions" />
             </div>
@@ -122,7 +133,6 @@ export default {
   data() {
     return {
       currentPage: this.$route.name,
-      indicatorPosition: 0,
       UnCardImage,
       HeartFill,
       HeartLine,
@@ -152,20 +162,19 @@ export default {
         { label: 'Сортировка по умолчанию', value: '' },
         { label: 'Сначала высокий', value: 'desc' },
         { label: 'Сначала низкий', value: 'asc' }
-      ]
+      ],
+      imageLoaded: {}
     };
   },
   watch: {
     $route(to) {
       this.currentPage = to.name;
-      this.updateIndicator();
     }
   },
   mounted() {
-    this.updateIndicator();
-    window.addEventListener("scroll", this.handleScroll);
     this.fetchCurrentUser();
     this.fetchInstitutions();
+    window.addEventListener("scroll", this.handleScroll);
   },
   beforeUnmount() {
     window.removeEventListener("scroll", this.handleScroll);
@@ -203,7 +212,8 @@ export default {
           isLiked: likedInstitutions.some(likedInst => likedInst.id === inst.id) || false,
           isAnimating: false
         }));
-        this.filteredInstitutions = [...this.institutions];
+        
+        this.filterInstitutions();
       } catch (error) {
         console.error("Ошибка при загрузке университетов:", error);
         this.error = "Ошибка загрузки данных";
@@ -213,6 +223,11 @@ export default {
     },
     filterInstitutions() {
       let result = [...this.institutions];
+      
+      result = result.filter(inst => {
+        return inst.type && inst.type.toLowerCase() === 'university';
+      });
+      
       if (this.searchQuery) {
         result = result.filter(inst => inst.name.toLowerCase().includes(this.searchQuery.toLowerCase()));
       }
@@ -225,6 +240,7 @@ export default {
       if (this.ratingFilter) {
         result = result.filter(inst => Math.round(inst.reviews_avg_rating || 0) >= parseInt(this.ratingFilter));
       }
+      
       this.filteredInstitutions = result;
       this.sortInstitutions();
     },
@@ -243,7 +259,7 @@ export default {
         const response = await axios.get("http://localhost:8000/api/liked-institutions", { headers });
         return response.data;
       } catch (error) {
-        console.error("Ошибка при загрузке избранных университетов:", error);
+        // Silently handle error (e.g., 401 Unauthorized)
         return [];
       }
     },
@@ -260,16 +276,18 @@ export default {
         if (institution.isLiked) {
           await axios.delete(`http://localhost:8000/api/institutions/${institution.id}/unlike`, { headers });
           institution.isLiked = false;
+          institution.likes_count = (institution.likes_count || 1) - 1;
         } else {
           await axios.post(`http://localhost:8000/api/institutions/${institution.id}/like`, {}, { headers });
           institution.isLiked = true;
+          institution.likes_count = (institution.likes_count || 0) + 1;
         }
 
         this.institutions = this.institutions.map(inst => 
-          inst.id === institution.id ? { ...inst, isLiked: institution.isLiked, isAnimating: true } : inst
+          inst.id === institution.id ? { ...inst, isLiked: institution.isLiked, likes_count: institution.likes_count, isAnimating: true } : inst
         );
         this.filteredInstitutions = this.filteredInstitutions.map(inst => 
-          inst.id === institution.id ? { ...inst, isLiked: institution.isLiked, isAnimating: true } : inst
+          inst.id === institution.id ? { ...inst, isLiked: institution.isLiked, likes_count: institution.likes_count, isAnimating: true } : inst
         );
 
         setTimeout(() => {
@@ -286,12 +304,17 @@ export default {
     },
     async fetchCurrentUser() {
       try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          this.currentUser = null;
+          return;
+        }
         const response = await axios.get("http://localhost:8000/api/current-user", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          headers: { Authorization: `Bearer ${token}` }
         });
         this.currentUser = response.data;
       } catch (error) {
-        console.error("Ошибка авторизации:", error);
+        // Silently handle 401 error
         this.currentUser = null;
       }
     },
@@ -299,12 +322,30 @@ export default {
       this.$router.push('/login');
       this.showAuthModal = false;
     },
-    updateIndicator() {
-      this.indicatorPosition = this.currentPage === "Universities" ? 130 : 263;
-    },
     handleScroll() {
       this.isScrolled = window.scrollY > 50;
-    }
+    },
+    /**
+     * Build correct image URL for storage or external paths.
+     * @param {String|null} url - value received from backend (may be absolute or relative)
+     * @param {String} fallback - path to fallback image
+     */
+    getImageUrl(url, fallback) {
+      if (!url) {
+        return fallback;
+      }
+      // Already absolute (http/https) – return as is
+      if (url.startsWith('http')) {
+        return url;
+      }
+      const base = 'http://localhost:8000';
+      // If path already starts with '/storage', just prefix host
+      if (url.startsWith('/')) {
+        return `${base}${url}`;
+      }
+      // Otherwise treat as path inside storage folder
+      return `${base}/storage/${url}`;
+    },
   }
 };
 </script>
@@ -546,10 +587,10 @@ html, body {
 
 .sidebar-left {
   position: fixed;
-  top: 0;
+  top: 4rem;
   left: 0;
   width: 15%;
-  height: 100vh;
+  height: calc(100vh - 4rem);
   background-color: white;
   padding: 1.5rem;
   display: flex;
@@ -563,14 +604,16 @@ html, body {
   font-size: 1.6rem;
   margin-bottom: 1rem;
   font-weight: bold;
-  margin-top: 45%;
+  margin-top: 20%;
 }
 
 .sidebar-active-choice, .sidebar-choice {
   font-size: 1.8rem;
-  margin: 0.75rem 0 0 1rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem 1rem;
   transition: transform 0.3s, color 0.3s;
   text-decoration: none;
+  position: relative;
 }
 
 .sidebar-active-choice {
@@ -592,14 +635,66 @@ html, body {
 }
 
 .active-indicator {
-  position: absolute;
-  right: -1px;
+  position: relative;
+  left: 225px;
   width: 5px;
-  margin-top: 27px;
-  height: 1.5rem;
+  bottom: 122px;
+  height: 1.8rem;
   background-color: #577c8e;
-  transition: top 0.3s ease;
+  transition: top 0.3s ease-in-out;
   border-radius: 3px;
+}
+
+.active-indicator.universities {
+  top: 300px;
+}
+
+.active-indicator.colleges {
+  top: 190px;
+}
+
+@media (max-width: 1440px) {
+  .active-indicator {
+    left: 200px;
+    bottom: 122px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .active-indicator {
+    left: 180px;
+    bottom: 122px;
+  }
+}
+
+@media (max-width: 768px) {
+  .active-indicator {
+    left: 160px;
+    bottom: 122px;
+  }
+  
+  .active-indicator.universities {
+    top: 280px;
+  }
+  
+  .active-indicator.colleges {
+    top: 170px;
+  }
+}
+
+@media (max-width: 480px) {
+  .active-indicator {
+    left: 140px;
+    bottom: 122px;
+  }
+  
+  .active-indicator.universities {
+    top: 260px;
+  }
+  
+  .active-indicator.colleges {
+    top: 150px;
+  }
 }
 
 .main-content {
@@ -822,6 +917,23 @@ html, body {
   color: #ffd700;
 }
 
+.likes-count {
+  font-size: 0.9em;
+  color: #577c8e;
+  font-weight: normal;
+  background-color: #f5f5f5;
+  padding: 4px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.likes-count i {
+  font-size: 0.9em;
+}
+
 @media (max-width: 1024px) {
   .sidebar-left, .sidebar-left-minor {
     width: 15%;
@@ -921,5 +1033,28 @@ html, body {
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
   }
+}
+
+.image-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #f3f3f3;
+}
+
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style>

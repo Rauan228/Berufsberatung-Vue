@@ -1,15 +1,27 @@
 <template>
-  <div class="university-container">
-    <div v-if="loading">Загрузка...</div>
-    <div v-else-if="error">{{ error }}</div>
+  <div v-if="loading" class="loader-container">
+    <div class="spinner"></div>
+  </div>
+
+  <div v-else class="university-container">
+    <div v-if="error">{{ error }}</div>
     <div v-else>
       <div class="university-background">
-        <img :src="university.photo_url || '@/components/img/UnFonimg.png'" class="university-backgroundImg" />
+        <img v-if="photoSrc" :src="photoSrc" class="university-backgroundImg" />
+        <div v-else class="university-bg-placeholder"></div>
       </div>
 
       <div class="university-main">
         <div class="university-logo">
-          <img :src="university.logo_url || '@/components/img/UnLogo.png'" class="university-logo-img" />
+          <div v-if="!imageLoaded.logo" class="image-loader">
+            <div class="spinner"></div>
+          </div>
+          <img 
+            :src="logoSrc" 
+            class="university-logo-img" 
+            @load="imageLoaded.logo = true"
+            :style="{ display: imageLoaded.logo ? 'block' : 'none' }"
+          />
         </div>
         <div class="university-name">
           <h1>{{ university.name }}</h1>
@@ -60,22 +72,35 @@
   <input type="radio" name="tabset" id="tab3" aria-controls="Reviews" />
   <label for="tab3">Отзывы</label>
 
+  <input type="radio" name="tabset" id="tab4" aria-controls="Location" @change="locationTabChanged" />
+  <label for="tab4">Местоположение</label>
+
   <div class="tab-panels">
     <section id="Specialties" class="tab-panel">
       <div class="specialties-list">
-        <div v-if="university.specializations && university.specializations.length > 0">
-          <div v-for="(specializations, qualificationName) in groupedSpecializations" :key="qualificationName"
-            class="qualification">
-            <h4>{{ qualificationName }}</h4>
-            <div v-for="specialization in specializations" :key="specialization.id" class="specialty">
-              <p>{{ specialization.name }}</p>
-              <p>Стоимость: {{ specialization.pivot.cost }}₸</p>
-              <p>Длительность: {{ specialization.pivot.duration }} {{ getYearText(specialization.pivot.duration) }}</p>
-            </div>
-          </div>
+        <div v-if="loading" class="qualification">
+          <h4>Загрузка...</h4>
+        </div>
+        <div v-else-if="error" class="qualification">
+          <h4>{{ error }}</h4>
+        </div>
+        <div v-else-if="!university.specializations || university.specializations.length === 0" class="qualification">
+          <h4>Нет данных о специальностях</h4>
         </div>
         <div v-else>
-          <p>Нет данных о квалификациях и специальностях.</p>
+          <div v-for="(specializations, qualificationName) in groupedSpecializations" 
+               :key="qualificationName" 
+            class="qualification">
+            <h4>{{ qualificationName }}</h4>
+            <div v-for="specialization in specializations" 
+                 :key="specialization.id" 
+                 class="specialty"
+                 @click="navigateToSpecialization(specialization)">
+              <p class="specialty-name">{{ specialization.name }}</p>
+              <p class="specialty-cost">Стоимость: {{ specialization.pivot && specialization.pivot.cost ? specialization.pivot.cost + '₸' : 'Не указана' }}</p>
+              <p class="specialty-duration">Длительность: {{ specialization.pivot && specialization.pivot.duration ? specialization.pivot.duration + ' ' + getYearText(specialization.pivot.duration) : 'Не указана' }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -85,12 +110,13 @@
         <div v-if="events.length > 0">
           <div class="events-cont">
             <div v-for="event in events" :key="event.id" class="event-card">
+              <span class="type-badge">{{ translateType(event.event_type) }}</span>
               <div class="event-logo">
-                <img :src="university.logo_url || '@/components/img/UnLogo.png'" class="event-logo-img" />
+                <img :src="logoSrc" class="event-logo-img" />
               </div>
               <div class="event-view">
                 <h3 class="event-view-text">Университет</h3>
-                <p2 class="event-view-text">Добавлено {{ formatDate(event.created_at) }}</p2>
+                <p2 class="event-view-text">{{ getDaysAgo(event.created_at) }}</p2>
               </div>
               <div class="event-info">
                 <h3 class="event-info-text">{{ university.name }}</h3>
@@ -100,6 +126,15 @@
               <div class="event-terms">
                 <p3 class="terms-text">Описание: {{ event.description || 'Ничего' }}</p3>
                 <p3 class="terms-text">Дата: {{ formatEventDate(event.event_date) }}</p3>
+                <div class="event-buttons">
+                  <button class="more-button" @click="openDetailsModal(event)">Подробнее</button>
+                  <template v-if="event.event_type !== 'open'">
+                    <span v-if="event.isApplied" class="applied-text">Подана</span>
+                    <button v-else class="apply-button" @click="handleApplyClick(event)">
+                      {{ event.event_type === 'group' ? 'Регистрация команды' : 'Записаться' }}
+                    </button>
+                  </template>
+                </div>
               </div>
             </div>
           </div>
@@ -151,8 +186,104 @@
         <p>Нет отзывов.</p>
       </div>
     </section>
+
+    <section id="Location" class="tab-panel">
+      <div class="location-preview" @click="goToMap">
+        <div ref="locationPreviewMap" class="preview-map"></div>
+        <p class="click-hint">Нажмите, чтобы открыть карту</p>
+      </div>
+    </section>
   </div>
 </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success & auth modals same as college page -->
+  <div v-if="showSuccessModal" class="success-modal-overlay">
+    <div class="success-modal">
+      <h3>Успех!</h3>
+      <p>Ваша заявка успешно подана.</p>
+      <button class="success-modal-close" @click="closeSuccessModal">ОК</button>
+    </div>
+  </div>
+
+  <div v-if="showAuthModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Требуется авторизация</h5>
+      </div>
+      <div class="modal-body">Пожалуйста, войдите, чтобы записаться.</div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" @click="showAuthModal=false">Отмена</button>
+        <button class="btn btn-primary" @click="redirectToLogin">Войти</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Group registration modal -->
+  <div v-if="showGroupModal" class="modal-overlay">
+    <div class="modal-content group-modal">
+      <h3>Регистрация команды на "{{ groupEvent?.event_name }}"</h3>
+      <label>Название команды</label>
+      <input v-model="teamName" placeholder="Team name" />
+      <h4>Участники</h4>
+      <div v-for="(m,idx) in members" :key="idx" class="member-row">
+        <input v-model="m.user_id" placeholder="ID пользователя" />
+        <input v-model="m.role" placeholder="Роль" />
+        <button @click="removeMember(idx)" v-if="members.length>1">–</button>
+      </div>
+      <button @click="addMember">Добавить участника</button>
+      <div v-if="groupSchema.length" class="schema-block">
+        <h4>Дополнительные данные</h4>
+        <div v-for="field in groupSchema" :key="field.name" class="form-row">
+          <label>{{ field.label }}</label>
+          <input v-model="groupAnswers[field.name]" :type="inputType(field.type)" :required="field.required" :placeholder="field.label" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button @click="submitGroup">Отправить</button>
+        <button @click="closeGroupModal">Отмена</button>
+      </div>
+      <p v-if="groupError" class="error-message">{{ groupError }}</p>
+    </div>
+  </div>
+
+  <!-- Apply modal -->
+  <div v-if="showApplyModal" class="modal-overlay">
+    <div class="modal-content apply-modal">
+      <h3>Заявка на "{{ currentEvent?.event_name }}"</h3>
+      <form @submit.prevent="submitApply">
+        <div v-for="field in currentSchema" :key="field.name" class="form-row">
+          <label>{{ field.label }}</label>
+          <input v-model="applyAnswers[field.name]" :type="inputType(field.type)" :required="field.required" :placeholder="field.label" />
+        </div>
+        <div class="modal-actions">
+          <button type="submit">Отправить</button>
+          <button type="button" @click="closeApplyModal">Отмена</button>
+        </div>
+        <p v-if="applyError" class="error-message">{{ applyError }}</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Custom details modal -->
+  <div v-if="showDetailsModal" class="modal-overlay">
+    <div class="details-modal">
+      <div class="modal-header"><h5 class="modal-title">{{ detailsEvent?.event_name }}</h5></div>
+      <div class="modal-body">
+        <p><strong>{{ getInstitutionType() }}:</strong> {{ university.name }}</p>
+        <p><strong>Дата:</strong> {{ formatEventDate(detailsEvent?.event_date) }}</p>
+        <p><strong>Описание:</strong> {{ detailsEvent?.description || 'Нет описания' }}</p>
+      </div>
+      <div class="modal-footer">
+        <span v-if="detailsEvent && detailsEvent.event_type !== 'open'">
+          <span v-if="detailsEvent.isApplied" class="applied-text">Подана</span>
+          <button v-else class="btn btn-primary" @click="applyFromDetails(detailsEvent)">
+            {{ detailsEvent.event_type === 'group' ? 'Регистрация команды' : 'Записаться' }}
+          </button>
+        </span>
+        <button class="btn btn-secondary" @click="closeDetailsModal">Закрыть</button>
       </div>
     </div>
   </div>
@@ -160,6 +291,11 @@
 
 <script>
 import axios from "axios";
+import UnFonImg from '@/components/img/UnFonimg.png';
+import UnLogoImg from '@/components/img/UnLogo.png';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Modal } from 'bootstrap';
 
 export default {
   data() {
@@ -173,16 +309,39 @@ export default {
       newReview: {
         rating: 0,
         comment: ''
-      }
+      },
+      imageLoaded: {
+        logo: false
+      },
+      previewMap: null,
+      showSuccessModal: false,
+      showAuthModal: false,
+      currentUser: null,
+      showGroupModal: false,
+      groupEvent: null,
+      teamName: '',
+      members: [{ user_id: '', role: '' }],
+      groupError: '',
+      showApplyModal: false,
+      currentEvent: null,
+      currentSchema: [],
+      applyAnswers: {},
+      applyError: '',
+      groupSchema: [],
+      groupAnswers: {},
+      showDetailsModal: false,
+      detailsEvent: null,
     };
   },
   computed: {
     groupedSpecializations() {
-      if (!this.university || !this.university.specializations) return {};
+      if (!this.university || !Array.isArray(this.university.specializations)) {
+        console.warn('Specializations data is missing or not an array:', this.university?.specializations);
+        return {};
+      }
 
-      // Группируем специальности по квалификациям
       return this.university.specializations.reduce((acc, specialization) => {
-        const qualificationName = specialization.qualification.qualification_name;
+        const qualificationName = specialization?.qualification?.qualification_name || 'Неизвестная квалификация';
         if (!acc[qualificationName]) {
           acc[qualificationName] = [];
         }
@@ -190,19 +349,22 @@ export default {
         return acc;
       }, {});
     },
+    photoSrc() {
+      if (!this.university?.photo_url) return UnFonImg;
+      return this.getImageUrl(this.university.photo_url, UnFonImg);
+    },
+    logoSrc() {
+      if (!this.university?.logo_url) return UnLogoImg;
+      return this.getImageUrl(this.university.logo_url, UnLogoImg);
+    },
   },
   methods: {
     async checkAuth() {
       try {
-        const response = await axios.get('http://localhost:8000/api/current-user', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        const response = await axios.get('http://localhost:8000/api/current-user', { headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}});
         this.isAuthenticated = !!response.data;
-      } catch (error) {
-        this.isAuthenticated = false;
-      }
+        this.currentUser = response.data || null;
+      } catch { this.isAuthenticated=false; this.currentUser=null; }
     },
     
     async submitReview() {
@@ -226,45 +388,71 @@ export default {
     },
 
     formatEventDate(dateString) {
-      if (!dateString) return "Unknown date";
+      if (!dateString) return "Дата неизвестна";
       const options = { year: "numeric", month: "long", day: "numeric" };
-      return new Date(dateString).toLocaleDateString("en-US", options);
+      return new Date(dateString).toLocaleDateString("ru-RU", options);
     },
+
     async fetchUniversity() {
       this.loading = true;
       this.error = null;
       try {
         const id = this.$route.params.id;
+        console.log('Fetching university with ID:', id);
         const response = await axios.get(`http://localhost:8000/api/institutions/${id}`);
         this.university = response.data;
         console.log("University data:", this.university);
+        if (!this.university.specializations) {
+          console.warn('No specializations data received for university:', this.university.name);
+        }
         await this.fetchEventsByInstitution(id);
-        await this.fetchReviewsByInstitution(id); // Загружаем отзывы
+        await this.fetchReviewsByInstitution(id);
+
+        // инициализируем превью-карту после загрузки данных
+        this.$nextTick(() => this.initPreviewMap());
       } catch (error) {
         console.error("Ошибка при загрузке университета:", error);
-        this.error = "Ошибка загрузки данных";
         if (error.response) {
+          if (error.response.status === 404) {
+            this.error = "Учебное заведение не найдено";
+          } else if (error.response.data && error.response.data.message) {
+            this.error = error.response.data.message;
+          } else {
+            this.error = "Произошла ошибка при загрузке данных учебного заведения";
+          }
           console.error("Response data:", error.response.data);
           console.error("Status code:", error.response.status);
         } else if (error.request) {
+          this.error = "Не удалось подключиться к серверу";
           console.error("No response received:", error.request);
         } else {
+          this.error = "Произошла ошибка при выполнении запроса";
           console.error("Request setup error:", error.message);
         }
       } finally {
         this.loading = false;
       }
     },
+
     async fetchEventsByInstitution(institutionId) {
       try {
-        const response = await axios.get(`http://localhost:8000/api/institutions/${institutionId}/events`);
-        this.events = response.data;
-        console.log("Events data:", this.events);
+        await this.checkAuth();
+        const {data:evts}=await axios.get(`http://localhost:8000/api/institutions/${institutionId}/events`);
+        let applied=[];
+        if(this.currentUser){
+          try{
+            const token=localStorage.getItem('token');
+            const resp=await axios.get('/api/user-applications',{headers:{Authorization:`Bearer ${token}`}});
+            applied=(resp.data.data||resp.data||[]).map(a=>a.event_id);
+          }catch{}
+        }
+        this.events=evts.map(ev=>({...ev,isApplied:applied.includes(ev.id)}));
       } catch (error) {
         console.error("Ошибка при загрузке событий:", error);
         this.error = "Ошибка загрузки событий";
       }
     },
+
     async fetchReviewsByInstitution(institutionId) {
       try {
         const response = await axios.get(`http://localhost:8000/api/institutions/${institutionId}/reviews`);
@@ -275,16 +463,21 @@ export default {
         this.error = "Ошибка загрузки отзывов";
       }
     },
+
     getStarRating(rating) {
       const fullStar = '★';
       const emptyStar = '☆';
       return fullStar.repeat(rating) + emptyStar.repeat(5 - rating);
     },
+
     formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("ru-RU");
+      if (!dateString) return "";
+      const options = { year: "numeric", month: "long", day: "numeric" };
+      return new Date(dateString).toLocaleDateString("ru-RU", options);
     },
+
     getYearText(duration) {
+      if (!duration) return "лет";
       if (duration === 1) {
         return "год";
       } else if (duration >= 2 && duration <= 4) {
@@ -293,15 +486,175 @@ export default {
         return "лет";
       }
     },
+
+    navigateToSpecialization(specialization) {
+      // Сохраняем данные о выбранной специализации в localStorage
+      localStorage.setItem('selectedSpecialization', JSON.stringify({
+        id: specialization.id,
+        name: specialization.name,
+        qualification: specialization.qualification ? {
+          id: specialization.qualification.id,
+          name: specialization.qualification.qualification_name
+        } : null,
+        specialty_name: this.university.name,
+        type: 'university',
+        cost: specialization.pivot?.cost,
+        duration: specialization.pivot?.duration
+      }));
+      
+      // Переходим на страницу About
+      this.$router.push({
+        name: 'SpecializationAbout',
+        params: { 
+          id: specialization.id
+        }
+      });
+    },
+
+    initPreviewMap() {
+      if (!this.university || !this.university.latitude || !this.university.longitude) return;
+
+      if (!this.$refs.locationPreviewMap) {
+        this.$nextTick(() => this.initPreviewMap());
+        return;
+      }
+
+      if (this.previewMap) {
+        this.previewMap.setView([this.university.latitude, this.university.longitude], 14);
+        return;
+      }
+
+      this.previewMap = L.map(this.$refs.locationPreviewMap, {
+        zoomControl: false,
+        attributionControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+      }).setView([this.university.latitude, this.university.longitude], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.previewMap);
+      L.marker([this.university.latitude, this.university.longitude]).addTo(this.previewMap);
+    },
+
+    goToMap() {
+      if (!this.university || !this.university.latitude || !this.university.longitude) return;
+      this.$router.push({
+        path: '/Map',
+        query: {
+          destLat: this.university.latitude,
+          destLng: this.university.longitude,
+          destName: this.university.name,
+        }
+      });
+    },
+
+    getImageUrl(url, fallback) {
+      if (!url) return fallback;
+
+      if (/^https?:\/\//.test(url)) {
+        return url.replace('://localhost/', '://localhost:8000/');
+      }
+
+      const normalised = url.startsWith('/') ? url : `/${url}`;
+      return `http://localhost:8000${normalised}`;
+    },
+
+    locationTabChanged() {
+      this.$nextTick(() => {
+        if (this.previewMap) {
+          this.previewMap.invalidateSize();
+        } else {
+          this.initPreviewMap();
+        }
+      });
+    },
+
+    translateType(t){const map={open:'Открытое',closed:'Закрытое',group:'Групповое'};return map[t]||t;},
+    getInstitutionType(){return 'Университет';},
+    getDaysAgo(c){const d=new Date(c);const diff=Math.ceil((Date.now()-d)/(1000*60*60*24));return `Добавлено ${diff} дней назад`;},
+    closeSuccessModal(){this.showSuccessModal=false;},
+    redirectToLogin(){this.$router.push('/login');},
+    async applyToEvent(id){if(!this.currentUser){this.showAuthModal=true;return;}try{const token=localStorage.getItem('token');await axios.post(`/api/events/${id}/apply`,{user_id:this.currentUser.id},{headers:{Authorization:`Bearer ${token}`}});this.showSuccessModal=true;this.events=this.events.map(e=>e.id===id?{...e,isApplied:true}:e);}catch(e){console.error(e);}},
+    handleApplyClick(evt){
+      if(evt.event_type==='group'){ this.openGroupModal(evt); return; }
+      const schema=this.normalizeSchema(evt.application_schema);
+      if(schema.length){ this.currentEvent=evt; this.currentSchema=schema; this.applyAnswers={}; this.showApplyModal=true; }
+      else { this.applyToEvent(evt.id); }
+    },
+    modalApply(evt){const el=document.getElementById('eventModal'+evt.id);if(el){const inst=Modal.getInstance(el)||new Modal(el);inst.hide();setTimeout(()=>{document.body.classList.remove('modal-open');document.querySelectorAll('.modal-backdrop').forEach(b=>b.remove());this.handleApplyClick(evt);},300);}else{this.handleApplyClick(evt);}},
+    openGroupModal(evt){
+      this.groupEvent=evt; this.showGroupModal=true; this.teamName=''; this.members=[{ user_id:this.currentUser?.id||'', role:'капитан' }]; this.groupSchema=this.normalizeSchema(evt.application_schema); this.groupAnswers={};
+    },
+    closeGroupModal(){ this.showGroupModal=false; this.groupError=''; this.groupEvent=null; },
+    addMember(){ this.members.push({ user_id:'', role:'' }); },
+    removeMember(idx){ this.members.splice(idx,1); },
+    async submitGroup(){ if(!this.teamName){ this.groupError='Введите название команды'; return; }
+      try{ const token=localStorage.getItem('token'); await axios.post(`/api/events/${this.groupEvent.id}/apply`,{ institution_id:this.groupEvent.institution_id||this.groupEvent.institution?.id, team_name:this.teamName, members:this.members, payload:this.groupSchema.length?this.groupAnswers:undefined },{ headers:{ Authorization:`Bearer ${token}` }});
+        this.closeGroupModal(); this.showSuccessModal=true; this.events=this.events.map(e=>e.id===this.groupEvent.id?{...e,isApplied:true}:e);
+      }catch(e){ this.groupError=e.response?.data?.error||'Ошибка'; }
+    },
+    inputType(t){ const map={string:'text',email:'email',number:'number',phone:'tel'}; return map[t]||'text'; },
+    normalizeSchema(raw){ if(!raw) return []; if(Array.isArray(raw)) return raw; try{ const p=JSON.parse(raw); return Array.isArray(p)?p:[]; }catch{return []; } },
+    closeApplyModal(){ this.showApplyModal=false; this.applyError=''; },
+    async submitApply(){ try{ const token=localStorage.getItem('token'); await axios.post(`/api/events/${this.currentEvent.id}/apply`,{ user_id:this.currentUser.id, payload:this.applyAnswers },{ headers:{ Authorization:`Bearer ${token}` }}); this.showApplyModal=false; this.showSuccessModal=true; this.events=this.events.map(e=>e.id===this.currentEvent.id?{...e,isApplied:true}:e);}catch(e){ this.applyError=e.response?.data?.error||'Ошибка'; } },
+    openDetailsModal(event) {
+      this.detailsEvent = event;
+      this.showDetailsModal = true;
+    },
+    closeDetailsModal() {
+      this.showDetailsModal = false;
+      this.detailsEvent = null;
+    },
+    applyFromDetails(evt){
+      this.closeDetailsModal();
+      this.$nextTick(()=>this.handleApplyClick(evt));
+    },
   },
+
   created() {
     this.checkAuth();
     this.fetchUniversity();
   },
+
+  watch: {
+    '$route.params.id': {
+      handler: async function(newId) {
+        if (newId) {
+          await this.fetchUniversity();
+        }
+      },
+      immediate: true
+    },
+  }
 };
 </script>
 
 <style scoped>
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 9999;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .review-form {
   margin-bottom: 20px;
   padding: 15px;
@@ -356,7 +709,7 @@ export default {
 
 .review-rating {
   font-size: 1.5rem;
-  color: #ffd700; /* Золотой цвет для звезд */
+  color: #ffd700;
 }
 
 .review-comment {
@@ -371,29 +724,23 @@ export default {
   margin-top: 10px;
 }
 
-
 .events-cont {
   display: grid;
   grid-template-columns: 1fr;
-  /* Одна колонка */
   grid-template-rows: repeat(4, auto);
-  /* Четыре строки с авторазмером */
   gap: 30px;
-  /* Расстояние между карточками */
   padding: 20px;
 }
 
 @media (min-width: 768px) {
   .events-cont {
     grid-template-columns: repeat(2, 1fr);
-    /* Две колонки на средних экранах */
   }
 }
 
 @media (min-width: 1024px) {
   .events-cont {
     grid-template-columns: repeat(4, 1fr);
-    /* Четыре колонки на больших экранах */
   }
 }
 
@@ -443,7 +790,6 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-
 }
 
 .university-name {
@@ -455,21 +801,17 @@ export default {
   margin: 0 0 0 500px;
   padding: 10px;
   max-width: 80%;
-  /* Ограничение ширины */
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
 
 h1 {
   font-size: 4rem;
-  /* Уменьши размер, чтобы длинные названия помещались */
   font-weight: bold;
   color: #424242;
   transition: color 0.3s ease;
   text-align: center;
-  /* Выравнивание по центру */
 }
-
 
 h1:hover {
   color: #10222e;
@@ -551,13 +893,13 @@ h1:hover {
   opacity: 1;
 }
 
-a {
+.a {
   color: #424242;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
-a:hover {
+.a:hover {
   color: #10222e;
 }
 
@@ -580,7 +922,8 @@ a:hover {
 
 .tabset>input:first-child:checked~.tab-panels>.tab-panel:first-child,
 .tabset>input:nth-child(3):checked~.tab-panels>.tab-panel:nth-child(2),
-.tabset>input:nth-child(5):checked~.tab-panels>.tab-panel:nth-child(3) {
+.tabset>input:nth-child(5):checked~.tab-panels>.tab-panel:nth-child(3),
+.tabset>input:nth-child(7):checked~.tab-panels>.tab-panel:nth-child(4) {
   display: block;
 }
 
@@ -630,36 +973,73 @@ a:hover {
   margin-bottom: 20px;
 }
 
+.qualification h4 {
+  color: #10222e;
+  font-size: 1.3em;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
 .specialty {
   width: 70%;
   background-color: #f4f4f4;
   padding: 20px;
   border-radius: 12px;
   margin-bottom: 10px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Контейнер для карточек событий */
-.event-cards-container {
-  display: flex;
-  width: 1200px;
-  flex-direction: row;
-  gap: 20px;
-  /* Расстояние между карточками */
-  padding: 20px;
+.specialty:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Основные стили для карточки события */
+.specialty p {
+  color: #333;
+  font-size: 1.1em;
+  margin: 5px 0;
+}
+
+.specialty-name {
+  font-weight: 600;
+  color: #10222e !important;
+  font-size: 1.2em !important;
+}
+
+.specialty-cost, .specialty-duration {
+  color: #666 !important;
+}
+
+@media (max-width: 768px) {
+  .specialty {
+    width: 100%;
+}
+
+  .qualification h4 {
+    font-size: 1.2em;
+  }
+  
+  .specialty p {
+    font-size: 1em;
+  }
+}
+
 .event-card {
   background-color: #536274;
   padding: 20px;
   border-radius: 12px;
   width: 400px;
   box-sizing: border-box;
-  /* Учитываем padding в ширине */
   margin: 0 0 50px 0;
+  transition: transform 0.3s ease;
+  position: relative;
 }
 
-/* Стили для логотипов внутри карточки */
+.event-card:hover {
+  transform: translateY(-5px);
+}
+
 .event-logo-img {
   width: 50px;
   height: 50px;
@@ -668,14 +1048,12 @@ a:hover {
   padding: 5px;
 }
 
-/* Контейнер для логотипов */
 .event-logo {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10%;
 }
 
-/* Стили для блока с информацией о событии */
 .event-view {
   display: flex;
   justify-content: space-between;
@@ -683,12 +1061,10 @@ a:hover {
   margin-bottom: 5%;
 }
 
-/* Линия-разделитель */
 .event-line {
   border: 1px solid #10222e;
 }
 
-/* Текст в блоке event-view */
 .event-view-text {
   color: #cdcccc;
   display: flex;
@@ -697,96 +1073,77 @@ a:hover {
   margin-bottom: 0px;
 }
 
-/* Текст в блоке event-info */
 .event-info-text {
   color: white;
 }
 
-/* Блок с условиями события */
 .event-terms {
   margin: 50px 0 0 0;
   color: #cdcccc;
   height: 200px;
   display: flex;
   flex-direction: column;
-  align-items:flex-start;
+  align-items: flex-start;
 }
 
-/* Адаптивные стили для экранов меньше 768px */
-@media (max-width: 768px) {
-  .event-cards-container {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    /* 2 карточки в ряд */
-  }
-
-  .university-logo {
-    position: static;
-    width: 100%;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-
-  .university-logo-img {
-    position: static;
-    width: 200px;
-    height: 200px;
-    margin: 0 auto;
-  }
-
-  .university-name {
-    margin-left: 0;
-    text-align: center;
-  }
-
-  h1 {
-    font-size: 4rem;
-  }
-
-  .university-info {
-    flex-direction: column;
-    padding: 20px;
-  }
-
-  .university-description {
-    width: 100%;
-    margin-bottom: 20px;
-  }
-
-  .university-info-card {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .specialty {
-    width: 100%;
-  }
+.image-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #f3f3f3;
 }
 
-/* Адаптивные стили для экранов меньше 480px */
-@media (max-width: 480px) {
-  .event-cards-container {
-    grid-template-columns: 1fr;
-    /* 1 карточка в ряд */
-  }
-
-  h1 {
-    font-size: 3rem;
-  }
-
-  .university-description {
-    font-size: 1em;
-  }
-
-  .info-title {
-    font-size: 1.5em;
-  }
-
-  .info-list li {
-    font-size: 1.2em;
-  }
-
-  .info-details p {
-    font-size: 1.2em;
-  }
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.university-bg-placeholder {
+  width: 100%;
+  height: 400px;
+  background-color: #ffffff;
+}
+
+.preview-map {
+  width: 100%;
+  height: 300px;
+}
+.location-preview {
+  cursor: pointer;
+}
+.click-hint {
+  text-align: center;
+  margin-top: 8px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.type-badge{position:absolute;top:8px;right:8px;background:#008FFF;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;}
+.event-buttons{display:flex;gap:10px;margin-top:10px;}
+.more-button,.apply-button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#577c8e;color:#fff;}
+.applied-text{color:#4fa300;font-weight:600;}
+.success-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:2000;}
+.success-modal{background:#fff;padding:20px;border-radius:12px;text-align:center;width:300px;}
+.success-modal-close{padding:8px 20px;background:#577c8e;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:2000;}
+.modal-header{padding:20px;background:#04202D;color:#fff;border-top-left-radius:12px;border-top-right-radius:12px;}
+.modal-footer{padding:15px;display:flex;justify-content:space-between;}
+.modal-actions{display:flex;justify-content:space-between;margin-top:10px;}
+.error-message{color:red;margin-top:8px;}
+.apply-modal,.group-modal{background:#fff;border-radius:12px;max-width:400px;width:100%;text-align:center;}
+.details-modal{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.2);max-width:400px;width:100%;text-align:center;}
+.details-modal .modal-header{padding:20px;background:#04202D;color:#fff;border-top-left-radius:15px;border-top-right-radius:15px;}
+.details-modal .modal-body{padding:20px;font-size:1rem;color:#333;}
+.details-modal .modal-footer{padding:15px;background:#f8f9fa;border-bottom-left-radius:15px;border-bottom-right-radius:15px;display:flex;justify-content:space-between;}
 </style>

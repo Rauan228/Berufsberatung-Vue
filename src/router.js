@@ -3,7 +3,9 @@ import MainPage from '@/components/MainPage.vue';
 import UniversitiesSpecialtiesPage  from '@/components/SpecialtiesUnListPage.vue';
 import UniversitiesSpecialtiesMinorPage  from '@/components/SUMListPage.vue';
 import CollegesSpecialtiesPage  from '@/components/SpecialtiesColListPage.vue';
+import CollegeQualificationsPage from '@/components/CollegeQualificationsPage.vue';
 import UniversityAboutPage  from '@/components/UniversityAboutPage.vue';
+import CollegeAboutPage  from '@/components/CollegeAboutPage.vue';
 import UniversityListPage  from '@/components/UniversityListPage.vue';
 import CollegesListPage  from '@/components/CollegesListPage.vue';
 import TestPage  from '@/components/TestPage.vue';
@@ -20,6 +22,10 @@ import InstitutionEvents from '@/components/institutions/InstitutionEvents.vue';
 import InstitutionApplications from '@/components/institutions/InstitutionApplications.vue';
 import InstitutionSpecialties from '@/components/institutions/InstitutionSpecialties.vue';
 import LoginInstitution from '@/components/LoginInstitution.vue'; // Предполагаю, что этот компонент тоже есть
+import SpecializationAboutPage from '@/components/SpecializationAboutPage.vue';
+import TestInfoPage from '@/components/TestInfoPage.vue';
+import TestQuestionsPage from '@/components/TestQuestionsPage.vue';
+import TestResultPage from '@/components/TestResultPage.vue';
 
 
 const routes = [
@@ -39,13 +45,30 @@ const routes = [
     }
   },
 
+  {
+  path: '/test',
+  name: 'TestPage',
+  component: () => import('./components/TestPage.vue'),
+},  
+
   { path: "/Specialties/Universities/GlobalSpecialties/Qualifications/:specialty_id", component: UniversitiesSpecialtiesMinorPage },
   { path: '/Specialties/Colleges', component: CollegesSpecialtiesPage },
+  {
+    path: '/Specialties/Colleges/Qualifications/:specialty_id', 
+    name: 'CollegeQualifications',
+    component: CollegeQualificationsPage 
+  },
   {
     path: '/UniversityAbout/:id',
     name: 'UniversityAbout',
     component: UniversityAboutPage,
     props: true, // Передача `id` в качестве пропса
+  },
+  {
+    path: '/CollegeAbout/:id',
+    name: 'CollegeAbout',
+    component: CollegeAboutPage,
+    props: true,
   },
   { path: '/UniversityAbout', component: UniversityAboutPage },
   {
@@ -75,6 +98,7 @@ const routes = [
         },
     ],
 },
+
   { path: '/LoginInstitution', component: LoginInstitution},
   { path: '/Universities', component: UniversityListPage },
   { path: '/Colleges', component: CollegesListPage },
@@ -84,8 +108,14 @@ const routes = [
   { path: '/Map', component: MapPage },
   { path: '/register-institution', component:RegisterInstitution  },
   { path: '/UniversityPortal', component: UniversityPortal },
-  
-
+  {
+    path: '/specialization/:id/about',
+    name: 'SpecializationAbout',
+    component: SpecializationAboutPage
+  },
+  { path: '/Test/Info', name: 'TestInfo', component: TestInfoPage },
+  { path: '/Test/Questions', name: 'TestQuestions', component: TestQuestionsPage, props: true },
+  { path: '/Test/Result/:id', name: 'TestResult', component: TestResultPage, props: true },
 ];
 
 const router = createRouter({

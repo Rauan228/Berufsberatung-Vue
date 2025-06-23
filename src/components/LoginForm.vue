@@ -3,12 +3,12 @@
     <!-- Форма регистрации -->
     <div class="form-container sign-up-container">
       <form @submit.prevent="handleRegister">
-        <h1>Create Account</h1>
-        <input v-model="registerUsername" type="text" placeholder="Username" required />
+        <h1>Создать аккаунт</h1>
+        <input v-model="registerUsername" type="text" placeholder="Имя пользователя" required />
         <input v-model="registerEmail" type="email" placeholder="Email" required />
-        <input v-model="registerPassword" type="password" placeholder="Password" required />
-        <input v-model="registerPasswordConfirm" type="password" placeholder="Confirm Password" required />
-        <button type="submit" style="background-color: #253745; border: none;">Sign Up</button>
+        <input v-model="registerPassword" type="password" placeholder="Пароль" required />
+        <input v-model="registerPasswordConfirm" type="password" placeholder="Повторите пароль" required />
+        <button type="submit" style="background-color: #253745; border: none;">Регистрация</button>
         <p v-if="registerSuccessMessage" class="success">{{ registerSuccessMessage }}</p>
         <p v-if="registerErrorMessage" class="error">{{ registerErrorMessage }}</p>
       </form>
@@ -17,10 +17,10 @@
     <!-- Форма входа -->
     <div class="form-container sign-in-container">
       <form @submit.prevent="handleLogin">
-        <h1>Sign in</h1>
+        <h1>Вход</h1>
         <input v-model="email" type="email" placeholder="Email" required />
-        <input v-model="password" type="password" placeholder="Password" required />
-        <button type="submit" style="background-color: #253745; border: none;">Sign In</button>
+        <input v-model="password" type="password" placeholder="Пароль" required />
+        <button type="submit" style="background-color: #253745; border: none;">Войти</button>
         <p v-if="successMessage" class="success">{{ successMessage }}</p>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </form>
@@ -30,14 +30,14 @@
     <div class="overlay-container">
       <div class="overlay">
         <div class="overlay-panel overlay-left">
-          <h1>Welcome Back!</h1>
-          <p>To keep connected with us please login with your personal info</p>
-          <button class="ghost" id="signIn" @click="togglePanel(false)">Sign In</button>
+          <h1>С возвращением!</h1>
+          <p>Чтобы оставаться с нами, войдите, используя свои данные</p>
+          <button class="ghost" id="signIn" @click="togglePanel(false)">Вход</button>
         </div>
         <div class="overlay-panel overlay-right">
-          <h1>Hello, Friend!</h1>
-          <p>Enter your personal details and start journey with us</p>
-          <button class="ghost" id="signUp" @click="togglePanel(true)">Sign Up</button>
+          <h1>Привет!</h1>
+          <p>Введите свои данные и начните путь с нами</p>
+          <button class="ghost" id="signUp" @click="togglePanel(true)">Регистрация</button>
         </div>
       </div>
     </div>
@@ -161,8 +161,6 @@ export default {
 * {
   box-sizing: border-box;
 }
-
-
 
 body {
   background: #f6f5f7;

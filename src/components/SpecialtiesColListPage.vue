@@ -6,29 +6,73 @@
       <div class="sidebar-left-minor"></div>
       <div class="sidebar-left fixed-sidebar">
         <h class="sidebar-text">Специальности для</h>
-        <router-link to="/Specialties/Universities/GlobalSpecialties" class="sidebar-active-choice"
-          :class="{ active: currentPage === 'Universities' }">
+        <router-link 
+          to="/Specialties/Universities/GlobalSpecialties" 
+          class="sidebar-choice"
+          :class="{ 'sidebar-active-choice': currentPage === 'Universities' }"
+        >
           Университетов
         </router-link>
-        <router-link to="/Specialties/Colleges" class="sidebar-choice"
-          :class="{ active: currentPage === 'Colleges' }">
+        <router-link 
+          to="/Specialties/Colleges" 
+          class="sidebar-choice"
+          :class="{ 'sidebar-active-choice': currentPage === 'Colleges' }"
+        >
           Колледжей
         </router-link>
         <div class="active-indicator" :style="{ top: indicatorPosition + 'px' }"></div>
       </div>
+
       <div class="main-content">
-        
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">
+              Колледжи
+            </li>
+            <li class="breadcrumb-item" aria-current="page">Специальности</li>
+          </ol>
+        </nav>
+
+        <div v-if="loading" class="loader-container">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Error message -->
+        <div v-if="error" class="error-message">
+          {{ error }}
+        </div>
+
+        <!-- Список глобальных специальностей -->
+        <div v-if="!loading && !error" class="global_specialties">
+          <div v-for="specialty in collegeSpecialties" :key="specialty.id" class="global_specialties-card">
+            <h2 class="global_specialties-card-title"
+              @click="navigateToQualifications(specialty.id)">
+              {{ specialty.name }}
+            </h2>
+            <p class="global_specialties-card-description">
+              {{ specialty.description }}
+            </p>
+            <div class="qualifications-count" v-if="specialty.collegeQualifications">
+              Квалификаций: {{ specialty.collegeQualifications.length }}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </body>
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
-      currentPage: this.$route.name,
-      indicatorPosition: 0,
+      currentPage: "Colleges",
+      indicatorPosition: 180,
+      collegeSpecialties: [],
+      loading: false,
+      error: null
     };
   },
   watch: {
@@ -39,21 +83,56 @@ export default {
   },
   mounted() {
     this.updateIndicator();
-    window.addEventListener("scroll", this.handleScroll);
-  },
-  beforeUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
+    this.fetchCollegeSpecialties();
   },
   methods: {
     updateIndicator() {
-      this.indicatorPosition = this.currentPage === "Colleges" ? 180 : 290;
+      this.indicatorPosition = this.currentPage === "Colleges" ? 180 : 220;
     },
+    async fetchCollegeSpecialties() {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await axios.get("http://localhost:8000/api/specialties", {
+          params: {
+            type: 'college',
+            include: 'collegeQualifications'
+          }
+        });
+
+        if (response.data.success) {
+          console.log('College specialties response:', response.data.data);
+          this.collegeSpecialties = response.data.data;
+        } else {
+          this.error = "Не удалось загрузить специальности колледжа";
+        }
+      } catch (error) {
+        console.error("Ошибка при загрузке специальностей:", error);
+        this.error = "Произошла ошибка при загрузке данных";
+      } finally {
+        this.loading = false;
+      }
+    },
+    navigateToQualifications(specialtyId) {
+      // Сохраняем данные о выбранной специальности в localStorage
+      const specialty = this.collegeSpecialties.find(s => s.id === specialtyId);
+      if (specialty) {
+        localStorage.setItem('selectedSpecialization', JSON.stringify({
+          id: specialtyId,
+          name: specialty.name,
+          type: 'college'
+        }));
+      }
+      
+      // Переходим на страницу квалификаций
+      this.$router.push(`/Specialties/Colleges/Qualifications/${specialtyId}`);
+    }
   },
 };
 </script>
 
 <style scoped>
-
 html,
 body {
   height: 100%;
@@ -92,8 +171,8 @@ body {
 
 .sidebar-left {
   position: fixed;
-  width: 12%;
-  height: 100vh;
+  width: 15%;
+  height: 90vh;
   background-color: white;
   padding: 30px;
   display: flex;
@@ -103,7 +182,7 @@ body {
 
 .sidebar-left-minor {
   position: relative;
-  width: 12%;
+  width: 15%;
   height: 100vh;
   background-color: white;
 }
@@ -128,6 +207,18 @@ body {
   margin-bottom: 20px;
   font-weight: bold;
   margin-top: 45%;
+}
+
+.main-content {
+  overflow-y: auto;
+  max-height: 100vh;
+  flex-grow: 1;
+  background-color: #d4e5ed;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 6% 8% 0% 8%;
 }
 
 .sidebar-choice {
@@ -158,8 +249,8 @@ body {
 
 .active-indicator {
   position: absolute;
-  margin-top: 30px;
   right: -1px;
+  margin-top: 140px;
   width: 5px;
   height: 30px;
   background-color: #577c8e;
@@ -167,73 +258,74 @@ body {
   border-radius: 3px;
 }
 
-.main-content {
-  overflow-y: auto;
-  max-height: 100vh;
-  flex-grow: 1;
-  background-color: #d4e5ed;
+.breadcrumb {
+  font-size: 1.5em;
+}
+
+.global_specialties {
+  width: 100%;
+}
+
+.global_specialties-card {
+  background-color: white;
+  padding: 10px;
+  width: 70%;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  padding: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.global_specialties-card:hover {
+  transform: scale(1.05);
+  background-color: #e0e0e0;
+}
+
+.global_specialties-card-title {
+  font-size: 1.3em;
+}
+
+.global_specialties-card-description {
+  color: #666;
+  margin: 10px 0;
+}
+
+.qualifications-count {
+  color: #577c8e;
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.loader-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 8%;
+  width: 100%;
+  height: 100vh;
 }
 
-/* Стили для "Coming Soon..." */
-.coming-soon {
-  text-align: center;
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #577c8e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.coming-soon h1 {
-  font-size: 5rem;
-  font-weight: bold;
-  background: linear-gradient(90deg, #577c8e, #4fa300);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: fadeIn 2s ease-in-out infinite alternate;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-@keyframes fadeIn {
-  0% {
-    opacity: 0.5;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@media (max-width: 768px) {
-  .sidebar-left {
-    width: 20%;
-  }
-  .sidebar-left-minor {
-    width: 20%;
-  }
-  .main-content {
-    padding: 0 4%;
-  }
-  .coming-soon h1 {
-    font-size: 3rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .sidebar-left {
-    width: 30%;
-  }
-  .sidebar-left-minor {
-    width: 30%;
-  }
-  .sidebar-text {
-    font-size: 1.2rem;
-  }
-  .sidebar-choice,
-  .sidebar-active-choice {
-    font-size: 1.4rem;
-  }
-  .coming-soon h1 {
-    font-size: 2rem;
-  }
+.error-message {
+  padding: 20px;
+  background-color: #ffe6e6;
+  border-radius: 6px;
+  color: #d63031;
+  margin: 20px 0;
+  width: 100%;
 }
 </style>
