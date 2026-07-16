@@ -827,7 +827,7 @@ export default {
 }
 
 .btn-primary:hover {
-  background: #2e6386;
+  background: #12799c;
 }
 /* Лоадер */
 .loader-container {
@@ -847,7 +847,7 @@ export default {
   width: 50px;
   height: 50px;
   border: 5px solid #f3f3f3;
-  border-top: 5px solid #577C8E;
+  border-top: 5px solid #1795c0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -895,7 +895,7 @@ body {
 /* Основной контент */
 .main-content {
   flex-grow: 1;
-  background-color: #d4e5ed;
+  background-color: #d4ecf5;
   padding: 2rem 5%;
   overflow-y: auto;
   min-height: 100vh;
@@ -1150,12 +1150,12 @@ body {
 }
 
 /* .btn-secondary {
-  background-color: #577c8e;
+  background-color: #1795c0;
   border: none;
 }
 
 .btn-secondary:hover {
-  background-color: #466b7a;
+  background-color: #12799c;
 } */
 
 /* Модальное окно успеха */
@@ -1195,7 +1195,7 @@ body {
 
 .success-modal-close {
   padding: 8px 20px;
-  background-color: #577c8e;
+  background-color: #1795c0;
   color: white;
   border: none;
   border-radius: 6px;
@@ -1204,7 +1204,7 @@ body {
 }
 
 .success-modal-close:hover {
-  background-color: #466b7a;
+  background-color: #12799c;
 }
 
 /* Медиа-запросы */
@@ -1278,7 +1278,7 @@ body {
   padding: 8px 12px;
   background-color: #fff;
   border: 1px solid #ddd;
-  color: #577c8e;
+  color: #1795c0;
   text-decoration: none;
   border-radius: 6px;
   cursor: pointer;
@@ -1290,12 +1290,12 @@ body {
 
 .page-link:hover:not(:disabled) {
   background-color: #f8f9fa;
-  border-color: #577c8e;
+  border-color: #1795c0;
 }
 
 .page-item.active .page-link {
-  background-color: #577c8e;
-  border-color: #577c8e;
+  background-color: #1795c0;
+  border-color: #1795c0;
   color: white;
 }
 
@@ -1343,7 +1343,7 @@ body {
 .schema-block .form-row{margin-bottom:8px;text-align:left;}
 .form-row label{display:block;margin-bottom:4px;font-weight:600;}
 
-.type-badge{position:absolute;top:8px;right:8px;background:#008FFF;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;}
+.type-badge{position:absolute;top:8px;right:8px;background:#1795c0;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;}
 
 .apply-modal input{width:100%;padding:6px 8px;margin-bottom:8px;border:1px solid #ccc;border-radius:6px;}
 .apply-modal .form-row{display:flex;flex-direction:column;margin-bottom:8px;}

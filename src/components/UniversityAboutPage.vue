@@ -1,4 +1,5 @@
 <template>
+  <div class="university-about-root">
   <div v-if="loading" class="loader-container">
     <div class="spinner"></div>
   </div>
@@ -116,7 +117,7 @@
               </div>
               <div class="event-view">
                 <h3 class="event-view-text">Университет</h3>
-                <p2 class="event-view-text">{{ getDaysAgo(event.created_at) }}</p2>
+                <p class="event-view-text">{{ getDaysAgo(event.created_at) }}</p>
               </div>
               <div class="event-info">
                 <h3 class="event-info-text">{{ university.name }}</h3>
@@ -124,8 +125,8 @@
                 <h3 class="event-info-text">{{ event.event_name }}</h3>
               </div>
               <div class="event-terms">
-                <p3 class="terms-text">Описание: {{ event.description || 'Ничего' }}</p3>
-                <p3 class="terms-text">Дата: {{ formatEventDate(event.event_date) }}</p3>
+                <p class="terms-text">Описание: {{ event.description || 'Ничего' }}</p>
+                <p class="terms-text">Дата: {{ formatEventDate(event.event_date) }}</p>
                 <div class="event-buttons">
                   <button class="more-button" @click="openDetailsModal(event)">Подробнее</button>
                   <template v-if="event.event_type !== 'open'">
@@ -287,10 +288,12 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
 import axios from "axios";
+import { markRaw } from 'vue';
 import UnFonImg from '@/components/img/UnFonimg.png';
 import UnLogoImg from '@/components/img/UnLogo.png';
 import L from 'leaflet';
@@ -298,6 +301,14 @@ import 'leaflet/dist/leaflet.css';
 import { Modal } from 'bootstrap';
 
 export default {
+  name: 'UniversityAboutPage',
+  inheritAttrs: false,
+  props: {
+    id: {
+      type: [String, Number],
+      default: null,
+    },
+  },
   data() {
     return {
       university: null,
@@ -360,11 +371,24 @@ export default {
   },
   methods: {
     async checkAuth() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        this.isAuthenticated = false;
+        this.currentUser = null;
+        return;
+      }
       try {
-        const response = await axios.get('http://localhost:8000/api/current-user', { headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}});
+        const response = await axios.get('http://localhost:8000/api/current-user', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         this.isAuthenticated = !!response.data;
         this.currentUser = response.data || null;
-      } catch { this.isAuthenticated=false; this.currentUser=null; }
+      } catch (e) {
+        this.isAuthenticated = false;
+        this.currentUser = null;
+        // просроченный/битый токен — убираем, чтобы не долбить API 401
+        if (e?.response?.status === 401) localStorage.removeItem('token');
+      }
     },
     
     async submitReview() {
@@ -524,14 +548,23 @@ export default {
         return;
       }
 
-      this.previewMap = L.map(this.$refs.locationPreviewMap, {
-        zoomControl: false,
-        attributionControl: false,
-        dragging: false,
-        scrollWheelZoom: false,
-      }).setView([this.university.latitude, this.university.longitude], 14);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.previewMap);
-      L.marker([this.university.latitude, this.university.longitude]).addTo(this.previewMap);
+      this.previewMap = markRaw(
+        L.map(this.$refs.locationPreviewMap, {
+          zoomControl: false,
+          attributionControl: false,
+          dragging: false,
+          scrollWheelZoom: false,
+          zoomAnimation: false,
+          markerZoomAnimation: false,
+          fadeAnimation: false,
+        }).setView([this.university.latitude, this.university.longitude], 14)
+      );
+      markRaw(
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 })
+      ).addTo(this.previewMap);
+      markRaw(
+        L.marker([this.university.latitude, this.university.longitude])
+      ).addTo(this.previewMap);
     },
 
     goToMap() {
@@ -611,19 +644,29 @@ export default {
 
   created() {
     this.checkAuth();
-    this.fetchUniversity();
+  },
+
+  beforeUnmount() {
+    if (this.previewMap) {
+      try {
+        this.previewMap.remove();
+      } catch (e) {
+        /* ignore */
+      }
+      this.previewMap = null;
+    }
   },
 
   watch: {
     '$route.params.id': {
-      handler: async function(newId) {
+      handler: async function (newId) {
         if (newId) {
           await this.fetchUniversity();
         }
       },
-      immediate: true
+      immediate: true,
     },
-  }
+  },
 };
 </script>
 
@@ -645,7 +688,7 @@ export default {
   width: 50px;
   height: 50px;
   border: 5px solid #f3f3f3;
-  border-top: 5px solid #3498db;
+  border-top: 5px solid #1795c0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -673,7 +716,7 @@ export default {
 }
 
 .star.filled {
-  color: #ffd700;
+  color: #d4af37;
 }
 
 .review-textarea {
@@ -709,7 +752,7 @@ export default {
 
 .review-rating {
   font-size: 1.5rem;
-  color: #ffd700;
+  color: #d4af37;
 }
 
 .review-comment {
@@ -1099,7 +1142,7 @@ h1:hover {
   width: 30px;
   height: 30px;
   border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border-top: 3px solid #1795c0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -1129,13 +1172,13 @@ h1:hover {
   font-size: 0.9rem;
 }
 
-.type-badge{position:absolute;top:8px;right:8px;background:#008FFF;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;}
+.type-badge{position:absolute;top:8px;right:8px;background:#1795c0;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;}
 .event-buttons{display:flex;gap:10px;margin-top:10px;}
-.more-button,.apply-button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#577c8e;color:#fff;}
+.more-button,.apply-button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#1795c0;color:#fff;}
 .applied-text{color:#4fa300;font-weight:600;}
 .success-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:2000;}
 .success-modal{background:#fff;padding:20px;border-radius:12px;text-align:center;width:300px;}
-.success-modal-close{padding:8px 20px;background:#577c8e;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+.success-modal-close{padding:8px 20px;background:#1795c0;color:#fff;border:none;border-radius:6px;cursor:pointer;}
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:2000;}
 .modal-header{padding:20px;background:#04202D;color:#fff;border-top-left-radius:12px;border-top-right-radius:12px;}
 .modal-footer{padding:15px;display:flex;justify-content:space-between;}

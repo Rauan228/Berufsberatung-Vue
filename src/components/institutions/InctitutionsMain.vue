@@ -276,7 +276,7 @@ export default {
   width: 50px;
   height: 50px;
   border: 5px solid #f3f3f3;
-  border-top: 5px solid #577C8E;
+  border-top: 5px solid #1795c0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

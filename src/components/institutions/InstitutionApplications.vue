@@ -98,8 +98,8 @@ export default {
 .btn-ok{background:#4CAF50;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer}
 .btn-danger{background:#ff4d4f;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer}
 .tab-buttons{margin-bottom:20px;display:flex;gap:10px;}
-.tab-buttons button{padding:6px 14px;border:1px solid #008FFF;background:#fff;border-radius:6px;cursor:pointer}
-.tab-buttons button.active{background:#008FFF;color:#fff}
+.tab-buttons button{padding:6px 14px;border:1px solid #1795c0;background:#fff;border-radius:6px;cursor:pointer}
+.tab-buttons button.active{background:#1795c0;color:#fff}
 .error{color:red}
 
 .modal-overlay{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:9999;}
@@ -107,10 +107,10 @@ export default {
 .payload-table{width:100%;border-collapse:collapse;margin-bottom:12px;}
 .payload-table th,.payload-table td{border:1px solid #ddd;padding:6px;text-align:left;}
 .modal-actions{display:flex;justify-content:flex-end;}
-.modal-actions button{padding:6px 12px;border:none;background:#008FFF;color:#fff;border-radius:6px;cursor:pointer;}
+.modal-actions button{padding:6px 12px;border:none;background:#1795c0;color:#fff;border-radius:6px;cursor:pointer;}
 
 /* Loader styles */
 .loader-container{display:flex;justify-content:center;align-items:center;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.8);z-index:1000;}
-.spinner{width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #577C8E;border-radius:50%;animation:spin 1s linear infinite;}
+.spinner{width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #1795c0;border-radius:50%;animation:spin 1s linear infinite;}
 @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 </style>

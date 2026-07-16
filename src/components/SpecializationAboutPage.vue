@@ -1,152 +1,229 @@
 <template>
-  <header class="header fixed-top"></header>
-
-  <body>
-    <div class="list-container">
-      <div class="sidebar-left-minor"></div>
-      <div class="sidebar-left fixed-sidebar">
-        <h1 class="sidebar-text">О специальности</h1>
-        <div class="tab-buttons">
-          <button 
-            :class="{ active: activeTab === 'about' }" 
-            @click="activeTab = 'about'"
-          >
-            Описание
-          </button>
-          <button 
-            :class="{ active: activeTab === 'institutions' }" 
-            @click="activeTab = 'institutions'"
-          >
-            Где обучаться
-          </button>
+  <div class="spec-page">
+    <header class="page-hero">
+      <div class="page-hero-inner">
+        <div class="page-hero-text">
+          <span class="page-badge">{{ isCollege ? 'Колледж' : 'Университет' }}</span>
+          <h1>{{ specializationName || 'Специальность' }}</h1>
+          <p class="page-sub" v-if="qualificationName">
+            Квалификация: <span class="gold-text">{{ qualificationName }}</span>
+          </p>
+          <p class="page-sub muted" v-if="specialtyName">
+            Направление: {{ specialtyName }}
+          </p>
         </div>
       </div>
+    </header>
 
-      <div class="main-content">
-        <nav aria-label="breadcrumb">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item" @click="navigateTo(isCollege ? '/colleges' : '/universities')" style="cursor: pointer;">
-              {{ isCollege ? 'Колледжи' : 'Университеты' }}
-            </li>
-            <li class="breadcrumb-item" @click="navigateTo(isCollege ? '/Specialties/Colleges' : '/Specialties/Universities/GlobalSpecialties')" style="cursor: pointer;">
-              Специальности
-            </li>
-            <li class="breadcrumb-item active" aria-current="page">
-              {{ specializationName }}
-            </li>
-          </ol>
-        </nav>
+    <div class="page-body">
+      <nav class="breadcrumb-bar" aria-label="breadcrumb">
+        <button type="button" class="bc-link" @click="navigateTo(isCollege ? '/Colleges' : '/Universities')">
+          {{ isCollege ? 'Колледжи' : 'Университеты' }}
+        </button>
+        <span class="bc-sep">/</span>
+        <button
+          type="button"
+          class="bc-link"
+          @click="navigateTo(isCollege ? '/Specialties/Colleges' : '/Specialties/Universities/GlobalSpecialties')"
+        >
+          Специальности
+        </button>
+        <span class="bc-sep">/</span>
+        <span class="bc-current">{{ specializationName || '…' }}</span>
+      </nav>
 
-        <div v-if="loading" class="loader-container">
-          <div class="spinner"></div>
-        </div>
+      <div class="tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          class="tab"
+          :class="{ active: activeTab === 'about' }"
+          @click="activeTab = 'about'"
+        >
+          <i class="bi bi-info-circle"></i>
+          Описание
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="tab"
+          :class="{ active: activeTab === 'institutions' }"
+          @click="activeTab = 'institutions'"
+        >
+          <i class="bi bi-geo-alt"></i>
+          Где обучаться
+        </button>
+      </div>
 
-        <div v-else-if="error" class="error-message">
-          {{ error }}
-        </div>
+      <div v-if="loading" class="state-box">
+        <div class="spinner"></div>
+        <span>Загружаем данные…</span>
+      </div>
 
-        <div v-else>
-          <!-- About Tab -->
-          <div v-if="activeTab === 'about'" class="about-section">
-            <div class="about-card">
+      <div v-else-if="error" class="state-box error">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>{{ error }}</span>
+        <button type="button" class="btn-primary" @click="fetchData">Повторить</button>
+      </div>
+
+      <template v-else>
+        <!-- About -->
+        <section v-if="activeTab === 'about'" class="about-section">
+          <article class="about-card">
+            <div class="about-card-accent"></div>
+            <div class="about-card-inner">
               <h2>{{ specializationName }}</h2>
-              <h3 class="qualification-name">{{ qualificationName }}</h3>
-              <div class="about-content">
-                <div v-if="specialization.about1 || specialization.about2 || specialization.about3" class="about-content">
-                  <div v-if="specialization.about1" class="about-item">
-                    <p>{{ specialization.about1 }}</p>
-                  </div>
-                  <div v-if="specialization.about2" class="about-item">
-                    <p>{{ specialization.about2 }}</p>
-                  </div>
-                  <div v-if="specialization.about3" class="about-item">
-                    <p>{{ specialization.about3 }}</p>
-                  </div>
+              <p class="qual-line" v-if="qualificationName">
+                <i class="bi bi-award"></i>
+                {{ qualificationName }}
+              </p>
+
+              <div
+                v-if="specialization.about1 || specialization.about2 || specialization.about3"
+                class="about-blocks"
+              >
+                <div v-if="specialization.about1" class="about-item">
+                  <span class="about-num">01</span>
+                  <p>{{ specialization.about1 }}</p>
                 </div>
-                <div v-else class="no-data-message">
-                  <p>Описание для данной специальности пока не добавлено</p>
+                <div v-if="specialization.about2" class="about-item">
+                  <span class="about-num">02</span>
+                  <p>{{ specialization.about2 }}</p>
+                </div>
+                <div v-if="specialization.about3" class="about-item">
+                  <span class="about-num">03</span>
+                  <p>{{ specialization.about3 }}</p>
+                </div>
+              </div>
+
+              <div v-else class="empty-about">
+                <i class="bi bi-file-text"></i>
+                <p>Описание для данной специальности пока не добавлено</p>
+              </div>
+
+              <div v-if="extraFields.length" class="extra-grid">
+                <div v-for="field in extraFields" :key="field.key" class="extra-card">
+                  <h3>{{ field.label }}</h3>
+                  <p>{{ field.value }}</p>
                 </div>
               </div>
             </div>
+          </article>
+        </section>
+
+        <!-- Institutions -->
+        <section v-if="activeTab === 'institutions'" class="institutions-section">
+          <div v-if="loadingInstitutions" class="state-box">
+            <div class="spinner"></div>
+            <span>Загружаем учебные заведения…</span>
           </div>
 
-          <!-- Institutions Tab -->
-          <div v-if="activeTab === 'institutions'" class="institutions-tab">
-            <div v-if="loadingInstitutions" class="loader-container">
-              <div class="spinner"></div>
-            </div>
-            <div v-else-if="errorInstitutions">{{ errorInstitutions }}</div>
-            <div v-else-if="filteredInstitutions.length === 0" style="margin: 0 0 0 200px;">Результатов не найдено</div>
-            <div v-else class="cards-container">
-              <div v-for="institution in filteredInstitutions" :key="institution.id" class="list-card">
-                <div class="card-img">
-                  <img :src="getImageUrl(institution.photo_url, defaultImage)" class="card-img" />
+          <div v-else-if="errorInstitutions" class="state-box error">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span>{{ errorInstitutions }}</span>
+          </div>
+
+          <div v-else-if="!filteredInstitutions.length" class="state-box">
+            <i class="bi bi-building"></i>
+            <span>Результатов не найдено</span>
+          </div>
+
+          <div v-else class="inst-grid">
+            <article
+              v-for="institution in filteredInstitutions"
+              :key="institution.id"
+              class="inst-card"
+            >
+              <div class="inst-media">
+                <img
+                  :src="getImageUrl(institution.photo_url, defaultImage)"
+                  :alt="institution.name"
+                  @error="onImgError"
+                />
+              </div>
+              <div class="inst-body">
+                <div class="inst-top">
+                  <h3 class="inst-name">{{ institution.name }}</h3>
+                  <button
+                    type="button"
+                    class="heart-btn"
+                    :class="{ liked: institution.isLiked, 'is-animating': institution.isAnimating }"
+                    @click="toggleLike(institution)"
+                    :aria-label="institution.isLiked ? 'Убрать из избранного' : 'В избранное'"
+                  >
+                    <img :src="institution.isLiked ? HeartFill : HeartLine" alt="" />
+                  </button>
                 </div>
-                <div class="card-info">
-                  <div class="heart-container">
-                    <span class="heart-icon" :class="{ liked: institution.isLiked, 'is-animating': institution.isAnimating }" @click="toggleLike(institution)">
-                      <img :src="institution.isLiked ? HeartFill : HeartLine" alt="">
-                    </span>
-                  </div>
 
-                  <div class="card-info-up">
-                    <h3>{{ institution.name }} 
-                      <span class="likes-count">
-                        <i class="bi bi-heart-fill"></i> {{ institution.likes_count || 0 }}
-                      </span><br>
-                      <span v-for="star in 5" :key="star" class="fa fa-star" :class="{ checked: star <= Math.round(institution.reviews_avg_rating) }"></span>
-                    </h3>
-                    <p>{{ institution.location }}</p>
-                    <p>{{ institution.address }}</p>
-                  </div>
+                <div class="inst-rating">
+                  <span
+                    v-for="star in 5"
+                    :key="star"
+                    class="star"
+                    :class="{ on: star <= Math.round(institution.reviews_avg_rating || 0) }"
+                  >★</span>
+                  <span class="likes">
+                    <i class="bi bi-heart-fill"></i>
+                    {{ institution.likes_count || 0 }}
+                  </span>
+                </div>
 
-                  <div class="card-info-down">
-                    <div class="card-info-down-feature">
-                      <p>Гранты</p>
-                      <p class="feature">{{ institution.grants ? 'Да' : 'Нет' }}</p>
-                    </div>
-                    <div class="card-info-down-feature">
-                      <p>Студенческое общежитие</p>
-                      <p class="feature">{{ institution.dormitory ? 'Да' : 'Нет' }}</p>
-                    </div>
-                    <button type="button" class="university-button" @click="$router.push(`/${isCollege ? 'College' : 'University'}About/${institution.id}`)">Подробнее</button>
-                  </div>
+                <p class="inst-loc" v-if="institution.location || institution.address">
+                  <i class="bi bi-geo-alt-fill"></i>
+                  {{ institution.location || institution.address }}
+                </p>
+                <p class="inst-addr" v-if="institution.address && institution.location">
+                  {{ institution.address }}
+                </p>
+
+                <div class="inst-features">
+                  <span class="feat" :class="{ on: institution.grants }">
+                    {{ institution.grants ? 'Есть гранты' : 'Без грантов' }}
+                  </span>
+                  <span class="feat" :class="{ on: institution.dormitory }">
+                    {{ institution.dormitory ? 'Есть общежитие' : 'Нет общежития' }}
+                  </span>
+                </div>
+
+                <div class="inst-actions">
+                  <button
+                    type="button"
+                    class="btn-primary"
+                    @click="$router.push(`/${isCollege ? 'College' : 'University'}About/${institution.id}`)"
+                  >
+                    Подробнее
+                  </button>
                 </div>
               </div>
-            </div>
+            </article>
           </div>
-        </div>
+        </section>
+      </template>
+    </div>
 
-        <!-- Modal for Unauthorized Users -->
-        <div v-if="showAuthModal" class="modal-overlay">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Требуется авторизация</h5>
-            </div>
-            <div class="modal-body">
-              Пожалуйста, войдите в аккаунт, чтобы поставить лайк.
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" @click="showAuthModal = false">Отмена</button>
-              <button type="button" class="btn btn-primary" @click="redirectToLogin">Войти</button>
-            </div>
-          </div>
+    <div v-if="showAuthModal" class="modal-overlay" @click.self="showAuthModal = false">
+      <div class="modal-card">
+        <h3>Требуется авторизация</h3>
+        <p>Войдите в аккаунт, чтобы поставить лайк.</p>
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" @click="showAuthModal = false">Отмена</button>
+          <button type="button" class="btn-primary" @click="redirectToLogin">Войти</button>
         </div>
       </div>
     </div>
-  </body>
+  </div>
 </template>
 
 <script>
 import axios from 'axios';
-import HeartFill from "@/components/icons/heart-fill.png";
-import HeartLine from "@/components/icons/heart-line.png";
-import UnCardImage from "@/components/img/UnCard.png";
-import ColCardImage from "@/components/img/CollegeCard.png";
+import HeartFill from '@/components/icons/heart-fill.png';
+import HeartLine from '@/components/icons/heart-line.png';
+import UnCardImage from '@/components/img/UnCard.png';
+import ColCardImage from '@/components/img/CollegeCard.png';
 
 export default {
   name: 'SpecializationAboutPage',
-  
+
   data() {
     return {
       activeTab: 'about',
@@ -165,20 +242,35 @@ export default {
       HeartLine,
       defaultImage: null,
       currentUser: null,
-      showAuthModal: false
+      showAuthModal: false,
     };
+  },
+
+  computed: {
+    extraFields() {
+      const s = this.specialization || {};
+      const fields = [];
+      if (s.requirements) fields.push({ key: 'req', label: 'Требования', value: s.requirements });
+      if (s.opportunities) fields.push({ key: 'opp', label: 'Возможности', value: s.opportunities });
+      if (s.skills) fields.push({ key: 'skills', label: 'Навыки', value: s.skills });
+      if (s.description && !s.about1) {
+        fields.push({ key: 'desc', label: 'Описание', value: s.description });
+      }
+      return fields;
+    },
   },
 
   async created() {
     const savedData = JSON.parse(localStorage.getItem('selectedSpecialization') || '{}');
-    console.log('Saved specialization data:', savedData);
     this.specializationName = savedData.name || '';
     this.specialtyName = savedData.specialty_name || '';
-    this.qualificationName = savedData.qualification?.name || 'Неизвестная квалификация';
+    this.qualificationName =
+      savedData.qualification?.name ||
+      savedData.qualification_name ||
+      'Неизвестная квалификация';
     this.isCollege = savedData.type === 'college';
-    console.log('Is college type:', this.isCollege);
     this.defaultImage = this.isCollege ? ColCardImage : UnCardImage;
-    
+
     await this.fetchCurrentUser();
     await this.fetchData();
   },
@@ -188,7 +280,7 @@ export default {
       if (newTab === 'institutions') {
         this.fetchInstitutions(this.$route.params.id);
       }
-    }
+    },
   },
 
   methods: {
@@ -200,7 +292,7 @@ export default {
           return;
         }
         const response = await axios.get('http://localhost:8000/api/current-user', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         });
         this.currentUser = response.data;
       } catch (error) {
@@ -212,35 +304,41 @@ export default {
     async fetchData() {
       this.loading = true;
       this.error = null;
-      
+
       try {
         const savedData = JSON.parse(localStorage.getItem('selectedSpecialization') || '{}');
-        const specializationId = savedData.id;
+        const specializationId = savedData.id || this.$route.params.id;
         const type = savedData.type || 'university';
-        
+
         if (!specializationId) {
           throw new Error('ID специализации не найден');
         }
 
-        const endpoint = type === 'college' 
-          ? `http://localhost:8000/api/college-specializations/${specializationId}`
-          : `http://localhost:8000/api/specializations/${specializationId}`;
+        const endpoint =
+          type === 'college'
+            ? `http://localhost:8000/api/college-specializations/${specializationId}`
+            : `http://localhost:8000/api/specializations/${specializationId}`;
 
-        console.log('Using endpoint:', endpoint);
         const response = await axios.get(endpoint);
 
         if (response.data.success) {
-          console.log('Specialization data:', response.data.data);
           this.specialization = response.data.data;
           this.specializationName = this.specialization.name;
-          this.qualificationName = this.specialization.qualification?.qualification_name || 'Неизвестная квалификация';
-          this.specialtyName = this.specialization.qualification?.global_specialty?.name || '';
+          this.qualificationName =
+            this.specialization.qualification?.qualification_name ||
+            this.specialization.qualification?.name ||
+            this.qualificationName ||
+            'Неизвестная квалификация';
+          this.specialtyName =
+            this.specialization.qualification?.global_specialty?.name ||
+            this.specialtyName ||
+            '';
         } else {
-          this.error = "Не удалось загрузить данные о специальности";
+          this.error = 'Не удалось загрузить данные о специальности';
         }
       } catch (error) {
-        console.error("Ошибка при загрузке данных:", error);
-        this.error = "Произошла ошибка при загрузке данных";
+        console.error('Ошибка при загрузке данных:', error);
+        this.error = 'Произошла ошибка при загрузке данных';
       } finally {
         this.loading = false;
       }
@@ -249,28 +347,35 @@ export default {
     async fetchInstitutions(specializationId) {
       this.loadingInstitutions = true;
       this.errorInstitutions = null;
-      
+
       try {
         const savedData = JSON.parse(localStorage.getItem('selectedSpecialization') || '{}');
         const type = savedData.type || 'university';
-        
-        const endpoint = type === 'college'
-          ? `http://localhost:8000/api/college-specializations/${specializationId}/institutions`
-          : `http://localhost:8000/api/specializations/${specializationId}/institutions`;
+        const id = specializationId || savedData.id || this.$route.params.id;
 
-        console.log('Using endpoint:', endpoint);
+        const endpoint =
+          type === 'college'
+            ? `http://localhost:8000/api/college-specializations/${id}/institutions`
+            : `http://localhost:8000/api/specializations/${id}/institutions`;
+
         const response = await axios.get(endpoint);
 
         if (response.data.success) {
-          console.log('Institutions data:', response.data.data);
-          this.institutions = response.data.data;
-          this.filteredInstitutions = response.data.data;
+          const liked = this.currentUser ? await this.fetchLikedInstitutions() : [];
+          const likedIds = new Set((liked || []).map((i) => i.id));
+          const list = (response.data.data || []).map((inst) => ({
+            ...inst,
+            isLiked: likedIds.has(inst.id),
+            isAnimating: false,
+          }));
+          this.institutions = list;
+          this.filteredInstitutions = list;
         } else {
-          this.errorInstitutions = "Не удалось загрузить список учебных заведений";
+          this.errorInstitutions = 'Не удалось загрузить список учебных заведений';
         }
       } catch (error) {
-        console.error("Ошибка при загрузке учебных заведений:", error);
-        this.errorInstitutions = "Произошла ошибка при загрузке данных";
+        console.error('Ошибка при загрузке учебных заведений:', error);
+        this.errorInstitutions = 'Произошла ошибка при загрузке данных';
       } finally {
         this.loadingInstitutions = false;
       }
@@ -279,7 +384,9 @@ export default {
     async fetchLikedInstitutions() {
       try {
         const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` };
-        const response = await axios.get('http://localhost:8000/api/liked-institutions', { headers });
+        const response = await axios.get('http://localhost:8000/api/liked-institutions', {
+          headers,
+        });
         return response.data;
       } catch (error) {
         console.error('Error fetching liked institutions:', error);
@@ -298,29 +405,44 @@ export default {
         institution.isAnimating = true;
 
         if (institution.isLiked) {
-          await axios.delete(`http://localhost:8000/api/institutions/${institution.id}/unlike`, { headers });
+          await axios.delete(
+            `http://localhost:8000/api/institutions/${institution.id}/unlike`,
+            { headers }
+          );
           institution.isLiked = false;
           institution.likes_count = (institution.likes_count || 1) - 1;
         } else {
-          await axios.post(`http://localhost:8000/api/institutions/${institution.id}/like`, {}, { headers });
+          await axios.post(
+            `http://localhost:8000/api/institutions/${institution.id}/like`,
+            {},
+            { headers }
+          );
           institution.isLiked = true;
           institution.likes_count = (institution.likes_count || 0) + 1;
         }
 
-        this.institutions = this.institutions.map(inst => 
-          inst.id === institution.id ? { ...inst, isLiked: institution.isLiked, likes_count: institution.likes_count, isAnimating: true } : inst
-        );
-        this.filteredInstitutions = this.filteredInstitutions.map(inst => 
-          inst.id === institution.id ? { ...inst, isLiked: institution.isLiked, likes_count: institution.likes_count, isAnimating: true } : inst
-        );
+        const patch = (list) =>
+          list.map((inst) =>
+            inst.id === institution.id
+              ? {
+                  ...inst,
+                  isLiked: institution.isLiked,
+                  likes_count: institution.likes_count,
+                  isAnimating: true,
+                }
+              : inst
+          );
+
+        this.institutions = patch(this.institutions);
+        this.filteredInstitutions = patch(this.filteredInstitutions);
 
         setTimeout(() => {
-          this.institutions = this.institutions.map(inst => 
-            inst.id === institution.id ? { ...inst, isAnimating: false } : inst
-          );
-          this.filteredInstitutions = this.filteredInstitutions.map(inst => 
-            inst.id === institution.id ? { ...inst, isAnimating: false } : inst
-          );
+          const clearAnim = (list) =>
+            list.map((inst) =>
+              inst.id === institution.id ? { ...inst, isAnimating: false } : inst
+            );
+          this.institutions = clearAnim(this.institutions);
+          this.filteredInstitutions = clearAnim(this.filteredInstitutions);
         }, 300);
       } catch (error) {
         console.error('Error toggling like:', error);
@@ -338,564 +460,609 @@ export default {
 
     getImageUrl(url, fallback) {
       if (!url) return fallback;
-      if (url.startsWith('http')) return url;
+      if (url.startsWith('http') || url.startsWith('data:')) return url;
       const base = 'http://localhost:8000';
       if (url.startsWith('/')) return `${base}${url}`;
       return `${base}/storage/${url}`;
-    }
-  }
+    },
+
+    onImgError(e) {
+      e.target.src = this.defaultImage;
+    },
+  },
 };
 </script>
 
 <style scoped>
-.list-container {
-  display: flex;
-  width: 100%;
+.spec-page {
+  --blue: var(--torap-blue, #1795c0);
+  --blue-dark: var(--torap-blue-dark, #12799c);
+  --gold: var(--torap-gold, #b08d4f);
+  --navy: #0b1f2a;
+  --text: #10222e;
+  --muted: #64748b;
+  --border: #e6edf2;
+  --bg: #f4f7f9;
+  --white: #ffffff;
   min-height: 100vh;
-}
-
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
+  background: var(--bg);
+  color: var(--text);
+  padding-top: 72px;
   width: 100%;
-  height: 4rem;
-  z-index: 1001;
-  background-color: rgba(255, 255, 255, 0.9);
-  transition: background-color 0.3s ease;
+  box-sizing: border-box;
 }
 
-.sidebar-left-minor {
-  width: 12%;
-  flex-shrink: 0;
+.page-hero {
+  background: linear-gradient(120deg, #0b1f2a 0%, #14384a 55%, #1795c0 160%);
+  color: #fff;
+  padding: 32px 20px 28px;
 }
 
-.sidebar-left {
-  position: fixed;
-  top: 4rem;
-  left: 0;
-  width: 15%;
-  height: calc(100vh - 4rem);
-  background-color: white;
-  padding: 1.5rem;
+.page-hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  color: var(--gold);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.page-hero h1 {
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  font-weight: 800;
+  margin: 0 0 10px;
+  line-height: 1.2;
+  color: #fff;
+  word-break: break-word;
+}
+
+.page-sub {
+  margin: 0 0 4px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.page-sub.muted {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.92rem;
+}
+
+.gold-text {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.page-body {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+.breadcrumb-bar {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  z-index: 1;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 16px;
 }
 
-.sidebar-text {
-  font-size: 1.6rem;
-  margin-bottom: 1rem;
-  font-weight: bold;
-  margin-top: 20%;
-}
-
-.tab-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.tab-buttons button {
-  padding: 10px 20px;
+.bc-link {
   border: none;
   background: none;
-  font-size: 1.2rem;
+  padding: 0;
+  color: var(--blue);
+  font-weight: 600;
   cursor: pointer;
-  text-align: left;
-  color: #666;
-  transition: color 0.3s, transform 0.3s;
+  font-size: inherit;
 }
 
-.tab-buttons button.active {
-  color: #577C8E;
-  font-weight: bold;
-  transform: scale(1.1);
+.bc-link:hover {
+  color: var(--blue-dark);
 }
 
-.tab-buttons button:hover {
-  color: #577C8E;
+.bc-sep {
+  color: var(--gold);
+  font-weight: 700;
 }
 
-.main-content {
-  flex-grow: 1;
-  background-color: #d4e5ed;
-  padding: 2rem 5%;
-  margin-top: 4rem;
-  overflow-y: auto;
-  min-height: 100vh;
+.bc-current {
+  color: var(--text);
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: min(100%, 360px);
 }
 
-.breadcrumb {
-  margin-bottom: 20px;
-  background-color: white;
-  padding: 10px 15px;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  font-size: 1.5em;
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 8px;
 }
 
-.breadcrumb-item {
-  color: #577C8E;
-  transition: color 0.3s;
+.tab {
+  flex: 1 1 140px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.breadcrumb-item:not(.active):hover {
-  color: #466470;
+.tab:hover {
+  color: var(--blue-dark);
+  background: rgba(23, 149, 192, 0.06);
 }
 
-.breadcrumb-item.active {
-  color: #333;
+.tab.active {
+  color: var(--blue-dark);
+  background: rgba(23, 149, 192, 0.12);
+  border-color: rgba(23, 149, 192, 0.3);
 }
 
-.breadcrumb-item + .breadcrumb-item::before {
-  content: ">";
-  color: #577C8E;
+.tab i {
+  color: var(--gold);
 }
 
 .about-card {
-  background: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(16, 34, 46, 0.05);
+}
+
+.about-card-accent {
+  height: 4px;
+  background: linear-gradient(90deg, var(--blue), var(--gold));
+}
+
+.about-card-inner {
+  padding: 22px 20px 24px;
 }
 
 .about-card h2 {
-  color: #333;
-  margin-bottom: 20px;
+  margin: 0 0 8px;
+  font-size: clamp(1.2rem, 3vw, 1.55rem);
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.25;
 }
 
-.qualification-name {
-  color: #577C8E;
-  font-size: 1.2em;
-  margin-bottom: 20px;
-  font-weight: normal;
+.qual-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 18px;
+  color: var(--blue);
+  font-weight: 600;
 }
 
-.about-content {
+.qual-line i {
+  color: var(--gold);
+}
+
+.about-blocks {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 
 .about-item {
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 14px 16px;
+  background: linear-gradient(90deg, rgba(23, 149, 192, 0.06), rgba(176, 141, 79, 0.05));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.about-num {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  padding-top: 2px;
 }
 
 .about-item p {
   margin: 0;
-  line-height: 1.6;
-  color: #444;
+  line-height: 1.65;
+  color: #334155;
+  font-size: 0.98rem;
+  word-break: break-word;
 }
 
-.no-data-message {
+.empty-about {
   text-align: center;
-  padding: 30px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  color: #666;
-  width: 100%;
-  margin: 20px 0;
-}
-
-.no-data-message p {
-  margin: 0;
-  font-size: 1.1em;
-}
-
-.cards-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  justify-content: center;
-}
-
-.list-card {
-  display: flex;
-  width: 100%;
-  max-width: 75rem;
-  min-height: 15rem;
-  padding: 1rem;
-  background-color: white;
+  padding: 28px 16px;
+  color: var(--muted);
+  background: #f8fafc;
   border-radius: 12px;
-  position: relative;
-  box-sizing: border-box;
+  border: 1px dashed var(--border);
 }
 
-.card-img {
+.empty-about i {
+  font-size: 1.5rem;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.extra-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.extra-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  border-top: 3px solid var(--gold);
+}
+
+.extra-card h3 {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--blue-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.extra-card p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.55;
+  font-size: 0.92rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.inst-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.inst-card {
+  display: grid;
+  grid-template-columns: minmax(120px, 220px) 1fr;
+  gap: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(16, 34, 46, 0.04);
+}
+
+.inst-media {
+  min-height: 160px;
+  background: #e8f4f8;
+}
+
+.inst-media img {
   width: 100%;
-  max-width: 16rem;
   height: 100%;
-  border-radius: 6px;
-  margin-right: 1rem;
-  flex-shrink: 0;
   object-fit: cover;
+  display: block;
+  min-height: 160px;
 }
 
-.card-info {
+.inst-body {
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
   min-width: 0;
 }
 
-.card-info-up {
-  overflow: hidden;
-  width: 95%;
-}
-
-.card-info-up h3 {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin: 0 0 0.5rem 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-info-up p {
-  color: #919191;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin: 0.25rem 0;
-}
-
-.card-info-down {
+.inst-top {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  width: 100%;
-  margin-top: 1rem;
+  gap: 10px;
 }
 
-.card-info-down-feature {
-  margin-right: 1rem;
-  flex-shrink: 0;
-}
-
-.card-info-down-feature p:first-child {
-  margin-bottom: 0.25rem;
-  font-size: 0.9rem;
-}
-
-.feature {
-  color: black;
-  font-size: 1rem;
-  font-weight: bold;
+.inst-name {
   margin: 0;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: 800;
+  color: var(--navy);
+  line-height: 1.3;
+  word-break: break-word;
 }
 
-.university-button {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  background-color: #577C8E;
-  color: white;
+.heart-btn {
   border: none;
-  transition: transform 0.3s ease;
-  font-size: 0.9rem;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
   flex-shrink: 0;
 }
 
-.university-button:hover {
-  transform: scale(1.1);
+.heart-btn img {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.2s ease;
 }
 
-.heart-container {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 1;
+.heart-btn:hover img,
+.heart-btn.is-animating img {
+  transform: scale(1.15);
 }
 
-.heart-icon {
-  cursor: pointer;
-  display: inline-block;
-}
-
-.heart-icon img {
-  width: 2rem;
-  height: 2rem;
-  transition: all 0.3s ease;
-}
-
-.heart-icon:hover img {
-  transform: scale(1.1);
-}
-
-.heart-icon.liked img {
-  transform: scale(1);
-  filter: brightness(1);
-}
-
-.heart-icon.liked.is-animating img {
-  animation: likeAnimation 0.3s ease;
-}
-
-.heart-icon:not(.liked).is-animating img {
-  animation: unlikeAnimation 0.3s ease;
-}
-
-@keyframes likeAnimation {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-
-@keyframes unlikeAnimation {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.9); }
-  100% { transform: scale(1); }
-}
-
-.fa-star {
-  color: #ccc;
-  font-size: 1.8rem;
-}
-
-.fa-star.checked {
-  color: #ffd700;
-}
-
-.likes-count {
-  font-size: 0.9em;
-  color: #577c8e;
-  font-weight: normal;
-  background-color: #f5f5f5;
-  padding: 4px 8px;
-  border-radius: 12px;
-  margin-left: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.likes-count i {
-  font-size: 0.9em;
-}
-
-.loader-container {
+.inst-rating {
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
   align-items: center;
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  gap: 8px;
+  margin: 8px 0;
 }
 
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #577C8E;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.star {
+  color: #d1d5db;
+  font-size: 0.95rem;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.star.on {
+  color: var(--gold);
 }
 
-.error-message {
-  color: #dc3545;
-  padding: 20px;
+.likes {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.likes i {
+  color: #e11d48;
+  margin-right: 2px;
+}
+
+.inst-loc,
+.inst-addr {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.inst-loc i {
+  color: var(--blue);
+  margin-right: 4px;
+}
+
+.inst-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+
+.feat {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.feat.on {
+  background: rgba(23, 149, 192, 0.1);
+  color: var(--blue-dark);
+  border-color: rgba(23, 149, 192, 0.25);
+}
+
+.inst-actions {
+  margin-top: auto;
+}
+
+.btn-primary {
+  border: none;
+  background: var(--blue);
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: var(--blue-dark);
+}
+
+.btn-ghost {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 220px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--muted);
+  padding: 24px;
   text-align: center;
 }
 
-.filter-container,
-.sidebar,
-.sidebar-toggle-button,
-.sidebar-header,
-.sidebar-nav-filtration {
-  display: none;
+.state-box.error {
+  color: #b45309;
+}
+
+.state-box i {
+  font-size: 1.6rem;
+  color: var(--gold);
+}
+
+.spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #e8eef2;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(11, 31, 42, 0.5);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
 }
 
-.modal-content {
-  background-color: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
-  animation: slideIn 0.3s ease-out;
+.modal-card {
+  width: min(420px, 100%);
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
 }
 
-.modal-header {
-  border-bottom: none;
-  padding: 20px;
-  background: #04202D;
-  color: white;
-  border-top-left-radius: 15px;
-  border-top-right-radius: 15px;
+.modal-card h3 {
+  margin: 0 0 8px;
+  color: var(--navy);
 }
 
-.modal-title {
-  font-size: 1.5rem;
-  font-weight: bold;
+.modal-card p {
+  margin: 0 0 18px;
+  color: var(--muted);
 }
 
-.modal-body {
-  padding: 20px;
-  font-size: 1.1rem;
-  color: #333;
-}
-
-.modal-footer {
-  border-top: none;
-  padding: 15px 20px;
-  background: #f8f9fa;
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
+.modal-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.btn-secondary {
-  background-color: #e0e0e0;
-  color: #333;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
-}
-
-.btn-secondary:hover {
-  background-color: #d0d0d0;
-}
-
-.btn-primary {
-  background: #10222E;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  transition: background-color 0.3s ease;
-}
-
-.btn-primary:hover {
-  background: #2e6386;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
+/* Tablet */
+@media (max-width: 900px) {
+  .inst-card {
+    grid-template-columns: 160px 1fr;
   }
 }
 
-@media (max-width: 1024px) {
-  .sidebar-left, .sidebar-left-minor {
-    width: 15%;
+/* Phone */
+@media (max-width: 640px) {
+  .spec-page {
+    padding-top: 64px;
   }
 
-  .list-card {
-    max-width: 100%;
+  .page-hero {
+    padding: 24px 16px 22px;
   }
 
-  .card-img {
-    width: 35%;
-    max-width: 12rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .sidebar-left {
-    width: 100%;
-    height: auto;
-    position: static;
-    padding: 1rem;
-    box-shadow: none;
+  .page-body {
+    padding: 14px 12px 40px;
   }
 
-  .sidebar-left-minor {
-    display: none;
+  .tabs {
+    padding: 6px;
   }
 
-  .sidebar-text {
-    margin-top: 0;
-    font-size: 1.4rem;
-  }
-
-  .tab-buttons button {
-    font-size: 1rem;
-  }
-
-  .main-content {
-    padding: 1rem 2%;
-  }
-
-  .list-card {
-    flex-direction: column;
-    min-height: auto;
-    padding: 0.75rem;
-  }
-
-  .card-img {
-    width: 100%;
-    max-width: none;
-    margin: 0 0 0.5rem 0;
-  }
-
-  .card-info-down {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .university-button {
-    width: 100%;
-    margin: 0.5rem 0 0 0;
-  }
-
-  .heart-icon img {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .card-info-up h3 {
-    font-size: 1.2rem;
-  }
-
-  .card-info-up p, .card-info-down-feature p:first-child {
-    font-size: 0.8rem;
-  }
-
-  .feature {
+  .tab {
+    flex: 1 1 100%;
+    padding: 12px 10px;
     font-size: 0.9rem;
   }
 
-  .university-button {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.8rem;
+  .about-card-inner {
+    padding: 16px 14px 18px;
+  }
+
+  .about-item {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .inst-card {
+    grid-template-columns: 1fr;
+  }
+
+  .inst-media {
+    height: 180px;
+  }
+
+  .inst-media img {
+    min-height: 180px;
+    height: 180px;
+  }
+
+  .inst-body {
+    padding: 14px;
+  }
+
+  .bc-current {
+    max-width: 160px;
   }
 }
-</style> 
+
+@media (max-width: 380px) {
+  .page-hero h1 {
+    font-size: 1.3rem;
+  }
+
+  .btn-primary,
+  .btn-ghost {
+    width: 100%;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+}
+</style>

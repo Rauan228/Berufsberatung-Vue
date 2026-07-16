@@ -148,7 +148,7 @@ export default {
 .add-form input { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; flex:1; }
 .add-form select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; }
 .add-form textarea{padding:6px 8px;border:1px solid #ccc;border-radius:6px;width:100%;}
-.btn-primary { background:#008FFF; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; }
+.btn-primary { background:#1795c0; color:#fff; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; }
 .btn-danger { background:#ff4d4f; color:#fff; border:none; padding:4px 10px; border-radius:6px; cursor:pointer; }
 .events-table { width:100%; border-collapse: collapse; }
 .events-table th, .events-table td { border:1px solid #ddd; padding:8px; text-align:left; }
@@ -163,6 +163,6 @@ export default {
 
 /* Loader styles */
 .loader-container{display:flex;justify-content:center;align-items:center;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.8);z-index:1000;}
-.spinner{width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #577C8E;border-radius:50%;animation:spin 1s linear infinite;}
+.spinner{width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #1795c0;border-radius:50%;animation:spin 1s linear infinite;}
 @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 </style>

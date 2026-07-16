@@ -203,13 +203,13 @@ li {
 .btn-danger{color:#ff4d4f}
 
 .global-title{
-  background:#008FFF;
+  background:#1795c0;
   color:#fff;
   padding:6px 10px;
   border-radius:6px;
 }
 
-.qual-block{margin-left:20px;margin-top:8px;padding-left:10px;border-left:3px solid #008FFF;}
+.qual-block{margin-left:20px;margin-top:8px;padding-left:10px;border-left:3px solid #1795c0;}
 
 .qual-title{color:#005f9e;margin:4px 0;}
 
@@ -220,6 +220,6 @@ li {
 
 /* Loader styles */
 .loader-container{display:flex;justify-content:center;align-items:center;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.8);z-index:1000;}
-.spinner{width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #577C8E;border-radius:50%;animation:spin 1s linear infinite;}
+.spinner{width:50px;height:50px;border:5px solid #f3f3f3;border-top:5px solid #1795c0;border-radius:50%;animation:spin 1s linear infinite;}
 @keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 </style>

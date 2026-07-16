@@ -3,64 +3,85 @@
     <router-view></router-view>
     <ToastNotifications />
   </div>
-  <nav v-if="!isInstitutionPage" :class="['navbar', isScrolled ? 'bg-body-tertiary' : 'transparent-header', 'fixed-top']">
-    <div class="container-fluid">
-      <a class="navbar-logo" @click="$router.push('/')"><img src="C:\Users\Рауан\coding\Berufsberatung-Vue-main\public\B_B.png" alt="" style="width: 50px;"></a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasNavbar"
-        aria-controls="offcanvasNavbar"
-        aria-label="Toggle navigation"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div
-        class="offcanvas offcanvas-end"
-        tabindex="-1"
-        id="offcanvasNavbar"
-        aria-labelledby="offcanvasNavbarLabel"
-        ref="offcanvasNavbar"
-      >
-        <div class="offcanvas-header">
-          <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Меню</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="offcanvas"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="offcanvas-body">
-          <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-            <li class="nav-item">
-              <a class="nav-link" @click="checkAuth">Личный кабинет</a>
-            </li>
-            <li class="nav-item">
-              <h class="nav-link">Специальности
-                <li class="nav-item">
-                  <a class="nav-link" @click="$router.push('/Specialties/Universities/GlobalSpecialties')">Университетов</a>
-                  <a class="nav-link" @click="$router.push('/Specialties/Colleges')">Колледжей</a>
-                </li>
-              </h>
-            </li>
-            <li class="nav-item">
-              <h class="nav-link">Студентам
-                <li class="nav-item">
-                  <a class="nav-link" @click="$router.push('/Universities')">Университеты</a>
-                  <a class="nav-link" @click="$router.push('/Colleges')">Колледжи</a>
-                  <a class="nav-link" @click="$router.push('/Map')">Карта учебных заведений</a>
-                  <a class="nav-link" @click="$router.push('/Events')">Мероприятия</a>
-                  <a class="nav-link" @click="$router.push('/Test')">Профориентационный тест</a>
-                  <a class="nav-link" @click="$router.push('/UniversityPortal')">Для Университетов</a>
-                </li>
-              </h>
-            </li>
-          </ul>
-        </div>
-      </div>
+  <nav v-if="!isInstitutionPage" :class="['tp-navbar', { scrolled: isScrolled, 'menu-open': menuOpen }]">
+    <div class="tp-nav-inner">
+      <a class="tp-logo" @click="go('/')">
+        <img src="/torap-logo.png" alt="Torap">
+      </a>
     </div>
+
+    <button
+      class="tp-burger"
+      :class="{ active: menuOpen }"
+      type="button"
+      :aria-label="menuOpen ? 'Закрыть меню' : 'Открыть меню'"
+      :aria-expanded="menuOpen ? 'true' : 'false'"
+      @click="toggleMenu"
+    >
+      <span class="tp-burger-box">
+        <span class="tp-burger-line"></span>
+        <span class="tp-burger-line"></span>
+        <span class="tp-burger-line"></span>
+      </span>
+    </button>
+
+    <!-- Затемнение фона -->
+    <transition name="tp-fade">
+      <div v-if="menuOpen" class="tp-backdrop" @click="closeMenu"></div>
+    </transition>
+
+    <!-- Выезжающая панель -->
+    <transition name="tp-slide">
+      <aside v-if="menuOpen" class="tp-panel">
+        <div class="tp-panel-head">
+          <img src="/torap-logo.png" alt="Torap" class="tp-panel-logo">
+        </div>
+
+        <div class="tp-panel-body">
+          <a class="tp-account" @click="checkAuth">
+            <span class="tp-account-ico"><i class="bi bi-person-fill"></i></span>
+            <span class="tp-account-label">Личный кабинет</span>
+            <i class="bi bi-chevron-right tp-chevron"></i>
+          </a>
+
+          <div class="tp-group">
+            <span class="tp-group-title">Специальности</span>
+            <a class="tp-link" @click="go('/Specialties/Universities/GlobalSpecialties')">
+              <span class="tp-ico"><i class="bi bi-mortarboard-fill"></i></span>
+              Университетов
+            </a>
+            <a class="tp-link" @click="go('/Specialties/Colleges')">
+              <span class="tp-ico"><i class="bi bi-journal-bookmark-fill"></i></span>
+              Колледжей
+            </a>
+          </div>
+
+          <div class="tp-group">
+            <span class="tp-group-title">Студентам</span>
+            <a class="tp-link" @click="go('/Universities')">
+              <span class="tp-ico"><i class="bi bi-buildings-fill"></i></span>
+              Университеты
+            </a>
+            <a class="tp-link" @click="go('/Colleges')">
+              <span class="tp-ico"><i class="bi bi-bank2"></i></span>
+              Колледжи
+            </a>
+            <a class="tp-link" @click="go('/Map')">
+              <span class="tp-ico"><i class="bi bi-geo-alt-fill"></i></span>
+              Карта учебных заведений
+            </a>
+            <a class="tp-link" @click="go('/Events')">
+              <span class="tp-ico"><i class="bi bi-calendar2-event-fill"></i></span>
+              Мероприятия
+            </a>
+            <a class="tp-link" @click="go('/Test')">
+              <span class="tp-ico"><i class="bi bi-clipboard2-check-fill"></i></span>
+              Профориентационный тест
+            </a>
+          </div>
+        </div>
+      </aside>
+    </transition>
   </nav>
 
   <!-- Модальное окно для неавторизованных пользователей -->
@@ -97,7 +118,6 @@
 </template>
 
 <script>
-import { Modal, Offcanvas } from 'bootstrap'; // Импортируем Offcanvas для управления сайдбаром
 import axios from 'axios';
 import ToastNotifications from '@/components/ToastNotifications.vue';
 import { notificationsStore } from '@/store/notificationsStore';
@@ -107,7 +127,7 @@ export default {
   data() {
     return {
       isScrolled: false,
-      offcanvasInstance: null,
+      menuOpen: false,
       showAuthModal: false,
       notifTimer: null,
     };
@@ -118,9 +138,54 @@ export default {
       return this.$route.path.startsWith('/InctitutionsMain');
     },
   },
+  watch: {
+    menuOpen(open) {
+      this.setScrollLock(open);
+    },
+    // Закрываем меню при смене маршрута
+    $route() {
+      this.closeMenu();
+    },
+  },
   methods: {
+    /**
+     * Блокирует фон при открытом меню.
+     * Компенсируем ширину scrollbar, чтобы страница не дёргалась.
+     * Важно: всегда полностью снимаем стили при unlock — иначе скролл «залипает».
+     */
+    setScrollLock(lock) {
+      const body = document.body;
+      const html = document.documentElement;
+      if (lock) {
+        const sbw = Math.max(0, window.innerWidth - html.clientWidth);
+        this._lockScrollY = window.scrollY || 0;
+        html.style.setProperty('--tp-sbw', `${sbw}px`);
+        body.style.overflow = 'hidden';
+        body.style.paddingRight = sbw ? `${sbw}px` : '';
+      } else {
+        body.style.removeProperty('overflow');
+        body.style.removeProperty('padding-right');
+        html.style.setProperty('--tp-sbw', '0px');
+        // на всякий: если overflow остался inline — снести
+        if (body.style.overflow === 'hidden') body.style.overflow = '';
+      }
+    },
+    toggleMenu() {
+      this.menuOpen = !this.menuOpen;
+    },
+    closeMenu() {
+      this.menuOpen = false;
+      // сразу снимаем lock (не только через watcher)
+      this.setScrollLock(false);
+    },
+    // Навигация с закрытием меню
+    go(path) {
+      this.closeMenu();
+      if (this.$route.path !== path) this.$router.push(path);
+    },
     // Проверка авторизации пользователя
     checkAuth() {
+      this.closeMenu();
       if (localStorage.getItem('token')) {
         this.$router.push('/User');
       } else {
@@ -132,53 +197,68 @@ export default {
       this.$router.push('/login');
       this.showAuthModal = false; // Закрываем модальное окно
     },
+    closeModal() {
+      this.showAuthModal = false;
+    },
     // Обработчик скролла для изменения стиля навигации
     handleScroll() {
       this.isScrolled = window.scrollY > 50;
     },
-    // Закрытие сайдбара при клике вне его
-    handleOutsideClick(event) {
-      const offcanvasElement = this.$refs.offcanvasNavbar;
-      if (this.offcanvasInstance && offcanvasElement && !offcanvasElement.contains(event.target)) {
-        this.offcanvasInstance.hide(); // Закрываем сайдбар
-      }
+    // Закрытие меню по Escape
+    handleKeydown(e) {
+      if (e.key === 'Escape') this.closeMenu();
     },
-    // Инициализация Offcanvas
-    initializeOffcanvas() {
-      const offcanvasElement = this.$refs.offcanvasNavbar;
-      if (offcanvasElement) {
-        this.offcanvasInstance = new Offcanvas(offcanvasElement);
-        // Добавляем слушатель события открытия для управления кликами
-        offcanvasElement.addEventListener('shown.bs.offcanvas', () => {
-          document.addEventListener('click', this.handleOutsideClick);
-        });
-        // Удаляем слушатель при закрытии
-        offcanvasElement.addEventListener('hidden.bs.offcanvas', () => {
-          document.removeEventListener('click', this.handleOutsideClick);
-        });
-      }
-    },
-    async fetchNotifications(){
+    hasValidToken() {
       const token = localStorage.getItem('token');
-      if(!token) return;
-      try{
-        const { data } = await axios.get('http://localhost:8000/api/notifications',{
-          headers:{ Authorization:`Bearer ${token}` }
+      if (!token || token === 'null' || token === 'undefined' || token.length < 8) {
+        localStorage.removeItem('token');
+        return false;
+      }
+      return true;
+    },
+    stopNotifPolling() {
+      if (this.notifTimer) {
+        clearInterval(this.notifTimer);
+        this.notifTimer = null;
+      }
+    },
+    async fetchNotifications() {
+      if (!this.hasValidToken()) {
+        this.stopNotifPolling();
+        return;
+      }
+      try {
+        const { data } = await axios.get('http://localhost:8000/api/notifications', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          validateStatus: (s) => s >= 200 && s < 300,
         });
-        notificationsStore.addNotifications(Array.isArray(data)?data:data.data||[]);
-      }catch(e){ console.warn('notif fetch error'); }
+        notificationsStore.addNotifications(Array.isArray(data) ? data : data.data || []);
+      } catch (e) {
+        const status = e?.response?.status;
+        // 401/403 — гость или просроченный токен: тихо выходим, без console.warn
+        if (status === 401 || status === 403) {
+          localStorage.removeItem('token');
+          this.stopNotifPolling();
+        }
+      }
     },
   },
   mounted() {
+    // сбрасываем возможный «залипший» overflow после HMR / прошлого lock
+    this.setScrollLock(false);
     window.addEventListener('scroll', this.handleScroll);
-    this.initializeOffcanvas(); // Инициализируем Offcanvas при монтировании
-    this.fetchNotifications();
-    this.notifTimer = setInterval(this.fetchNotifications, 30000);
+    window.addEventListener('keydown', this.handleKeydown);
+    // уведомления только для реально авторизованных
+    if (this.hasValidToken()) {
+      this.fetchNotifications();
+      this.notifTimer = setInterval(this.fetchNotifications, 30000);
+    }
   },
   beforeUnmount() {
     window.removeEventListener('scroll', this.handleScroll);
-    document.removeEventListener('click', this.handleOutsideClick); // Очищаем слушатель кликов
-    if(this.notifTimer) clearInterval(this.notifTimer);
+    window.removeEventListener('keydown', this.handleKeydown);
+    this.setScrollLock(false);
+    if (this.notifTimer) clearInterval(this.notifTimer);
   },
 };
 </script>
@@ -192,7 +272,7 @@ export default {
 .btn-check {
   padding: 10px 24px;
   font-size: 16px;
-  background-color: #4a90e2;
+  background-color: #1795c0;
   color: white;
   border: none;
   border-radius: 8px;
@@ -200,7 +280,7 @@ export default {
   transition: background-color 0.2s ease;
 }
 .btn-check:hover {
-  background-color: #3a78c2;
+  background-color: #12799c;
 }
 
 
@@ -298,7 +378,7 @@ export default {
 /* Кнопка «Войти» */
 .btn-login {
   flex: 1;
-  background-color: #4a90e2;
+  background-color: #1795c0;
   color: white;
   border: none;
   border-radius: 8px;
@@ -308,7 +388,7 @@ export default {
   transition: background-color 0.2s ease;
 }
 .btn-login:hover {
-  background-color: #3a78c2;
+  background-color: #12799c;
 }
 
 /* Анимация появления */
@@ -323,64 +403,390 @@ export default {
   }
 }
 
-/* Остальные стили */
-.navbar {
-  transition: background-color 0.3s ease;
-}
-.transparent-header {
-  background-color: transparent !important;
-}
-.bg-body-tertiary {
-  background-color: #f8f9fa !important;
-}
-
-.container-fluid {
-  padding: 0 30px;
-}
-
-.nav-item {
-  margin-left: 10px;
-}
-
-.navbar-logo {
-  font-size: 2rem;
-  font-weight: bolder;
-  color: red;
-  cursor: pointer;
-}
-
-.navbar.bg-body-tertiary {
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.transparent-header {
-  background-color: transparent !important;
-}
-
-.background-image {
-  position: relative;
-  background: url('@/components/img/HeadImgFon.png') no-repeat;
-  background-size: cover;
-  height: 95vh;
-  width: 100%;
-  margin-top: 4.5%;
-}
-
-.background-image-dark-overlay {
-  position: absolute;
+/* ==================== Навбар Torap ==================== */
+.tp-navbar {
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1;
+  /* при lock скролла компенсируем исчезнувший scrollbar, чтобы fixed-хедер не прыгал */
+  padding-right: var(--tp-sbw, 0px);
+  box-sizing: border-box;
+  z-index: 1050;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
 }
 
-.background-image-content {
+/* Убираем глобальные стили ссылок внутри навбара/панели */
+.tp-navbar a,
+.tp-panel a {
+  text-decoration: none;
+  padding: initial;
+  transition: inherit;
+}
+/* Не трогаем .tp-account — у него свой hover (золотой контур) */
+.tp-navbar a:not(.tp-account):hover,
+.tp-panel a:not(.tp-account):hover {
+  background: none;
+  transform: none;
+}
+
+.tp-nav-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Прозрачный поверх hero + лёгкое затемнение для читаемости бургера */
+.tp-navbar:not(.scrolled) {
+  background: linear-gradient(to bottom, rgba(4, 22, 32, 0.55), rgba(4, 22, 32, 0));
+}
+
+/* После скролла — светлая плашка */
+.tp-navbar.scrolled {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(16, 34, 46, 0.08);
+}
+
+/* Когда меню открыто — фон навбара нейтральный (панель поверх) */
+.tp-navbar.menu-open:not(.scrolled) {
+  background: transparent;
+}
+
+.tp-logo {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.tp-logo img {
+  width: 118px;
+  height: auto;
+  transition: filter 0.3s ease;
+}
+
+/* На прозрачном тёмном хедере логотип светлый */
+.tp-navbar:not(.scrolled) .tp-logo img {
+  filter: brightness(0) invert(1);
+}
+
+/* ===== Анимированный бургер → крестик ===== */
+/* Фиксирован к правому краю окна, поэтому в открытом виде крестик
+   попадает ровно в угол выезжающей панели, а не на текст «Меню». */
+.tp-burger {
+  --burger-color: #10222e;
+  position: fixed;
+  top: 14px;
+  /* + scrollbar, иначе бургер/крестик прыгает влево при open */
+  right: calc(24px + var(--tp-sbw, 0px));
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+  z-index: 1300; /* выше панели (1200) — крестик всегда сверху и кликабелен */
+}
+
+.tp-burger:hover {
+  background: rgba(23, 149, 192, 0.12);
+}
+
+/* На прозрачном хедере полоски белые */
+.tp-navbar:not(.scrolled):not(.menu-open) .tp-burger {
+  --burger-color: #ffffff;
+}
+
+.tp-burger-box {
   position: relative;
-  z-index: 2;
-  top: 10%;
-  left: 7%;
-  width: 90%;
+  width: 28px;
+  height: 20px;
+  display: block;
+}
+
+.tp-burger-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 2.5px;
+  border-radius: 3px;
+  background: var(--burger-color);
+  transition: transform 0.35s cubic-bezier(0.68, -0.3, 0.32, 1.3),
+    opacity 0.2s ease, background-color 0.3s ease, width 0.35s ease;
+}
+
+.tp-burger-line:nth-child(1) { top: 0; }
+.tp-burger-line:nth-child(2) { top: 50%; transform: translateY(-50%); }
+.tp-burger-line:nth-child(3) { bottom: 0; }
+
+/* Активное состояние: верхняя и нижняя сходятся в X, средняя исчезает */
+.tp-burger.active {
+  --burger-color: #10222e;
+}
+
+.tp-burger.active .tp-burger-line:nth-child(1) {
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.tp-burger.active .tp-burger-line:nth-child(2) {
+  opacity: 0;
+  transform: translateY(-50%) scaleX(0);
+}
+
+.tp-burger.active .tp-burger-line:nth-child(3) {
+  bottom: auto;
+  top: 50%;
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+/* ===== Затемнение фона ===== */
+.tp-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 22, 32, 0.5);
+  z-index: 1100;
+}
+
+/* ===== Выезжающая панель ===== */
+.tp-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  height: 100dvh;
+  width: 340px;
+  max-width: 86vw;
+  background: #ffffff;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -12px 0 40px rgba(16, 34, 46, 0.18);
+}
+
+.tp-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  border-bottom: 1px solid #eef2f5;
+}
+
+.tp-panel-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #10222e;
+}
+
+.tp-panel-logo {
+  width: 96px;
+  height: auto;
+  display: block;
+}
+
+.tp-panel-close {
+  background: transparent;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  color: #10222e;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tp-panel-close:hover {
+  background: rgba(23, 149, 192, 0.12);
+  color: var(--torap-blue, #1795c0);
+}
+
+.tp-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px 28px;
+}
+
+/* Личный кабинет — акцентный блок */
+.tp-account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #10222e, #14384a);
+  color: #fff;
+  cursor: pointer;
+  will-change: transform;
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tp-account:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 22px rgba(16, 34, 46, 0.22);
+}
+
+.tp-account-ico {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex: 0 0 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--torap-gold-bright, #d4af37), var(--torap-gold, #b08d4f));
+  box-shadow: 0 4px 12px rgba(176, 141, 79, 0.35);
+}
+
+.tp-account-ico i {
+  font-size: 1.45rem;
+  color: #fff;
+}
+
+.tp-account-label {
+  font-weight: 600;
+  flex: 1;
+  font-size: 1.02rem;
+}
+
+.tp-chevron {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* Группы ссылок */
+.tp-group {
+  margin-bottom: 20px;
+}
+
+.tp-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--torap-gold, #b08d4f);
+  padding: 0 12px;
+  margin-bottom: 8px;
+}
+
+/* Тонкая золотая линия после заголовка группы */
+.tp-group-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(176, 141, 79, 0.3), transparent);
+}
+
+.tp-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  border-radius: 14px;
+  color: #2b3d47;
+  font-size: 1.04rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+/* Иконка в цветной плитке */
+.tp-ico {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  flex: 0 0 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(23, 149, 192, 0.14), rgba(23, 149, 192, 0.07));
+  box-shadow: inset 0 0 0 1px rgba(23, 149, 192, 0.12);
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.tp-ico i {
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--torap-blue, #1795c0);
+  transition: color 0.2s ease;
+}
+
+.tp-link:hover {
+  background: rgba(23, 149, 192, 0.08);
+  color: var(--torap-blue-dark, #12799c);
+  transform: translateX(3px);
+}
+
+.tp-link:hover .tp-ico {
+  background: linear-gradient(135deg, var(--torap-blue, #1795c0), var(--torap-blue-dark, #12799c));
+  box-shadow: 0 6px 14px rgba(23, 149, 192, 0.35);
+  transform: scale(1.05);
+}
+
+.tp-link:hover .tp-ico i {
+  color: #fff;
+}
+
+/* ===== Переходы ===== */
+.tp-fade-enter-active,
+.tp-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.tp-fade-enter-from,
+.tp-fade-leave-to {
+  opacity: 0;
+}
+
+.tp-slide-enter-active,
+.tp-slide-leave-active {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.tp-slide-enter-from,
+.tp-slide-leave-to {
+  transform: translateX(100%);
+}
+
+/* ===== Адаптив ===== */
+@media (max-width: 575px) {
+  .tp-nav-inner {
+    padding: 10px 16px;
+  }
+  .tp-logo img {
+    width: 100px;
+  }
+  .tp-burger {
+    top: 12px;
+    right: 14px;
+  }
+  .tp-panel {
+    width: 320px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-burger-line,
+  .tp-slide-enter-active,
+  .tp-slide-leave-active,
+  .tp-fade-enter-active,
+  .tp-fade-leave-active {
+    transition-duration: 0.01ms;
+  }
 }
 </style>

@@ -649,7 +649,7 @@ export default {
           styles: [{ color: '#FF0000', weight: 8, opacity: 0.9 }]
         },
         altLineOptions: {
-          styles: [{ color: '#008FFF', weight: 6, opacity: 0.7 }]
+          styles: [{ color: '#1795c0', weight: 6, opacity: 0.7 }]
         }
       }).addTo(this.map)
 
@@ -832,7 +832,7 @@ export default {
 
 .sidebar-nav-filtration button.selected {
   background-color: #D0D0D0;
-  color: #008FFF;
+  color: #1795c0;
   font-weight: bold;
 }
 
@@ -898,7 +898,7 @@ h {
 .modal-button {
   width: 100%;
   padding: 10px;
-  background: #008FFF;
+  background: #1795c0;
   color: white;
   border: none;
   border-radius: 4px;
@@ -917,14 +917,14 @@ h {
 :deep(.direction){margin:0 0 4px 0;font-size:13px;color:#9ca3af;}
 :deep(.rating-stars){margin:2px 0;}
 :deep(.fa-star){color:#ccc;font-size:15px;}
-:deep(.fa-star.checked){color:#ffd700;}
+:deep(.fa-star.checked){color:#d4af37;}
 :deep(.popup-features){list-style-type:disc;padding-left:16px;margin:4px 0;font-size:13px;color:#00263b;}
 :deep(.popup-features li){margin-bottom:2px;}
 :deep(.popup-address){margin:4px 0;font-size:13px;color:#3b3b3b;}
 :deep(.popup-actions){display:flex;gap:6px;margin-top:6px;}
 :deep(.details-btn){flex:1;text-align:center;background:#e5e5e5;color:#333;border:none;padding:6px 8px;border-radius:4px;font-size:12px;text-decoration:none;}
 :deep(.details-btn:hover){background:#d1d5db;}
-:deep(.route-btn){flex:1;background:#008FFF;color:#fff;border:none;padding:6px 8px;border-radius:4px;cursor:pointer;font-size:12px;}
+:deep(.route-btn){flex:1;background:#1795c0;color:#fff;border:none;padding:6px 8px;border-radius:4px;cursor:pointer;font-size:12px;}
 :deep(.route-btn:hover){background:#006fd3;}
 
 /* Add route summary overlay styles */
@@ -966,7 +966,7 @@ h {
 }
 
 .route-bar .mode-buttons button.active {
-  background: #008FFF;
+  background: #1795c0;
   color: white;
 }
 

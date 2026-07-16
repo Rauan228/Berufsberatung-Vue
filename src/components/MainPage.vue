@@ -1,489 +1,761 @@
 <template>
-  <header>
+  <div class="landing">
 
-
-    <div class="background-image">
-      <div class="background-image-dark-overlay"></div>
-      <div class="background-image-content">
-        <h1 class="text-white">Добро <br>
-          пожаловать</h1>
-        <p class="text-white lead">
-          Пройдите тест профориентации и <br>
-          найдите свое место в жизни
+    <!-- ===== Hero ===== -->
+    <header class="hero">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <h1 class="hero-title">
+          Найди своё будущее<br>с <span class="accent-gold">Torap</span>
+        </h1>
+        <p class="hero-subtitle">
+          Профориентационный тест, каталог университетов и колледжей,
+          специальности, гранты, мероприятия и подача заявок — всё для
+          осознанного выбора профессии на одной платформе.
         </p>
-        <button @click="$router.push('/TestPage')" class="btn btn-light btn-lg header-button">
-          <h2>Пройти тест</h2>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <main class="container py-5">
-    <div class="row align-items-center fade-in" ref="blocks">
-      <div class="col-12 col-md-8  p-4 text-block">
-        <h3>
-          Тест для профориентации</h3>
-        <p>
-
-          "Пройдите простой тест профориентации и узнайте подходящие <br>
-          профессии и учебные направления. Ответьте на вопросы и получите<br>
-          рекомендации, основанные на ваших интересах и сильных
-          сторонах. <br>
-          Начните свой карьерный путь уже сегодня!".
-        </p>
-      </div>
-      <div class="col-12 col-md-4 text-center">
-        <img src="@/components/img/MainImg.png" alt="Image" class="img-fluid" />
-      </div>
-    </div>
-
-    <div class="row align-items-center fade-in" ref="blocks">
-      <div class="col-12 col-md-4 text-center">
-        <img src="@/components/img/MainImgtwo.png" alt="Image" class="img-fluid" />
-      </div>
-      <div class="col-12 col-md-8 p-4 text-block">
-        <h3>Узнай больше о профессии </h3>
-        <p>
-          Познакомься поближе с разнообразием профессий и их уникальными<br>
-          особенностями. Пойми, какие навыки, знания и качества требуются для <br>
-          успеха в выбранной области. Узнай о ключевых задачах, карьерных перспективах и возможностях роста.
-        </p>
-      </div>
-    </div>
-
-    <div class="row align-items-center fade-in" ref="blocks">
-      <div class="col-12 col-md-8 p-4 text-block">
-        <h3>
-          Черном по белому</h3>
-        <p>
-          Узнайте о его престижности, уникальных программах, условиях <br>
-          обучения и специализациях, которые помогут в карьерном росте. <br>
-          Мы собрали всё самое важное: курсы, стоимость, преподавателей <br>
-          и отзывы студентов, чтобы вы могли сделать осознанный <br>
-          выбор без лишних деталей.
-        </p>
-      </div>
-      <div class="col-12 col-md-4 text-center">
-        <img src="@/components/img/MainImgThree.png" alt="Image" class="img-fluid" />
-      </div>
-    </div>
-  </main>
-
-
-  <div class="Specialties_feed">
-    <div class="group">
-      <div class="card card-1">
-        <div class="card-content">
-          <h2>Творческие <br>
-            специальности</h2>
-          <hr>
-          <ul>
-            <li>Живопись</li>
-            <li>Графика</li>
-            <li>Скульптура</li>
-            <li>Дизайн</li>
-          </ul>
-          <button @click="$router.push('/Specialties/Universities/GlobalSpecialties')"
-            class="card-button">Подробнее</button>
+        <div class="hero-actions">
+          <button class="btn-hero-primary" @click="$router.push('/Test')">
+            Пройти тест
+          </button>
+          <button class="btn-hero-secondary" @click="$router.push('/Universities')">
+            Смотреть вузы
+          </button>
         </div>
-      </div>
-
-      <div class="card card-2">
-        <div class="card-content">
-          <h2>Технические <br>
-            специальности</h2>
-          <hr>
-          <ul>
-            <li>Программирование</li>
-            <li>Сетевые технологии</li>
-            <li>Робототехника</li>
-            <li>Механика</li>
-          </ul>
-          <button @click="$router.push('/Specialties/Universities/GlobalSpecialties')"
-            class="card-button">Подробнее</button>
-
-        </div>
-      </div>
-
-      <div class="card card-3">
-        <div class="card-content">
-          <h2>Научные <br>
-            специальности</h2>
-          <hr>
-          <ul>
-            <li>Физика</li>
-            <li>Химия</li>
-            <li>Биология</li>
-            <li>Астрономия</li>
-          </ul>
-          <button @click="$router.push('/Specialties/Universities/GlobalSpecialties')"
-            class="card-button">Подробнее</button>
-
-        </div>
-      </div>
-
-      <div class="card card-4">
-        <div class="card-content">
-          <h2>Социальные <br>
-            специальности</h2>
-          <hr>
-          <ul>
-            <li>Психология</li>
-            <li>Социология</li>
-            <li>История</li>
-            <li>Культурология</li>
-          </ul>
-          <button @click="$router.push('/Specialties/Universities/GlobalSpecialties')"
-            class="card-button">Подробнее</button>
-
-        </div>
-      </div>
-
-    </div>
-
-    <div aria-hidden class="group">
-      <div class="card card-1">
-        <div class="card-content">
-          <h2>Творческие<br>
-            специальности</h2>
-          <hr>
-          <ul>
-            <li>Живопись</li>
-            <li>Графика</li>
-            <li>Скульптура</li>
-            <li>Дизайн</li>
-          </ul>
-          <button @click="$router.push('/Specialties/Universities/GlobalSpecialties')"
-            class="card-button">Подробнее</button>
-
-        </div>
-      </div>
-
-      <div class="card card-2">
-        <div class="card-content">
-          <h2>Технические <br>
-            специальности</h2>
-          <hr>
-          <ul>
-            <li>Программирование</li>
-            <li>Сетевые технологии</li>
-            <li>Робототехника</li>
-            <li>Механика</li>
-          </ul>
-          <button @click="$router.push('/Specialties/Universities/GlobalSpecialties')"
-            class="card-button">Подробнее</button>
-
-        </div>
-      </div>
-
-      <div class="card card-3">
-        <div class="card-content">
-          <h2>Научные <br>
-            специальности</h2>
-          <ul>
-            <li>Физика</li>
-            <li>Химия</li>
-            <li>Биология</li>
-            <li>Астрономия</li>
-          </ul>
-          <button @click="$router.push('/Specialties/Universities/GlobalSpecialties')"
-            class="card-button">Подробнее</button>
-
-        </div>
-      </div>
-
-      <div class="card card-4">
-        <div class="card-content">
-          <h2>Социальные <br>
-            специальности</h2>
-          <ul>
-            <li>Психология</li>
-            <li>Социология</li>
-            <li>История</li>
-            <li>Культурология</li>
-          </ul>
-          <button @click="$router.push('/Specialties/Universities/GlobalSpecialties')"
-            class="card-button">Подробнее</button>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <div class="Find-university-container fade-in">
-    <div class="Find-university-wrapper">
-      <div class="Find-university-text-block">
-        <h2>Найди учебное<br> заведение мечты</h2>
-        <p>Подбери вуз и специальность, <br>
-          исходя из своих интересов и карьерных целей. <br>
-          Мы поможем сделать осознанный выбор!</p>
-        <button @click="$router.push('/Universities')" class="action-button">
-          Смотреть
-          <div class="hover-box">
-            <img src="@/components/img/Лупа.png" alt="Лупа" class="magnifier-icon">
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-value" :class="{ 'is-counting': !statsLoaded }">{{ displayStats.universities }}</span>
+            <span class="stat-label">университетов</span>
           </div>
-        </button>
+          <div class="stat">
+            <span class="stat-value" :class="{ 'is-counting': !statsLoaded }">{{ displayStats.colleges }}</span>
+            <span class="stat-label">колледжей</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" :class="{ 'is-counting': !statsLoaded }">{{ displayStats.directions }}+</span>
+            <span class="stat-label">направлений</span>
+          </div>
+        </div>
       </div>
-      <div class="Find-university-image-block">
-        <img src="@/components/img/UniImg.png" alt="Учебное заведение мечты">
+    </header>
+
+    <!-- ===== Возможности платформы ===== -->
+    <section class="section fade-in">
+      <div class="section-head">
+        <span class="section-eyebrow">Возможности</span>
+        <h2>Что умеет Torap</h2>
+        <p>Полный путь абитуриента — от «кем я хочу стать» до поданной заявки</p>
       </div>
+      <div class="features-grid">
+        <div class="feature-card" v-for="f in features" :key="f.title" @click="$router.push(f.route)">
+          <div class="feature-icon"><i :class="f.icon"></i></div>
+          <h3>{{ f.title }}</h3>
+          <p>{{ f.text }}</p>
+          <span class="feature-link">Перейти <i class="bi bi-arrow-right"></i></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Как это работает + футер — один блок, одна анимация ===== -->
+    <div class="bottom-block fade-in">
+      <section class="section section-dark">
+        <div class="section-head">
+          <span class="section-eyebrow">Процесс</span>
+          <h2>Как это работает</h2>
+          <p>Четыре шага к правильному выбору</p>
+        </div>
+        <div class="steps-grid">
+          <div class="step" v-for="(s, i) in steps" :key="s.title">
+            <div class="step-num">{{ i + 1 }}</div>
+            <h3>{{ s.title }}</h3>
+            <p>{{ s.text }}</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <img src="/torap-logo.png" alt="Torap" class="footer-logo">
+            <p>Платформа профориентации и поступления</p>
+          </div>
+          <nav class="footer-nav">
+            <a @click.prevent="$router.push('/Test')" href="/Test">Тест</a>
+            <a @click.prevent="$router.push('/Universities')" href="/Universities">Университеты</a>
+            <a @click.prevent="$router.push('/Colleges')" href="/Colleges">Колледжи</a>
+            <a @click.prevent="$router.push('/Map')" href="/Map">Карта</a>
+            <a @click.prevent="$router.push('/Events')" href="/Events">Мероприятия</a>
+          </nav>
+        </div>
+        <div class="footer-bottom">© {{ new Date().getFullYear() }} Torap</div>
+      </footer>
     </div>
-  </div>
-
-  <div class="scroll-footer-wrapper">
-    <div class="scroll-footer-text">
-      BERUFSBERATUNG
-    </div>
-  </div>
-  <div class="MainPageFooter-container">
-    <footer class="MainPageFooter">
-      <div class="row">
-        <div class="col-6 col-md-2 mb-3">
-          <h5>Section</h5>
-          <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Home</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Features</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Pricing</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">FAQs</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">About</a></li>
-          </ul>
-        </div>
-
-        <div class="col-6 col-md-2 mb-3">
-          <h5>Section</h5>
-          <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Home</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Features</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Pricing</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">FAQs</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">About</a></li>
-          </ul>
-        </div>
-
-        <div class="col-6 col-md-2 mb-3">
-          <h5>Section</h5>
-          <ul class="nav flex-column">
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Home</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Features</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">Pricing</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">FAQs</a></li>
-            <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-light">About</a></li>
-          </ul>
-        </div>
-
-        <div class="col-md-5 offset-md-1 mb-3">
-          <form>
-            <h5>Subscribe to our newsletter</h5>
-            <p>Monthly digest of what's new and exciting from us.</p>
-            <div class="d-flex flex-column flex-sm-row w-100 gap-2">
-              <label for="newsletter1" class="visually-hidden">Email address</label>
-              <input id="newsletter1" type="text" class="form-control" placeholder="Email address">
-              <button class="btn btn-primary" type="button">Subscribe</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div class="d-flex flex-column flex-sm-row justify-content-between py-4 my-4 border-top">
-        <p>© 2024 Company, Inc. All rights reserved.</p>
-        <ul class="list-unstyled d-flex">
-          <li class="ms-3"><a class="link-body-emphasis" href="#"><svg class="bi" width="24" height="24">
-                <use xlink:href="#twitter"></use>
-              </svg></a></li>
-          <li class="ms-3"><a class="link-body-emphasis" href="#"><svg class="bi" width="24" height="24">
-                <use xlink:href="#instagram"></use>
-              </svg></a></li>
-          <li class="ms-3"><a class="link-body-emphasis" href="#"><svg class="bi" width="24" height="24">
-                <use xlink:href="#facebook"></use>
-              </svg></a></li>
-        </ul>
-      </div>
-
-    </footer>
-
 
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
+  name: 'MainPage',
   data() {
     return {
-      isScrolled: false,
+      observer: null,
+      statsLoaded: false,
+      displayStats: {
+        universities: 0,
+        colleges: 0,
+        directions: 0,
+      },
+      stats: {
+        institutions: 0,
+        universities: 0,
+        colleges: 0,
+        directions: 0,
+      },
+      _idleTimer: null,
+      _animFrames: {},
+      features: [
+        {
+          icon: 'bi bi-clipboard-check',
+          title: 'Профориентационный тест',
+          text: 'Ответь на вопросы и получи рекомендации по профессиям, основанные на твоих интересах и сильных сторонах.',
+          route: '/Test',
+        },
+        {
+          icon: 'bi bi-mortarboard',
+          title: 'Университеты',
+          text: 'Каталог вузов Казахстана: программы, стоимость, гранты, отзывы студентов и рейтинги.',
+          route: '/Universities',
+        },
+        {
+          icon: 'bi bi-building',
+          title: 'Колледжи',
+          text: 'Колледжи и их квалификации — если хочешь получить профессию быстрее.',
+          route: '/Colleges',
+        },
+        {
+          icon: 'bi bi-journal-bookmark',
+          title: 'Специальности',
+          text: 'Подробно о каждом направлении: чем занимаются, какие предметы сдавать, где учиться.',
+          route: '/Specialties/Universities/GlobalSpecialties',
+        },
+        {
+          icon: 'bi bi-geo-alt',
+          title: 'Карта заведений',
+          text: 'Все университеты и колледжи на интерактивной карте — ищи рядом с домом.',
+          route: '/Map',
+        },
+        {
+          icon: 'bi bi-calendar-event',
+          title: 'Мероприятия',
+          text: 'Дни открытых дверей, олимпиады и ярмарки — записывайся и получай билет онлайн.',
+          route: '/Events',
+        },
+      ],
+      steps: [
+        {
+          title: 'Пройди тест',
+          text: 'Узнай, какие профессии подходят именно тебе.',
+        },
+        {
+          title: 'Изучи направления',
+          text: 'Посмотри специальности, предметы и перспективы.',
+        },
+        {
+          title: 'Сравни заведения',
+          text: 'Отзывы, гранты, стоимость и расположение на карте.',
+        },
+        {
+          title: 'Подай заявку',
+          text: 'Отправь заявку в выбранный вуз или колледж онлайн.',
+        },
+      ],
     };
   },
   mounted() {
-    window.addEventListener("scroll", this.handleScroll);
-
-    const options = {
-      root: null,
-      threshold: 0.1,
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        } else if (entry.boundingClientRect.top > 0) {
-
-          entry.target.classList.remove("visible");
-        }
-      });
-    }, options);
-
-    const elements = document.querySelectorAll(".fade-in");
-    elements.forEach((el) => observer.observe(el));
+    // если lock сайдбара залип — снять, иначе страница не скроллится
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+    this.initObserver();
+    this.startIdleCount();
+    this.fetchStats();
   },
   beforeUnmount() {
-    window.removeEventListener("scroll", this.handleScroll);
+    if (this.observer) this.observer.disconnect();
+    if (this._fadeFallback) clearTimeout(this._fadeFallback);
+    this.stopIdleCount();
+    Object.values(this._animFrames).forEach((id) => {
+      if (id) cancelAnimationFrame(id);
+    });
   },
   methods: {
-    handleScroll() {
-      this.isScrolled = window.scrollY > 50;
+    initObserver() {
+      const els = this.$el?.querySelectorAll?.('.fade-in');
+      if (!els?.length) return;
+
+      // fallback: если IO не сработает — всё равно показать секции
+      const revealAll = () => {
+        els.forEach((el) => el.classList.add('visible'));
+      };
+
+      if (typeof IntersectionObserver === 'undefined') {
+        revealAll();
+        return;
+      }
+
+      this.observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              this.observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+      );
+      els.forEach((el) => this.observer.observe(el));
+
+      // страховка через 1.2с — контент не «пропадает» навсегда
+      this._fadeFallback = setTimeout(revealAll, 1200);
+    },
+    /** Пока ждём API — цифры «набираются» с 0 вверх */
+    startIdleCount() {
+      this.stopIdleCount();
+      const tick = () => {
+        if (this.statsLoaded) return;
+        this.displayStats.universities = Math.min(this.displayStats.universities + 1, 99);
+        this.displayStats.colleges = Math.min(this.displayStats.colleges + 1, 99);
+        this.displayStats.directions = Math.min(this.displayStats.directions + 1, 120);
+        this._idleTimer = setTimeout(tick, 55);
+      };
+      this._idleTimer = setTimeout(tick, 40);
+    },
+    stopIdleCount() {
+      if (this._idleTimer) {
+        clearTimeout(this._idleTimer);
+        this._idleTimer = null;
+      }
+    },
+    /** Плавный ease-out к точной цифре с API */
+    animateTo(key, target, duration = 1100) {
+      const start = Number(this.displayStats[key]) || 0;
+      const end = Number(target) || 0;
+      if (this._animFrames[key]) cancelAnimationFrame(this._animFrames[key]);
+      if (start === end) {
+        this.displayStats[key] = end;
+        return;
+      }
+      const startTime = performance.now();
+      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+      const step = (now) => {
+        const t = Math.min(1, (now - startTime) / duration);
+        this.displayStats[key] = Math.round(start + (end - start) * easeOutCubic(t));
+        if (t < 1) {
+          this._animFrames[key] = requestAnimationFrame(step);
+        } else {
+          this.displayStats[key] = end;
+          this._animFrames[key] = null;
+        }
+      };
+      this._animFrames[key] = requestAnimationFrame(step);
+    },
+    settleStats() {
+      this.stopIdleCount();
+      this.statsLoaded = true;
+      // небольшая задержка по ключам — «волна» приземления
+      this.animateTo('universities', this.stats.universities, 1000);
+      setTimeout(() => this.animateTo('colleges', this.stats.colleges, 1000), 80);
+      setTimeout(() => this.animateTo('directions', this.stats.directions, 1100), 160);
+    },
+    async fetchStats() {
+      try {
+        const [inst, uniSpec, colSpec] = await Promise.all([
+          axios.get('http://localhost:8000/api/institutions'),
+          axios.get('http://localhost:8000/api/specialties', { params: { type: 'university' } }),
+          axios.get('http://localhost:8000/api/specialties', { params: { type: 'college' } }),
+        ]);
+        const list = inst.data.data || inst.data || [];
+        this.stats.institutions = list.length;
+        this.stats.universities = list.filter((i) => i.type === 'university').length;
+        this.stats.colleges = list.filter((i) => i.type === 'college').length;
+        const us = (uniSpec.data.data || uniSpec.data || []).length;
+        const cs = (colSpec.data.data || colSpec.data || []).length;
+        this.stats.directions = us + cs;
+        this.settleStats();
+      } catch (e) {
+        // API недоступен — останавливаем «крутилку» и показываем нули плавно
+        this.stats.universities = 0;
+        this.stats.colleges = 0;
+        this.stats.directions = 0;
+        this.settleStats();
+      }
     },
   },
 };
-
-let hasScrolledToEnd = false;
-
-window.addEventListener('scroll', () => {
-  const footerText = document.querySelector('.scroll-footer-text');
-  const scrollPosition = window.innerHeight + window.scrollY;
-  const documentHeight = document.documentElement.offsetHeight;
-
-  if (scrollPosition >= documentHeight - 1) {
-    footerText.classList.remove('hidden');
-    footerText.classList.add('visible');
-    hasScrolledToEnd = true;
-  } else if (hasScrolledToEnd) {
-    footerText.classList.remove('visible');
-    footerText.classList.add('hidden');
-    hasScrolledToEnd = false;
-  }
-});
 </script>
 
 <style scoped>
-html,
-body {
-  margin: 0;
-  padding: 0;
+.landing {
+  --blue: var(--torap-blue, #1795c0);
+  --blue-dark: var(--torap-blue-dark, #12799c);
+  --gold: var(--torap-gold, #b08d4f);
+  --navy: #0b1f2a;
   width: 100%;
-  height: 100%;
+  /* без overflow: hidden — иначе браузер может сделать локальный скролл и «отрезать» секции */
+  overflow: visible;
 }
 
-.container-fluid {
-  padding: 0 30px 0 30px
-}
-
-.navbar {
-  transition: background-color 0.2s ease, box-shadow 10s ease;
-}
-
-.nav-item {
-  margin-left: 10px;
-}
-
-.navbar-logo {
-  font-size: 2rem;
-  font-weight: bolder;
-  color: red;
-}
-
-.navbar.bg-body-tertiary {
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.transparent-header {
-  background-color: transparent !important;
-}
-
-.background-image {
+/* ===== Hero ===== */
+.hero {
   position: relative;
-  background: url('@/components/img/HeadImgFon.png') no-repeat;
-  background-size: cover;
-  height: 95vh;
+  min-height: 100vh;
   width: 100%;
-  margin-top: 4.5%;
+  background: url('@/components/img/HeadImgFon.png') center / cover no-repeat;
+  display: flex;
+  align-items: center;
+  /* hero не скроллится сам по себе — скролл только у страницы */
+  overflow: visible;
+  height: auto;
 }
 
-.background-image-dark-overlay {
+.hero-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1;
+  inset: 0;
+  background: linear-gradient(105deg, rgba(4, 22, 32, 0.92) 0%, rgba(4, 22, 32, 0.75) 45%, rgba(4, 22, 32, 0.45) 100%);
 }
 
-.background-image-content {
+.hero-content {
   position: relative;
   z-index: 2;
-  top: 10%;
-  left: 7%;
-  width: 90%;
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 110px 24px 60px;
 }
 
-h1 {
-  font-size: 9rem;
+.hero-title {
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 6vw, 4.4rem);
+  line-height: 1.12;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.accent-gold {
+  color: var(--gold);
+}
+
+.hero-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  line-height: 1.6;
+  max-width: 640px;
+  margin-bottom: 32px;
+  text-align: left;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 48px;
+}
+
+.btn-hero-primary {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px 36px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(23, 149, 192, 0.38);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+}
+
+.btn-hero-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 14px 34px rgba(23, 149, 192, 0.5);
+  transform: translateY(-2px);
+}
+
+.btn-hero-secondary {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  border-radius: 12px;
+  padding: 14px 34px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-hero-secondary:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Стеклянные карточки статистики */
+.stat {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 26px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  min-width: 150px;
+}
+
+.stat-value {
+  color: var(--gold);
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  min-width: 2.2ch;
+  display: inline-block;
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
+/* Пока ждём БД — лёгкий «живой» пульс цифр */
+.stat-value.is-counting {
+  animation: statPulse 0.7s ease-in-out infinite;
+}
+
+@keyframes statPulse {
+  0%, 100% { opacity: 0.72; filter: blur(0); }
+  50% { opacity: 1; filter: blur(0.2px); }
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  margin-top: 6px;
+}
+
+/* ===== Секции ===== */
+.section {
+  padding: clamp(48px, 8vw, 96px) 24px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* Общий тёмный блок: шаги + футер */
+.bottom-block {
+  background: var(--navy);
+}
+
+.section-dark {
+  max-width: none;
+  background: transparent;
+}
+
+.section-head {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto clamp(32px, 5vw, 56px);
+}
+
+/* Золотой надзаголовок секции */
+.section-eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
   margin-bottom: 10px;
-  text-align: left;
-  font-weight: bold;
+  position: relative;
 }
 
-p {
-  font-size: 1.9rem;
-  margin-bottom: 1.5rem;
-  text-align: left;
+.section-eyebrow::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  margin: 6px auto 0;
 }
 
-h2 {
-  font-size: 1.9rem;
-  font-weight: bold;
-
+.section-head h2 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  color: #10222e;
+  margin-bottom: 12px;
 }
 
-.header-button {
-  transition: transform 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-  background-color: #f8f9fa;
-  color: #000;
-  border-radius: 10px;
-}
-
-.header-button:hover {
-  transform: scale(1.1);
-  background-color: #04202D;
+.section-dark .section-head h2 {
   color: #fff;
 }
 
-.text-block {
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-  background-color: #04202D;
-  color: white;
-  height: 300px;
+.section-head p {
+  color: #64748b;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
+  margin: 0;
 }
 
-.text-block:hover {
-  transform: scale(1.02);
+.section-dark .section-head p {
+  color: rgba(255, 255, 255, 0.65);
 }
 
-.text-block h3 {
-  font-size: 1.9rem;
-  font-weight: bold;
+/* ===== Фичи ===== */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
 }
 
-.text-block p {
-  font-size: 1.5rem;
-  font-weight: lighter;
+.feature-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e6edf2;
+  border-radius: 18px;
+  padding: 30px 26px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
+/* Тонкая градиентная полоска сверху — проявляется на ховере */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--blue), var(--gold));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 40px rgba(16, 34, 46, 0.12);
+  border-color: rgba(23, 149, 192, 0.45);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(23, 149, 192, 0.14), rgba(23, 149, 192, 0.05));
+  box-shadow: inset 0 0 0 1px rgba(23, 149, 192, 0.12);
+  color: var(--blue);
+  font-size: 1.55rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.feature-card:hover .feature-icon {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  box-shadow: 0 8px 20px rgba(23, 149, 192, 0.35);
+  color: #fff;
+  transform: scale(1.06);
+}
+
+.feature-card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #10222e;
+  margin-bottom: 8px;
+}
+
+.feature-card p {
+  color: #64748b;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--blue);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.feature-link i {
+  transition: transform 0.2s ease;
+}
+
+.feature-card:hover .feature-link {
+  color: var(--blue-dark);
+}
+
+.feature-card:hover .feature-link i {
+  transform: translateX(4px);
+}
+
+/* ===== Шаги ===== */
+.section-dark .steps-grid {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+.step {
+  position: relative;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+  padding: 28px 24px;
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.step:hover {
+  transform: translateY(-4px);
+  border-color: rgba(212, 175, 55, 0.4);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.step-num {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #d4af37, var(--gold));
+  box-shadow: 0 6px 16px rgba(176, 141, 79, 0.4);
+  color: #0b1f2a;
+  font-weight: 800;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+/* Пунктирная связка между шагами (desktop) */
+.step::after {
+  content: '';
+  position: absolute;
+  top: 51px;
+  left: calc(24px + 46px + 10px);
+  right: 18px;
+  border-top: 2px dashed rgba(212, 175, 55, 0.28);
+}
+
+.step:last-child::after {
+  display: none;
+}
+
+@media (max-width: 991px) {
+  .step::after {
+    display: none;
+  }
+}
+
+.step h3 {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.step p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ===== Футер (в общем тёмном блоке) ===== */
+.footer {
+  padding: 8px 24px 0 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+  padding: 32px 0 28px;
+}
+
+.footer-logo {
+  width: 120px;
+  filter: brightness(0) invert(1);
+  opacity: 0.95;
+  margin-bottom: 10px;
+}
+
+.footer-brand p {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.footer-nav a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.25s ease;
+}
+
+.footer-nav a:hover {
+  color: var(--gold);
+  background: none;
+  transform: none;
+}
+
+.footer-bottom {
+  max-width: 1240px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 18px 0;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.85rem;
+}
+
+/* ===== Появление секций ===== */
 .fade-in {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateY(24px);
   transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
@@ -492,361 +764,50 @@ h2 {
   transform: translateY(0);
 }
 
-.Specialties_feed {
-  margin: 0 auto;
-  padding: 20px 0;
-  max-width: 100%;
-  overflow: hidden;
-  display: flex;
+/* ===== Планшеты ===== */
+@media (max-width: 991px) {
+  .hero-content {
+    padding: 96px 20px 48px;
+  }
 
-  >* {
-    flex: 0 0 100%;
+  .hero-stats {
+    gap: 28px;
   }
 }
 
-.Specialties_feed:has(.card:hover) .group {
-  animation-play-state: paused;
-}
-
-.card {
-  position: relative;
-  background-color: #3E5879;
-  color: white;
-  width: 400px;
-  height: 500px;
-  margin: 20px;
-  border-radius: 10px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, background 0.3s ease;
-}
-
-.card.card-1 {
-  background-color: #04202D;
-}
-
-.card.card-2 {
-  background-color: #10222E;
-}
-
-.card.card-3 {
-  background-color: #253745;
-}
-
-.card.card-4 {
-  background-color: #495B69;
-}
-
-.card:hover {
-  transform: scale(1.1);
-}
-
-.card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
-}
-
-.card:hover::before {
-  opacity: 0.7;
-}
-
-.card-content {
-  position: relative;
-  z-index: 2;
-  text-align: left;
-  margin-left: 10%;
-}
-
-.card h2 {
-  font-size: 2em;
-  margin-bottom: 80%;
-  font-weight: bold;
-}
-
-.card ul {
-  list-style: none;
-  padding: 0;
-}
-
-.card ul li {
-  margin: 5px 0;
-  font-size: 18px;
-  font-weight: lighter;
-}
-
-hr {
-  border: none;
-  border-top: 2px solid #ffffff;
-  margin: 10px 0;
-  width: 60%;
-}
-
-
-.card.card-1::before {
-  background-image: url('@/components/img/CardImg.png');
-}
-
-.card.card-2::before {
-  background-image: url('@/components/img/CardImgTwo.png');
-}
-
-.card.card-3::before {
-  background-image: url('@/components/img/CardImgThree.png');
-}
-
-.card.card-4::before {
-  background-image: url('@/components/img/CardImgFour.png');
-}
-
-.card-button {
-  position: absolute;
-  bottom: 5%;
-  left: 95%;
-  transform: translateX(-50%);
-  padding: 10px 20px;
-  background-color: #CCD0CF;
-  color: rgb(0, 0, 0);
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  z-index: 3;
-  font-weight: bold;
-}
-
-.card:hover .card-button {
-  opacity: 1;
-  visibility: visible;
-}
-
-.card-button:hover {
-  background-color: #CCD0CF;
-  transform: translateX(-50%) scale(1.1);
-}
-
-
-.group {
-  display: flex;
-  gap: 20px;
-  padding-right: 20px;
-  will-change: transform;
-  animation: scrolling 40s linear infinite;
-}
-
-@keyframes scrolling {
-  0% {
-    transform: translateX(0);
+/* ===== Телефоны ===== */
+@media (max-width: 575px) {
+  .hero {
+    min-height: 92vh;
   }
 
-  100% {
-    transform: translateX(-100%);
+  .hero-content {
+    padding: 88px 16px 40px;
   }
-}
 
-.Find-university-container {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 20px;
-  align-items: center;
-  padding: 20px;
-}
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.Find-university-wrapper {
-  grid-column: 2 / 12;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 20px;
-  align-items: center;
-}
+  .btn-hero-primary,
+  .btn-hero-secondary {
+    width: 100%;
+    text-align: center;
+  }
 
-.Find-university-text-block {
-  grid-column: 2 / 7;
-  text-align: center;
-  align-items: center
-}
+  .hero-stats {
+    gap: 20px;
+    justify-content: space-between;
+  }
 
-.Find-university-text-block h2 {
-  font-size: 2.9rem;
-  margin-bottom: 10px;
-  color: #577C8E;
-  font-weight: bold;
+  .section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 
-}
-
-.Find-university-text-block p {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-  line-height: 1.5;
-  color: #577C8E;
-  text-align: center
-}
-
-.Find-university-text-block .action-button {
-  padding: 10px 20px;
-  background-color: #607d8b;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.5s ease;
-}
-
-.Find-university-text-block .action-button:hover {
-  background-color: #455a64;
-}
-
-.Find-university-image-block {
-  grid-column: 7 / 12;
-}
-
-.Find-university-image-block img {
-  max-width: 100%;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.action-button {
-  position: relative;
-  width: 100px;
-  height: 50px;
-  background-color: #607d8b;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: width 1s ease-in-out, background-color 1s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  margin-left: 35%;
-}
-
-.action-button::after {
-  content: "🔍";
-  font-size: 1.5rem;
-  opacity: 0;
-  transform: scale(0);
-  transition: opacity 1s ease-in-out, transform 1s ease-in-out;
-  margin-left: -25px;
-}
-
-.action-button:hover {
-  width: 170px;
-  background-color: #455a64;
-}
-
-
-.hover-box {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  width: 30px;
-  height: 30px;
-  background-color: #ffffff;
-  border-radius: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transform: translateY(-50%) scale(0.3);
-  opacity: 0;
-  transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.magnifier-icon {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.action-button:hover .hover-box {
-  transform: translateY(-50%) scale(1);
-  opacity: 1;
-}
-
-.action-button .hover-box {
-  transform: translateY(-50%) scale(0.3);
-  opacity: 0;
-}
-
-.action-button {
-  transition: all 5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-.MainPageFooter-container {
-  margin: 10% 10% 0 10%;
-  color: white;
-}
-
-.MainPageFooter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10% 10% 5% 10%;
-  background-color: #04202D;
-  border-radius: 12px;
-
-}
-
-.MainPageFooter-container {
-  margin: 50px 50px 50px 50px;
-
-  position: relative;
-}
-
-.scroll-footer-wrapper {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  z-index: -1;
-  pointer-events: none;
-}
-
-.scroll-footer-text {
-  position: absolute;
-  bottom: -25px;
-  left: 0;
-  width: 100%;
-  font-family: 'Oswald', sans-serif;
-  font-size: 15em;
-  font-weight: 600;
-  color: #BC0404;
-  text-transform: uppercase;
-  line-height: 100px;
-  text-align: center;
-  transition: bottom 0.5s ease, opacity 0.5s ease;
-  opacity: 0;
-}
-
-.scroll-footer-text.visible {
-  bottom: 0;
-  opacity: 1;
-}
-
-.scroll-footer-text.hidden {
-  bottom: -50px;
-  opacity: 0;
+  .footer-inner {
+    flex-direction: column;
+  }
 }
 </style>

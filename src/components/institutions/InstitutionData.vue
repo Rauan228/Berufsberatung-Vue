@@ -277,7 +277,7 @@ input[type="text"], textarea {
 input[type="checkbox"] { width: 20px; height: 20px; }
 select[multiple] { min-height: 80px; }
 .btn-primary {
-  background: #008FFF;
+  background: #1795c0;
   color: #fff;
   border: none;
   padding: 10px 20px;
@@ -328,8 +328,8 @@ select[multiple] { min-height: 80px; }
   margin: 30px 0 15px;
   font-size: 1.25rem;
   font-weight: 700;
-  color: #008FFF;
-  border-bottom: 2px solid #008FFF;
+  color: #1795c0;
+  border-bottom: 2px solid #1795c0;
   padding-bottom: 4px;
 }
 </style>

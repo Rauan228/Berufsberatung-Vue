@@ -1,5 +1,5 @@
 @import './base.css';
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@500;600;700;800&display=swap");
 
 #app {
   width: 100%; 
@@ -36,11 +36,33 @@ a,
 .checked {
   color: orange;
 }
-@media (min-width: 1024px) {
-  body {
-    display: flex;
-    place-items: center; 
-  }
 
-  
+/* Torap brand palette */
+:root {
+  --torap-blue: #1795c0;
+  --torap-blue-dark: #12799c;
+  --torap-blue-soft: rgba(23, 149, 192, 0.1);
+  --torap-gold: #b08d4f;
+  --torap-gold-bright: #d4af37;
+  --torap-navy: #10222e;
+  --el-color-primary: #1795c0;
+  --torap-font-display: 'Manrope', 'Inter', -apple-system, 'Segoe UI', sans-serif;
 }
+
+/* Заголовки — фирменная гарнитура с полной кириллицей */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--torap-font-display);
+}
+
+.btn.btn-primary {
+  background-color: var(--torap-blue);
+  border-color: var(--torap-blue);
+}
+
+.btn.btn-primary:hover,
+.btn.btn-primary:focus,
+.btn.btn-primary:active {
+  background-color: var(--torap-blue-dark);
+  border-color: var(--torap-blue-dark);
+}
+/* Не центрируем body через flex — ломает скролл многосекционных страниц (главная и др.) */

@@ -116,7 +116,7 @@
                       </div>
                       <div class="event-view">
                         <h3 class="event-view-text">Колледж</h3>
-                        <p2 class="event-view-text">{{ getDaysAgo(event.created_at) }}</p2>
+                        <p class="event-view-text">{{ getDaysAgo(event.created_at) }}</p>
                       </div>
                       <div class="event-info">
                         <h3 class="event-info-text">{{ college.name }}</h3>
@@ -124,8 +124,8 @@
                         <h3 class="event-info-text">{{ event.event_name }}</h3>
                       </div>
                       <div class="event-terms">
-                        <p3 class="terms-text">Описание: {{ event.description || 'Ничего' }}</p3>
-                        <p3 class="terms-text">Дата: {{ formatEventDate(event.event_date) }}</p3>
+                        <p class="terms-text">Описание: {{ event.description || 'Ничего' }}</p>
+                        <p class="terms-text">Дата: {{ formatEventDate(event.event_date) }}</p>
                         <div class="event-buttons">
                           <button class="more-button" @click="openDetailsModal(event)">Подробнее</button>
                           <template v-if="event.event_type !== 'open'">
@@ -750,7 +750,7 @@ export default {
   width: 50px;
   height: 50px;
   border: 5px solid #f3f3f3;
-  border-top: 5px solid #3498db;
+  border-top: 5px solid #1795c0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -778,7 +778,7 @@ export default {
 }
 
 .star.filled {
-  color: #ffd700;
+  color: #d4af37;
 }
 
 .review-textarea {
@@ -814,7 +814,7 @@ export default {
 
 .review-rating {
   font-size: 1.5rem;
-  color: #ffd700;
+  color: #d4af37;
 }
 
 .review-comment {
@@ -1190,14 +1190,14 @@ h1:hover {
   align-items: flex-start;
 }
 
-.type-badge{position:absolute;top:8px;right:8px;background:#008FFF;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;}
+.type-badge{position:absolute;top:8px;right:8px;background:#1795c0;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;}
 .event-buttons{display:flex;gap:10px;margin-top:10px;}
-.more-button,.apply-button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#577c8e;color:#fff;}
+.more-button,.apply-button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#1795c0;color:#fff;}
 .applied-text{color:#4fa300;font-weight:600;}
 
 .success-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:2000;}
 .success-modal{background:#fff;padding:20px;border-radius:12px;text-align:center;width:300px;}
-.success-modal-close{padding:8px 20px;background:#577c8e;color:#fff;border:none;border-radius:6px;cursor:pointer;}
+.success-modal-close{padding:8px 20px;background:#1795c0;color:#fff;border:none;border-radius:6px;cursor:pointer;}
 
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:2000;}
 /* .modal-content{background:#fff;border-radius:12px;max-width:400px;width:100%;text-align:center;} */
@@ -1291,7 +1291,7 @@ h1:hover {
   width: 30px;
   height: 30px;
   border: 3px solid #f3f3f3;
-  border-top: 3px solid #3498db;
+  border-top: 3px solid #1795c0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

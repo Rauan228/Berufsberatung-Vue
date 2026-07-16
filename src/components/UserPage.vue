@@ -514,7 +514,7 @@ export default {
 <style scoped>
 .likes-count {
   font-size: 0.9em;
-  color: #577c8e;
+  color: #1795c0;
   font-weight: normal;
   background-color: #f5f5f5;
   padding: 4px 8px;
@@ -539,7 +539,7 @@ export default {
 
 .review-rating {
   font-size: 1.5rem;
-  color: #ffd700;
+  color: #d4af37;
 }
 
 .review-comment {
@@ -741,7 +741,7 @@ export default {
 .university-button {
   padding: 1rem 5rem;
   border-radius: 6px;
-  background-color: #577C8E;
+  background-color: #1795c0;
   color: white;
   border: none;
   transition: transform 0.3s ease;
@@ -781,7 +781,7 @@ export default {
 }
 
 .fa-star.checked {
-  color: #ffd700;
+  color: #d4af37;
 }
 
 @media (max-width: 1024px) {
@@ -1115,7 +1115,7 @@ h3 {
   width: 50px;
   height: 50px;
   border: 5px solid #f3f3f3;
-  border-top: 5px solid #577c8e;
+  border-top: 5px solid #1795c0;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
