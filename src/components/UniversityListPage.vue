@@ -1757,7 +1757,6 @@ export default {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  padding-top: 72px;
   width: 100%;
 }
 
@@ -1767,7 +1766,8 @@ export default {
   overflow: hidden;
   background: #0b1f2a;
   color: #fff;
-  padding: 42px 24px 38px;
+  /* верхний отступ учитывает прозрачный навбар, «плывущий» поверх блока */
+  padding: 108px 24px 38px;
 }
 
 /* Волнистые линии в фирменных голубом и золотом, растворяются к правому краю */
@@ -2962,12 +2962,8 @@ export default {
 }
 
 @media (max-width: 575px) {
-  .uni-page {
-    padding-top: 64px;
-  }
-
   .page-hero {
-    padding: 28px 16px 24px;
+    padding: 88px 16px 24px;
   }
 
   .page-layout {

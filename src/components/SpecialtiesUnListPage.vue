@@ -247,7 +247,6 @@ export default {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  padding-top: 72px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -257,7 +256,8 @@ export default {
   overflow: hidden;
   background: #0b1f2a;
   color: #fff;
-  padding: 36px 20px 32px;
+  /* верхний отступ учитывает прозрачный навбар, «плывущий» поверх блока */
+  padding: 102px 20px 32px;
 }
 
 /* Волнистые линии в фирменных голубом и золотом, растворяются к правому краю */
@@ -841,12 +841,8 @@ export default {
 
 /* ===== Phone ===== */
 @media (max-width: 640px) {
-  .spec-page {
-    padding-top: 64px;
-  }
-
   .page-hero {
-    padding: 24px 16px 22px;
+    padding: 84px 16px 22px;
   }
 
   .toolbar {
