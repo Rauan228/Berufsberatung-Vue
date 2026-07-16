@@ -1,41 +1,88 @@
 <template>
   <div class="questions-page">
-    <!-- Animated progress bar -->
-    <div class="progress-wrapper" v-if="!loading">
-      <div class="progress-bar" :style="{ width: progressPercent + '%' }"></div>
+
+    <!-- ===== Тёмная шапка с прогрессом ===== -->
+    <header class="quiz-head">
+      <div class="quiz-head-inner">
+        <div class="quiz-stages">
+          <div
+            v-for="(name, i) in stageNames"
+            :key="name"
+            class="quiz-stage"
+            :class="{ active: stageNumber === i + 1, done: stageNumber > i + 1 }"
+          >
+            <span class="quiz-stage-dot">
+              <i v-if="stageNumber > i + 1" class="bi bi-check-lg"></i>
+              <template v-else>{{ i + 1 }}</template>
+            </span>
+            <span class="quiz-stage-name">{{ name }}</span>
+          </div>
+        </div>
+
+        <div class="quiz-progress">
+          <div class="quiz-progress-bar" :style="{ width: progressPercent + '%' }"></div>
+        </div>
+        <div class="quiz-counter">
+          Вопрос <strong>{{ currentIndex + 1 }}</strong> из {{ questions.length }}
+        </div>
+      </div>
+    </header>
+
+    <!-- ===== Отправка ===== -->
+    <div v-if="loading" class="submit-screen">
+      <div class="spinner"></div>
+      <p>Сохраняем ваши ответы…</p>
     </div>
 
-    <div v-if="loading" class="loader">Загрузка...</div>
-
-    <!-- Smooth transition between questions -->
+    <!-- ===== Вопрос ===== -->
     <transition name="fade-slide" mode="out-in">
-      <div v-if="!loading" :key="currentIndex" class="question-block">
-        <h3 class="stage-title">Этап {{ stageNumber }} из {{ stageTotal }}</h3>
-        <h2>Вопрос {{ currentIndex + 1 }} из {{ questions.length }}</h2>
+      <div v-if="!loading" :key="currentIndex" class="question-card">
         <p class="question-text">{{ currentQuestion.text }}</p>
 
         <div class="options">
-          <label v-for="(opt, idx) in currentQuestion.options" :key="idx" class="option-row" :class="{ chosen: selectedAnswer === opt }">
+          <label
+            v-for="(opt, idx) in currentQuestion.options"
+            :key="idx"
+            class="option-row"
+            :class="{ chosen: selectedAnswer === opt }"
+          >
             <input type="radio" :value="opt" v-model="selectedAnswer" />
-            {{ opt }}
+            <span class="option-mark"></span>
+            <span class="option-text">{{ opt }}</span>
           </label>
 
-          <label class="option-row" :class="{ chosen: selectedAnswer === 'other' }">
+          <label class="option-row option-other" :class="{ chosen: selectedAnswer === 'other' }">
             <input type="radio" value="other" v-model="selectedAnswer" />
-            Другой ответ
+            <span class="option-mark"></span>
+            <span class="option-text">Другой ответ</span>
           </label>
           <input
             v-if="selectedAnswer === 'other'"
             v-model="otherAnswer"
             class="other-input"
-            placeholder="Введите свой вариант"
+            placeholder="Введите свой вариант…"
           />
         </div>
 
         <div class="nav-buttons">
-          <button @click="prev" :disabled="currentIndex === 0">Назад</button>
-          <button @click="next" :disabled="!canProceed">
-            {{ currentIndex === questions.length - 1 ? 'Завершить' : 'Далее' }}
+          <button class="btn-back" @click="prev" :disabled="currentIndex === 0">
+            <i class="bi bi-arrow-left"></i>
+            Назад
+          </button>
+          <button
+            class="btn-next"
+            :class="{ 'btn-finish': currentIndex === questions.length - 1 }"
+            @click="next"
+            :disabled="!canProceed"
+          >
+            <template v-if="currentIndex === questions.length - 1">
+              Завершить
+              <i class="bi bi-stars"></i>
+            </template>
+            <template v-else>
+              Далее
+              <i class="bi bi-arrow-right"></i>
+            </template>
           </button>
         </div>
       </div>
@@ -149,6 +196,9 @@ export default {
     };
   },
   computed: {
+    stageNames() {
+      return ['Личность', 'Работа', 'Интересы', 'Профиль'];
+    },
     currentQuestion() {
       return this.questions[this.currentIndex];
     },
@@ -164,7 +214,8 @@ export default {
       return 4;
     },
     stageNumber() {
-      return Math.floor(this.currentIndex / 20) + 1;
+      // в последнем этапе 21 вопрос — не выходим за пределы 4 этапов
+      return Math.min(this.stageTotal, Math.floor(this.currentIndex / 20) + 1);
     },
   },
   methods: {
@@ -231,119 +282,375 @@ export default {
 
 <style scoped>
 .questions-page {
-  max-width: 800px;
-  margin: 40px auto;
+  --blue: var(--torap-blue, #1795c0);
+  --blue-dark: var(--torap-blue-dark, #12799c);
+  --gold: var(--torap-gold, #b08d4f);
+  --gold-bright: var(--torap-gold-bright, #d4af37);
+  --text: #10222e;
+  --muted: #64748b;
+  --border: #e6edf2;
+  min-height: 100vh;
+  background: #f4f7f9;
+  color: var(--text);
+  padding-bottom: 60px;
 }
+
+/* ===== Тёмная шапка с прогрессом ===== */
+.quiz-head {
+  position: relative;
+  overflow: hidden;
+  background: #0b1f2a;
+  color: #fff;
+  padding: 96px 24px 26px;
+}
+
+.quiz-head::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400' fill='none'%3E%3Cpath d='M0 60 Q150 10 300 60 T600 60' stroke='%231795c0' stroke-opacity='0.22' stroke-width='1.3'/%3E%3Cpath d='M0 120 Q150 66 300 120 T600 120' stroke='%231795c0' stroke-opacity='0.14' stroke-width='1.3'/%3E%3Cpath d='M0 180 Q150 122 300 180 T600 180' stroke='%23d4af37' stroke-opacity='0.16' stroke-width='1.3'/%3E%3Cpath d='M0 240 Q150 182 300 240 T600 240' stroke='%231795c0' stroke-opacity='0.11' stroke-width='1.3'/%3E%3C/svg%3E") repeat;
+  background-size: 600px 400px;
+  -webkit-mask-image: linear-gradient(115deg, #000 30%, transparent 78%);
+  mask-image: linear-gradient(115deg, #000 30%, transparent 78%);
+  pointer-events: none;
+}
+
+.quiz-head-inner {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.quiz-stages {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.quiz-stage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.quiz-stage-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex: 0 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: all 0.25s ease;
+}
+
+.quiz-stage-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  transition: color 0.25s ease;
+}
+
+.quiz-stage.active .quiz-stage-dot {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(23, 149, 192, 0.25);
+}
+
+.quiz-stage.active .quiz-stage-name {
+  color: #fff;
+}
+
+.quiz-stage.done .quiz-stage-dot {
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+  border-color: transparent;
+  color: #0b1f2a;
+}
+
+.quiz-stage.done .quiz-stage-name {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.quiz-progress {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.quiz-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--blue), var(--gold-bright));
+  transition: width 0.4s ease;
+}
+
+.quiz-counter {
+  margin-top: 10px;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.quiz-counter strong {
+  color: var(--gold-bright);
+}
+
+/* ===== Карточка вопроса ===== */
+.question-card {
+  max-width: 760px;
+  margin: 26px auto 0;
+  padding: 30px 28px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 14px 40px rgba(16, 34, 46, 0.07);
+}
+
 .question-text {
   font-size: 1.3rem;
-  margin-bottom: 20px;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 22px;
+  color: var(--text);
 }
+
 .options {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
+
 .option-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 13px;
+  padding: 14px 16px;
+  border: 2px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  user-select: none;
 }
+
+.option-row:hover {
+  border-color: rgba(23, 149, 192, 0.5);
+  transform: translateX(3px);
+}
+
+.option-row.chosen {
+  background: rgba(23, 149, 192, 0.06);
+  border-color: var(--blue);
+}
+
+.option-row input[type='radio'] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Кастомная радио-точка */
+.option-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex: 0 0 22px;
+  border: 2px solid #c4d2da;
+  position: relative;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.option-row.chosen .option-mark {
+  border-color: var(--blue);
+  background: var(--blue);
+}
+
+.option-row.chosen .option-mark::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.option-text {
+  font-size: 0.98rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.option-other .option-text {
+  color: var(--muted);
+}
+
+.option-other.chosen .option-text {
+  color: var(--text);
+}
+
 .other-input {
-  margin-top: 10px;
-  padding: 8px 12px;
+  margin-top: 2px;
+  padding: 13px 16px;
   width: 100%;
+  border: 2px solid rgba(23, 149, 192, 0.4);
+  border-radius: 14px;
+  font-size: 0.98rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
+
+.other-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(23, 149, 192, 0.15);
+}
+
+/* ===== Навигация ===== */
 .nav-buttons {
   display: flex;
   justify-content: space-between;
-  margin-top: 30px;
-}
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-}
-.loader {
-  text-align: center;
-  padding: 100px;
-  font-size: 1.3rem;
+  gap: 12px;
+  margin-top: 28px;
 }
 
-.progress-wrapper {
-  height: 8px;
-  background: #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 24px;
-}
-
-.progress-bar {
-  height: 100%;
-  background: #536274;
-  transition: width 0.4s ease;
-}
-
-/* Stage title */
-.stage-title {
+.btn-back,
+.btn-next {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 26px;
   font-size: 1rem;
-  color: #536274;
-  margin-bottom: 6px;
+  font-weight: 700;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* Fade & slide animation */
+.btn-back {
+  background: transparent;
+  border: 2px solid var(--border);
+  color: var(--muted);
+}
+
+.btn-back:not(:disabled):hover {
+  border-color: var(--blue);
+  color: var(--blue-dark);
+}
+
+.btn-back:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-next {
+  border: none;
+  color: #fff;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  box-shadow: 0 8px 20px rgba(23, 149, 192, 0.35);
+}
+
+.btn-next:not(:disabled):hover {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(23, 149, 192, 0.45);
+}
+
+.btn-next:disabled {
+  background: #c2cdd4;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Последний вопрос — золотая кнопка «Завершить» */
+.btn-finish {
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+  color: #10222e;
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+}
+
+.btn-finish:not(:disabled):hover {
+  box-shadow: 0 12px 28px rgba(212, 175, 55, 0.5);
+}
+
+/* ===== Отправка ===== */
+.submit-screen {
+  min-height: 40vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #e8eef2;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Переходы между вопросами ===== */
 .fade-slide-enter-active,
 .fade-slide-leave-active {
   transition: all 0.3s ease;
 }
+
 .fade-slide-enter-from {
   opacity: 0;
   transform: translateY(20px);
 }
+
 .fade-slide-leave-to {
   opacity: 0;
   transform: translateY(-20px);
 }
 
-                                                                                                    
-/* Option row styling */
-.option-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border: 1px solid #d0d0d0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.25s, border-color 0.25s;
-  user-select: none;
-}
+/* ===== Адаптив ===== */
+@media (max-width: 640px) {
+  .quiz-head {
+    padding: 84px 16px 22px;
+  }
 
-.option-row.chosen,
-.option-row:hover {
-  background: #f5f8fa;
-  border-color: #536274;
-}
+  .quiz-stage-name {
+    display: none;
+  }
 
-.option-row input[type="radio"] {
-  accent-color: #536274;
-}
+  .quiz-stage.active .quiz-stage-name {
+    display: inline;
+  }
 
-.nav-buttons button {
-  padding: 12px 26px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background: #536274;
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
+  .question-card {
+    margin: 18px 14px 0;
+    padding: 22px 18px;
+  }
 
-.nav-buttons button[disabled] {
-  background: #a0a0a0;
-  cursor: not-allowed;
-}
+  .question-text {
+    font-size: 1.12rem;
+  }
 
-.nav-buttons button:not([disabled]):hover {
-  background: #405163;
+  .nav-buttons {
+    flex-direction: column-reverse;
+  }
+
+  .btn-back,
+  .btn-next {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style> 
