@@ -97,8 +97,8 @@
                          class="specialty"
                          @click="navigateToSpecialization(specialization)">
                       <p class="specialty-name">{{ specialization.name }}</p>
-                      <p class="specialty-cost">Стоимость: {{ specialization.pivot && specialization.pivot.cost ? specialization.pivot.cost + '₸' : 'Не указана' }}</p>
-                      <p class="specialty-duration">Длительность: {{ specialization.pivot && specialization.pivot.duration ? specialization.pivot.duration + ' ' + getYearText(specialization.pivot.duration) : 'Не указана' }}</p>
+                      <p class="specialty-cost">Стоимость: {{ formatSpecialtyCost(specialization) }}</p>
+                      <p class="specialty-duration">Длительность: {{ formatSpecialtyDuration(specialization) }}</p>
                     </div>
                   </div>
                 </div>
@@ -503,6 +503,22 @@ export default {
       const fullStar = '★';
       const emptyStar = '☆';
       return fullStar.repeat(rating) + emptyStar.repeat(5 - rating);
+    },
+
+    formatSpecialtyCost(specialization) {
+      const cost = specialization?.pivot?.cost ?? specialization?.cost;
+      if (cost === null || cost === undefined || cost === '' || Number(cost) <= 0) {
+        return '-';
+      }
+      return Number(cost).toLocaleString('ru-RU') + ' ₸';
+    },
+
+    formatSpecialtyDuration(specialization) {
+      const duration = specialization?.pivot?.duration ?? specialization?.duration;
+      if (duration === null || duration === undefined || duration === '' || Number(duration) <= 0) {
+        return '-';
+      }
+      return `${duration} ${this.getYearText(Number(duration))}`;
     },
 
     getYearText(years) {

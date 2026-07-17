@@ -332,7 +332,7 @@
                   </div>
                   <div class="stat">
                     <span class="stat-k">Стоимость / год</span>
-                    <span class="stat-v">{{ formatMoney(uni.costMin) }}–{{ formatMoney(uni.costMax) }} ₸</span>
+                    <span class="stat-v">{{ formatCostRange(uni) }}</span>
                   </div>
                 </div>
 
@@ -440,7 +440,7 @@
               </tr>
               <tr>
                 <td>Стоимость</td>
-                <td v-for="u in compareList" :key="'$'+u.id">{{ formatMoney(u.costMin) }}–{{ formatMoney(u.costMax) }} ₸</td>
+                <td v-for="u in compareList" :key="'$'+u.id">{{ formatCostRange(u) }}</td>
               </tr>
               <tr>
                 <td>Направление</td>
@@ -1055,7 +1055,7 @@ export default {
       }
       if (f.grants === true && !u.grants) return false;
       if (f.dormitory === true && !u.dormitory) return false;
-      if (u.costMin > f.costMax) return false;
+      if (u.hasCost && u.costMin != null && u.costMin > f.costMax) return false;
       if (u.passScore > f.scoreMax) return false;
       return true;
     },
@@ -1065,7 +1065,7 @@ export default {
         case 'score':
           return arr.sort((a, b) => a.passScore - b.passScore);
         case 'cost':
-          return arr.sort((a, b) => a.costMin - b.costMin);
+          return arr.sort((a, b) => (a.costMin ?? Number.POSITIVE_INFINITY) - (b.costMin ?? Number.POSITIVE_INFINITY));
         case 'name':
           return arr.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
         case 'rating':
@@ -1080,19 +1080,17 @@ export default {
       const seed = id * 37 + (raw.name || '').length;
       const ownership = this.classifyOwnership(raw.name);
       const passScore = 55 + (seed % 70);
-      const costMin = 350000 + (seed % 12) * 75000;
-      const costMax = costMin + 200000 + (seed % 8) * 100000;
       const forms = ['Очная'];
       if (seed % 3 === 0) forms.push('Заочная');
       if (seed % 5 === 0) forms.push('Дистанционная');
 
-      // cost from specialties pivot if present
+      // cost from specialties pivot if present — без фейковых цен
       let realMin = null;
       let realMax = null;
       const specs = raw.specializations || [];
       specs.forEach((s) => {
         const c = s.pivot?.cost ?? s.cost;
-        if (c != null && !Number.isNaN(Number(c))) {
+        if (c != null && c !== '' && !Number.isNaN(Number(c)) && Number(c) > 0) {
           const n = Number(c);
           realMin = realMin == null ? n : Math.min(realMin, n);
           realMax = realMax == null ? n : Math.max(realMax, n);
@@ -1104,8 +1102,9 @@ export default {
         ownership,
         ownershipLabel: OWNERSHIP.find((o) => o.value === ownership)?.label || '',
         passScore,
-        costMin: realMin != null ? realMin : costMin,
-        costMax: realMax != null ? realMax : costMax,
+        costMin: realMin,
+        costMax: realMax,
+        hasCost: realMin != null,
         forms,
         specialtyTags: this.extractTags(raw),
       };
@@ -1174,8 +1173,15 @@ export default {
       return Number(r).toFixed(1);
     },
     formatMoney(n) {
-      if (n == null) return '—';
+      if (n == null || n === '' || Number.isNaN(Number(n))) return '-';
       return Math.round(n).toLocaleString('ru-RU');
+    },
+    formatCostRange(u) {
+      if (!u?.hasCost || u.costMin == null) return '-';
+      if (u.costMax != null && u.costMax !== u.costMin) {
+        return `${this.formatMoney(u.costMin)}–${this.formatMoney(u.costMax)} ₸`;
+      }
+      return `${this.formatMoney(u.costMin)} ₸`;
     },
     universityWord(n) {
       const m10 = n % 10;
@@ -1238,17 +1244,21 @@ export default {
         this.institutions = [...real, ...demo];
 
         if (this.institutions.length) {
-          const costs = this.institutions.flatMap((u) => [u.costMin, u.costMax]);
+          const costs = this.institutions
+            .flatMap((u) => [u.costMin, u.costMax])
+            .filter((c) => c != null && !Number.isNaN(Number(c)));
           const scores = this.institutions.map((u) => u.passScore);
-          this.costBounds = {
-            min: Math.min(...costs),
-            max: Math.max(...costs),
-          };
+          if (costs.length) {
+            this.costBounds = {
+              min: Math.min(...costs),
+              max: Math.max(...costs),
+            };
+            this.filters.costMax = this.costBounds.max;
+          }
           this.scoreBounds = {
             min: Math.min(...scores),
             max: Math.max(...scores),
           };
-          this.filters.costMax = this.costBounds.max;
           this.filters.scoreMax = this.scoreBounds.max;
         }
 

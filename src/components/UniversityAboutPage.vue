@@ -7,74 +7,93 @@
   <div v-else class="university-container">
     <div v-if="error">{{ error }}</div>
     <div v-else>
-      <div class="university-background">
-        <img v-if="photoSrc" :src="photoSrc" class="university-backgroundImg" />
-        <div v-else class="university-bg-placeholder"></div>
-      </div>
-
-      <div class="university-main">
-        <div class="university-logo">
-          <div v-if="!imageLoaded.logo" class="image-loader">
-            <div class="spinner"></div>
+      <!-- ===== Hero: фото вуза + логотип + название ===== -->
+      <header class="uni-hero">
+        <img v-if="photoSrc" :src="photoSrc" class="uni-hero-photo" alt="" />
+        <div class="uni-hero-overlay"></div>
+        <div class="uni-hero-content">
+          <div class="uni-hero-logo">
+            <div v-if="!imageLoaded.logo" class="image-loader">
+              <div class="spinner"></div>
+            </div>
+            <img
+              :src="logoSrc"
+              class="uni-hero-logo-img"
+              @load="imageLoaded.logo = true"
+              :style="{ opacity: imageLoaded.logo ? 1 : 0 }"
+            />
           </div>
-          <img 
-            :src="logoSrc" 
-            class="university-logo-img" 
-            @load="imageLoaded.logo = true"
-            :style="{ display: imageLoaded.logo ? 'block' : 'none' }"
-          />
-        </div>
-        <div class="university-name">
-          <h1>{{ university.name }}</h1>
-        </div>
-      </div>
-
-      <div class="university-info">
-        <div class="university-description">
-          <p>{{ university.description1 }}</p><br>
-          <p>{{ university.description2 }}</p><br>
-          <p>{{ university.description3 }}</p>
-        </div>
-
-        <div class="university-info-block">
-          <div class="university-info-card">
-            <h3 class="info-title">Основная информация</h3>
-            <ul class="info-list">
-              <li><span class="dot"></span> Университет</li>
-              <li><span class="dot"></span> {{ university.dormitory ? 'Есть общежитие' : 'Нет общежития' }}</li>
-              <li><span class="dot"></span> {{ university.grants ? 'Есть гранты' : 'Нет грантов' }}</li>
-            </ul>
-            <div class="info-details">
-              <p>
-                <img src="@/components/img/location.png" class="icon" /> {{ university.address }}
-              </p>
-              <p>
-                <img src="@/components/img/Phone.png" class="icon" />
-                <a :href="`tel:${university.phone}`">{{ university.phone }}</a>
-              </p>
-              <p>
-                <img src="@/components/img/Website.png" class="icon" />
-                <a :href="university.website" target="_blank">{{ university.website }}</a>
-              </p>
+          <div class="uni-hero-text">
+            <h1>{{ university.name }}</h1>
+            <div class="uni-hero-chips">
+              <span class="hero-chip"><i class="bi bi-mortarboard-fill"></i> Университет</span>
+              <span v-if="university.location" class="hero-chip">
+                <i class="bi bi-geo-alt-fill"></i> {{ university.location }}
+              </span>
+              <span class="hero-chip" :class="university.dormitory ? 'is-yes' : 'is-muted'">
+                <i class="bi bi-house-heart-fill"></i>
+                {{ university.dormitory ? 'Есть общежитие' : 'Нет общежития' }}
+              </span>
+              <span class="hero-chip" :class="university.grants ? 'is-yes' : 'is-muted'">
+                <i class="bi bi-award-fill"></i>
+                {{ university.grants ? 'Есть гранты' : 'Нет грантов' }}
+              </span>
             </div>
           </div>
         </div>
+      </header>
+
+      <div class="university-info">
+        <div class="university-description">
+          <span class="section-eyebrow">Об университете</span>
+          <p>{{ university.description1 }}</p>
+          <p>{{ university.description2 }}</p>
+          <p>{{ university.description3 }}</p>
+        </div>
+
+        <aside class="university-info-card">
+          <h3 class="info-title">Основная информация</h3>
+          <div class="info-details">
+            <p v-if="university.address">
+              <span class="info-icon"><i class="bi bi-geo-alt-fill"></i></span>
+              <span>{{ university.address }}</span>
+            </p>
+            <p v-if="university.phone">
+              <span class="info-icon"><i class="bi bi-telephone-fill"></i></span>
+              <a :href="`tel:${university.phone}`">{{ university.phone }}</a>
+            </p>
+            <p v-if="university.website">
+              <span class="info-icon"><i class="bi bi-globe2"></i></span>
+              <a :href="university.website" target="_blank">{{ university.website }}</a>
+            </p>
+          </div>
+          <ul class="info-list">
+            <li>
+              <i class="bi" :class="university.dormitory ? 'bi-check-circle-fill ok' : 'bi-x-circle-fill no'"></i>
+              {{ university.dormitory ? 'Есть общежитие' : 'Нет общежития' }}
+            </li>
+            <li>
+              <i class="bi" :class="university.grants ? 'bi-check-circle-fill ok' : 'bi-x-circle-fill no'"></i>
+              {{ university.grants ? 'Есть гранты' : 'Нет грантов' }}
+            </li>
+          </ul>
+        </aside>
       </div>
 
       <!-- Вкладки -->
       <div class="user-events">
         <div class="tabset">
   <input type="radio" name="tabset" id="tab1" aria-controls="Specialties" checked />
-  <label for="tab1">Специальности</label>
+  <label for="tab1"><i class="bi bi-mortarboard-fill"></i><span>Специальности</span></label>
 
   <input type="radio" name="tabset" id="tab2" aria-controls="Events" />
-  <label for="tab2">Мероприятия</label>
+  <label for="tab2"><i class="bi bi-calendar2-event-fill"></i><span>Мероприятия</span></label>
 
   <input type="radio" name="tabset" id="tab3" aria-controls="Reviews" />
-  <label for="tab3">Отзывы</label>
+  <label for="tab3"><i class="bi bi-chat-square-text-fill"></i><span>Отзывы</span></label>
 
   <input type="radio" name="tabset" id="tab4" aria-controls="Location" @change="locationTabChanged" />
-  <label for="tab4">Местоположение</label>
+  <label for="tab4"><i class="bi bi-geo-alt-fill"></i><span>Местоположение</span></label>
 
   <div class="tab-panels">
     <section id="Specialties" class="tab-panel">
@@ -93,13 +112,22 @@
                :key="qualificationName" 
             class="qualification">
             <h4>{{ qualificationName }}</h4>
-            <div v-for="specialization in specializations" 
-                 :key="specialization.id" 
+            <div v-for="specialization in specializations"
+                 :key="specialization.id"
                  class="specialty"
                  @click="navigateToSpecialization(specialization)">
               <p class="specialty-name">{{ specialization.name }}</p>
-              <p class="specialty-cost">Стоимость: {{ specialization.pivot && specialization.pivot.cost ? specialization.pivot.cost + '₸' : 'Не указана' }}</p>
-              <p class="specialty-duration">Длительность: {{ specialization.pivot && specialization.pivot.duration ? specialization.pivot.duration + ' ' + getYearText(specialization.pivot.duration) : 'Не указана' }}</p>
+              <div class="specialty-meta">
+                <span class="specialty-chip">
+                  <i class="bi bi-cash-coin"></i>
+                  Стоимость: {{ formatSpecialtyCost(specialization) }}
+                </span>
+                <span class="specialty-chip">
+                  <i class="bi bi-clock-history"></i>
+                  Длительность: {{ formatSpecialtyDuration(specialization) }}
+                </span>
+                <i class="bi bi-arrow-right specialty-arrow"></i>
+              </div>
             </div>
           </div>
         </div>
@@ -425,12 +453,17 @@ export default {
         console.log('Fetching university with ID:', id);
         const response = await axios.get(`http://localhost:8000/api/institutions/${id}`);
         this.university = response.data;
-        console.log("University data:", this.university);
         if (!this.university.specializations) {
           console.warn('No specializations data received for university:', this.university.name);
         }
-        await this.fetchEventsByInstitution(id);
-        await this.fetchReviewsByInstitution(id);
+
+        // Показываем страницу сразу; события и отзывы (вкладки ниже)
+        // догружаются параллельно и не блокируют рендер
+        this.loading = false;
+        Promise.all([
+          this.fetchEventsByInstitution(id),
+          this.fetchReviewsByInstitution(id),
+        ]).catch(() => {});
 
         // инициализируем превью-карту после загрузки данных
         this.$nextTick(() => this.initPreviewMap());
@@ -460,7 +493,8 @@ export default {
 
     async fetchEventsByInstitution(institutionId) {
       try {
-        await this.checkAuth();
+        // checkAuth уже запущен в created() — не дублируем запрос current-user
+        await this._authReady;
         const {data:evts}=await axios.get(`http://localhost:8000/api/institutions/${institutionId}/events`);
         let applied=[];
         if(this.currentUser){
@@ -472,8 +506,8 @@ export default {
         }
         this.events=evts.map(ev=>({...ev,isApplied:applied.includes(ev.id)}));
       } catch (error) {
+        // не пишем в this.error — он заменяет всю страницу, а события лишь вкладка
         console.error("Ошибка при загрузке событий:", error);
-        this.error = "Ошибка загрузки событий";
       }
     },
 
@@ -483,8 +517,8 @@ export default {
         this.reviews = response.data;
         console.log("Reviews data:", this.reviews);
       } catch (error) {
+        // не пишем в this.error — он заменяет всю страницу, а отзывы лишь вкладка
         console.error("Ошибка при загрузке отзывов:", error);
-        this.error = "Ошибка загрузки отзывов";
       }
     },
 
@@ -509,6 +543,22 @@ export default {
       } else {
         return "лет";
       }
+    },
+
+    formatSpecialtyCost(specialization) {
+      const cost = specialization?.pivot?.cost ?? specialization?.cost;
+      if (cost === null || cost === undefined || cost === '' || Number(cost) <= 0) {
+        return '-';
+      }
+      return Number(cost).toLocaleString('ru-RU') + ' ₸';
+    },
+
+    formatSpecialtyDuration(specialization) {
+      const duration = specialization?.pivot?.duration ?? specialization?.duration;
+      if (duration === null || duration === undefined || duration === '' || Number(duration) <= 0) {
+        return '-';
+      }
+      return `${duration} ${this.getYearText(Number(duration))}`;
     },
 
     navigateToSpecialization(specialization) {
@@ -643,7 +693,8 @@ export default {
   },
 
   created() {
-    this.checkAuth();
+    // один запрос current-user на страницу; fetchEventsByInstitution ждёт этот промис
+    this._authReady = this.checkAuth();
   },
 
   beforeUnmount() {
@@ -671,6 +722,21 @@ export default {
 </script>
 
 <style scoped>
+.university-about-root {
+  --blue: var(--torap-blue, #1795c0);
+  --blue-dark: var(--torap-blue-dark, #12799c);
+  --gold: var(--torap-gold, #b08d4f);
+  --gold-bright: var(--torap-gold-bright, #d4af37);
+  --navy: #0b1f2a;
+  --text: #10222e;
+  --muted: #64748b;
+  --border: #e6edf2;
+  --bg: #f4f7f9;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
 .loader-container {
   display: flex;
   justify-content: center;
@@ -685,276 +751,285 @@ export default {
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #1795c0;
+  width: 44px;
+  height: 44px;
+  border: 4px solid #e8eef2;
+  border-top-color: var(--blue);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.9s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.review-form {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.rating-input {
-  margin: 10px 0;
-}
-
-.star {
-  font-size: 24px;
-  cursor: pointer;
-  color: #ccc;
-}
-
-.star.filled {
-  color: #d4af37;
-}
-
-.review-textarea {
-  width: 100%;
-  min-height: 100px;
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
-.submit-review-btn {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.submit-review-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.review-item {
-  background-color: #f9f9f9;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.review-rating {
-  font-size: 1.5rem;
-  color: #d4af37;
-}
-
-.review-comment {
-  font-size: 1rem;
-  color: #555;
-  margin-top: 10px;
-}
-
-.review-user {
-  font-size: 0.9rem;
-  color: #777;
-  margin-top: 10px;
-}
-
-.events-cont {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: repeat(4, auto);
-  gap: 30px;
-  padding: 20px;
-}
-
-@media (min-width: 768px) {
-  .events-cont {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .events-cont {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .university-container {
   width: 100%;
   min-height: 100vh;
-  margin-top: 4.5%;
-  padding: 20px;
   box-sizing: border-box;
 }
 
-.university-backgroundImg {
-  width: 100%;
-  height: 400px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.university-backgroundImg:hover {
-  transform: scale(1.02);
-}
-
-.university-logo {
-  position: absolute;
-  width: 100px;
-  height: 100px;
-  bottom: 250px;
-  left: 100px;
-}
-
-.university-logo-img {
-  position: absolute;
-  width: 350px;
-  height: 350px;
-  border-radius: 12px;
-  background-color: #f4f4f4;
-  transition: transform 0.3s ease;
-}
-
-.university-logo-img:hover {
-  transform: scale(1.05);
-}
-
-.university-main {
-  width: 100%;
-  height: 250px;
+/* ===== Hero: фото + тёмный оверлей, уходит под прозрачный навбар ===== */
+.uni-hero {
   position: relative;
+  overflow: hidden;
+  min-height: 420px;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
+  background: var(--navy);
 }
 
-.university-name {
+.uni-hero-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: heroZoom 1.2s ease-out both;
+}
+
+@keyframes heroZoom {
+  from { transform: scale(1.06); }
+  to { transform: scale(1); }
+}
+
+.uni-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4, 22, 32, 0.55) 0%, rgba(4, 22, 32, 0.25) 40%, rgba(4, 22, 32, 0.9) 100%);
+}
+
+.uni-hero-content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 120px 24px 34px;
   display: flex;
-  justify-content: center;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  margin: 0 0 0 500px;
+  align-items: flex-end;
+  gap: 26px;
+  animation: heroIn 0.6s ease-out both;
+}
+
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.uni-hero-logo {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  flex: 0 0 128px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.uni-hero-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   padding: 10px;
-  max-width: 80%;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  box-sizing: border-box;
+  transition: opacity 0.3s ease;
 }
 
-h1 {
-  font-size: 4rem;
-  font-weight: bold;
-  color: #424242;
-  transition: color 0.3s ease;
-  text-align: center;
+.uni-hero-text {
+  min-width: 0;
 }
 
-h1:hover {
-  color: #10222e;
+.uni-hero-text h1 {
+  font-size: clamp(1.6rem, 3.6vw, 2.5rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.18;
+  margin: 0 0 14px;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
 }
 
-.university-info {
+.uni-hero-chips {
   display: flex;
-  padding: 5% 6% 3% 6%;
   flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+}
+
+.hero-chip i {
+  color: var(--gold-bright);
+  font-size: 0.9rem;
+}
+
+.hero-chip.is-yes {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.hero-chip.is-yes i {
+  color: #34d399;
+}
+
+.hero-chip.is-muted {
+  opacity: 0.65;
+}
+
+.hero-chip.is-muted i {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* ===== Описание + инфокарта ===== */
+.university-info {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 36px 24px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  align-items: flex-start;
 }
 
 .university-description {
-  width: 50%;
-  height: 100%;
-  font-size: 1.2em;
-  line-height: 1.6;
+  flex: 1 1 520px;
+  min-width: 0;
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: #2b3d47;
+}
+
+.university-description p {
+  margin: 0 0 14px;
+}
+
+.section-eyebrow {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.section-eyebrow::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  margin-top: 6px;
 }
 
 .university-info-card {
-  width: 350px;
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #f1f1f1;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin-left: 100%;
-  transition: transform 0.3s ease;
+  flex: 0 1 340px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 10px 30px rgba(16, 34, 46, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .university-info-card:hover {
-  transform: translateY(-10px);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 38px rgba(16, 34, 46, 0.1);
 }
 
 .info-title {
-  font-size: 2em;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 12px;
-}
-
-.info-list {
-  list-style: none;
-  padding: 0;
-  margin-bottom: 12px;
-}
-
-.info-list li {
-  display: flex;
-  align-items: center;
-  margin-bottom: 6px;
-  color: #555;
-  font-size: 1.4em;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  background-color: lightgray;
-  border-radius: 50%;
-  margin-right: 8px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 16px;
 }
 
 .info-details p {
   display: flex;
   align-items: center;
-  margin: 10px 0;
-  font-size: 1.4em;
-  color: #333;
+  gap: 12px;
+  margin: 0 0 12px;
+  font-size: 0.93rem;
+  color: var(--text);
+  word-break: break-word;
 }
 
-.icon {
-  width: 25px;
-  height: 25px;
-  margin-right: 8px;
-  opacity: 0.7;
-  transition: opacity 0.3s ease;
-}
-
-.icon:hover {
-  opacity: 1;
-}
-
-.a {
-  color: #424242;
+.info-details a {
+  color: var(--blue-dark);
   text-decoration: none;
-  transition: color 0.3s ease;
+  padding: 0;
 }
 
-.a:hover {
-  color: #10222e;
+.info-details a:hover {
+  color: var(--blue);
+  background: none;
+  transform: none;
 }
 
+.info-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  flex: 0 0 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--blue);
+  background: linear-gradient(135deg, rgba(23, 149, 192, 0.14), rgba(23, 149, 192, 0.05));
+  box-shadow: inset 0 0 0 1px rgba(23, 149, 192, 0.12);
+}
+
+.info-list {
+  list-style: none;
+  padding: 14px 0 0;
+  margin: 6px 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.info-list li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 8px;
+  color: #2b3d47;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.info-list i.ok {
+  color: #10b981;
+}
+
+.info-list i.no {
+  color: #cbd5dd;
+}
+
+/* ===== Вкладки ===== */
 .user-events {
-  margin-top: 20px;
+  max-width: 1240px;
+  margin: 10px auto 0;
+  padding: 0 24px 56px;
 }
 
 .tabset {
   max-width: 100%;
 }
 
-.tabset>input[type="radio"] {
+.tabset > input[type='radio'] {
   position: absolute;
   left: -200px;
 }
@@ -963,230 +1038,687 @@ h1:hover {
   display: none;
 }
 
-.tabset>input:first-child:checked~.tab-panels>.tab-panel:first-child,
-.tabset>input:nth-child(3):checked~.tab-panels>.tab-panel:nth-child(2),
-.tabset>input:nth-child(5):checked~.tab-panels>.tab-panel:nth-child(3),
-.tabset>input:nth-child(7):checked~.tab-panels>.tab-panel:nth-child(4) {
+.tabset > input:first-child:checked ~ .tab-panels > .tab-panel:first-child,
+.tabset > input:nth-child(3):checked ~ .tab-panels > .tab-panel:nth-child(2),
+.tabset > input:nth-child(5):checked ~ .tab-panels > .tab-panel:nth-child(3),
+.tabset > input:nth-child(7):checked ~ .tab-panels > .tab-panel:nth-child(4) {
   display: block;
+  animation: panelIn 0.3s ease-out both;
 }
 
-.tabset>label {
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Вкладки: строка с иконками и анимированной чертой под активной */
+.tabset > label {
   position: relative;
-  display: inline-block;
-  padding: 15px 15px 15px;
-  border-bottom: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 25%;
+  padding: 14px 8px 15px;
+  margin: 0;
+  border-bottom: 2px solid var(--border);
   cursor: pointer;
-  font-weight: bold;
-  margin-left: 5%;
-  color: #919ea9;
-  font-size: 1.5em;
+  font-weight: 600;
+  color: var(--muted);
+  font-size: 0.97rem;
+  transition: color 0.2s ease;
+  user-select: none;
+  box-sizing: border-box;
 }
 
-.tabset>label:hover,
-.tabset>input:focus+label,
-.tabset>input:checked+label {
-  color: #10222e;
-  border-bottom: solid;
+.tabset > label i {
+  font-size: 1.05rem;
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.tabset>label:hover::after,
-.tabset>input:focus+label::after,
-.tabset>input:checked+label::after {
-  background: #10222e;
-  color: #10222e;
+/* Градиентная черта — вырастает под активной вкладкой */
+.tabset > label::after {
+  content: '';
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: -2px;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--blue), var(--gold-bright));
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tabset>input:checked+label {
-  margin-bottom: -1px;
-  border-bottom: solid #10222e;
+.tabset > label:hover {
+  color: var(--blue-dark);
+}
+
+.tabset > input:checked + label {
+  color: var(--text);
+}
+
+.tabset > input:checked + label i {
+  color: var(--gold);
+  transform: translateY(-1px) scale(1.08);
+}
+
+.tabset > input:checked + label::after {
+  transform: scaleX(1);
+}
+
+.tabset > input:focus-visible + label {
+  outline: 2px solid var(--blue);
+  outline-offset: -2px;
+  border-radius: 8px;
 }
 
 .tab-panel {
-  padding: 30px;
-  border-top: 1px solid #919ea9;
+  margin-top: 8px;
+  padding: 26px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(16, 34, 46, 0.05);
 }
 
+/* ===== Специальности ===== */
 .specialties-list {
   display: flex;
   flex-direction: column;
-  padding: 10px;
 }
 
 .qualification {
-  margin-bottom: 20px;
+  margin-bottom: 26px;
 }
 
 .qualification h4 {
-  color: #10222e;
-  font-size: 1.3em;
-  margin-bottom: 15px;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 1.12rem;
+  margin: 0 0 14px;
+  font-weight: 800;
+}
+
+.qualification h4::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  flex: 0 0 4px;
 }
 
 .specialty {
-  width: 70%;
-  background-color: #f4f4f4;
-  padding: 20px;
-  border-radius: 12px;
+  position: relative;
+  background: #f7fafc;
+  border: 1px solid var(--border);
+  padding: 16px 18px;
+  border-radius: 14px;
   margin-bottom: 10px;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .specialty:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.specialty p {
-  color: #333;
-  font-size: 1.1em;
-  margin: 5px 0;
+  transform: translateY(-3px);
+  border-color: rgba(23, 149, 192, 0.45);
+  box-shadow: 0 12px 28px rgba(16, 34, 46, 0.09);
 }
 
 .specialty-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 1.02rem;
+  margin: 0 0 10px;
+}
+
+.specialty-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.specialty-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
   font-weight: 600;
-  color: #10222e !important;
-  font-size: 1.2em !important;
+  color: var(--blue-dark);
+  background: rgba(23, 149, 192, 0.08);
+  border: 1px solid rgba(23, 149, 192, 0.18);
 }
 
-.specialty-cost, .specialty-duration {
-  color: #666 !important;
+.specialty-chip i {
+  color: var(--gold);
 }
 
-@media (max-width: 768px) {
-  .specialty {
-    width: 100%;
+.specialty-arrow {
+  margin-left: auto;
+  color: var(--blue);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-  .qualification h4 {
-    font-size: 1.2em;
+.specialty:hover .specialty-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ===== Мероприятия ===== */
+.events-cont {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .events-cont {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  .specialty p {
-    font-size: 1em;
+}
+
+@media (min-width: 1200px) {
+  .events-cont {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 .event-card {
-  background-color: #536274;
-  padding: 20px;
-  border-radius: 12px;
-  width: 400px;
-  box-sizing: border-box;
-  margin: 0 0 50px 0;
-  transition: transform 0.3s ease;
   position: relative;
+  background: linear-gradient(160deg, #10222e 0%, #14384a 100%);
+  padding: 20px;
+  border-radius: 18px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .event-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px rgba(11, 31, 42, 0.35);
 }
 
 .event-logo-img {
-  width: 50px;
-  height: 50px;
-  background-color: white;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
+  background-color: #fff;
+  border-radius: 13px;
   padding: 5px;
+  object-fit: contain;
 }
 
 .event-logo {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10%;
+  margin-bottom: 16px;
 }
 
 .event-view {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 5%;
+  margin-bottom: 10px;
 }
 
 .event-line {
-  border: 1px solid #10222e;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  margin: 8px 0;
 }
 
 .event-view-text {
-  color: #cdcccc;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 0px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 .event-info-text {
-  color: white;
+  color: #fff;
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin: 0;
 }
 
 .event-terms {
-  margin: 50px 0 0 0;
-  color: #cdcccc;
-  height: 200px;
+  margin-top: 16px;
+  color: rgba(255, 255, 255, 0.7);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
+.terms-text {
+  font-size: 0.88rem;
+  margin: 0 0 6px;
+}
+
+.type-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+  color: #10222e;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.event-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.more-button,
+.apply-button {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.more-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.apply-button {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(23, 149, 192, 0.4);
+}
+
+.more-button:hover,
+.apply-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.applied-text {
+  color: #34d399;
+  font-weight: 700;
+  align-self: center;
+}
+
+/* ===== Отзывы ===== */
+.review-form {
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #f7fafc;
+}
+
+.review-form h3 {
+  margin: 0 0 6px;
+  font-size: 1.08rem;
+  font-weight: 800;
+}
+
+.rating-input {
+  margin: 10px 0;
+}
+
+.star {
+  font-size: 26px;
+  cursor: pointer;
+  color: #cbd5dd;
+  transition: color 0.15s ease, transform 0.15s ease;
+  display: inline-block;
+}
+
+.star:hover {
+  transform: scale(1.15);
+}
+
+.star.filled {
+  color: var(--gold-bright);
+}
+
+.review-textarea {
+  width: 100%;
+  min-height: 100px;
+  margin: 10px 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.review-textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(23, 149, 192, 0.15);
+}
+
+.submit-review-btn {
+  padding: 11px 24px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  border: none;
+  border-radius: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(23, 149, 192, 0.3);
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.submit-review-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.submit-review-btn:disabled {
+  background: #c2cdd4;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.review-item {
+  background: #f7fafc;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s ease;
+}
+
+.review-item:hover {
+  border-color: rgba(23, 149, 192, 0.35);
+}
+
+.review-rating {
+  font-size: 1.2rem;
+  color: var(--gold-bright);
+  letter-spacing: 2px;
+}
+
+.review-comment {
+  font-size: 0.96rem;
+  color: #2b3d47;
+  margin-top: 8px;
+  line-height: 1.55;
+}
+
+.review-comment p {
+  margin: 0;
+}
+
+.review-user {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 10px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.review-user p {
+  margin: 0;
+}
+
+/* ===== Местоположение ===== */
+.preview-map {
+  width: 100%;
+  height: 320px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.location-preview {
+  cursor: pointer;
+  position: relative;
+}
+
+.location-preview:hover .click-hint {
+  background: var(--blue);
+  color: #fff;
+}
+
+.click-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 500;
+  margin: 0;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: 0 8px 22px rgba(16, 34, 46, 0.2);
+  transition: background 0.2s ease, color 0.2s ease;
+  pointer-events: none;
+}
+
+/* ===== Лоадеры картинок ===== */
 .image-loader {
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   height: 100%;
-  background-color: #f3f3f3;
+  position: absolute;
+  inset: 0;
+  background-color: #f3f6f8;
 }
 
-.spinner {
-  width: 30px;
-  height: 30px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #1795c0;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.image-loader .spinner {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.university-bg-placeholder {
+/* ===== Модалки ===== */
+.success-modal-overlay,
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 400px;
-  background-color: #ffffff;
+  height: 100%;
+  background: rgba(4, 22, 32, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 16px;
 }
 
-.preview-map {
-  width: 100%;
-  height: 300px;
+.success-modal {
+  background: #fff;
+  padding: 26px;
+  border-radius: 16px;
+  text-align: center;
+  width: 320px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
 }
-.location-preview {
+
+.success-modal h3 {
+  margin: 0 0 8px;
+  font-weight: 800;
+}
+
+.success-modal-close {
+  margin-top: 12px;
+  padding: 10px 26px;
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
 }
-.click-hint {
+
+.modal-content,
+.apply-modal,
+.group-modal,
+.details-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+  max-width: 420px;
+  width: 100%;
   text-align: center;
-  margin-top: 8px;
-  color: #666;
-  font-size: 0.9rem;
+  overflow: hidden;
 }
 
-.type-badge{position:absolute;top:8px;right:8px;background:#1795c0;color:#fff;padding:2px 6px;border-radius:4px;font-size:12px;}
-.event-buttons{display:flex;gap:10px;margin-top:10px;}
-.more-button,.apply-button{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;background:#1795c0;color:#fff;}
-.applied-text{color:#4fa300;font-weight:600;}
-.success-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:2000;}
-.success-modal{background:#fff;padding:20px;border-radius:12px;text-align:center;width:300px;}
-.success-modal-close{padding:8px 20px;background:#1795c0;color:#fff;border:none;border-radius:6px;cursor:pointer;}
-.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:2000;}
-.modal-header{padding:20px;background:#04202D;color:#fff;border-top-left-radius:12px;border-top-right-radius:12px;}
-.modal-footer{padding:15px;display:flex;justify-content:space-between;}
-.modal-actions{display:flex;justify-content:space-between;margin-top:10px;}
-.error-message{color:red;margin-top:8px;}
-.apply-modal,.group-modal{background:#fff;border-radius:12px;max-width:400px;width:100%;text-align:center;}
-.details-modal{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,0.2);max-width:400px;width:100%;text-align:center;}
-.details-modal .modal-header{padding:20px;background:#04202D;color:#fff;border-top-left-radius:15px;border-top-right-radius:15px;}
-.details-modal .modal-body{padding:20px;font-size:1rem;color:#333;}
-.details-modal .modal-footer{padding:15px;background:#f8f9fa;border-bottom-left-radius:15px;border-bottom-right-radius:15px;display:flex;justify-content:space-between;}
+.apply-modal,
+.group-modal {
+  padding: 20px;
+}
+
+.modal-header {
+  padding: 18px 20px;
+  background: var(--navy);
+  color: #fff;
+}
+
+.modal-title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.modal-body {
+  padding: 20px;
+  font-size: 0.98rem;
+  color: #2b3d47;
+  text-align: left;
+}
+
+.modal-footer {
+  padding: 14px 20px;
+  background: #f7fafc;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.modal-actions button,
+.modal-footer .btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-actions button:first-child,
+.modal-footer .btn-primary {
+  background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+  color: #fff;
+}
+
+.modal-actions button:last-child,
+.modal-footer .btn-secondary {
+  background: #eef2f5;
+  color: var(--text);
+}
+
+.group-modal input,
+.apply-modal input {
+  width: 100%;
+  padding: 10px 13px;
+  margin: 6px 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.93rem;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.group-modal input:focus,
+.apply-modal input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(23, 149, 192, 0.14);
+}
+
+.member-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.error-message {
+  color: #dc2626;
+  margin-top: 8px;
+}
+
+/* ===== Адаптив ===== */
+@media (max-width: 768px) {
+  .uni-hero {
+    min-height: 340px;
+  }
+
+  .uni-hero-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 100px 16px 26px;
+  }
+
+  .uni-hero-logo {
+    width: 92px;
+    height: 92px;
+    flex-basis: 92px;
+  }
+
+  .university-info {
+    padding: 26px 16px 6px;
+  }
+
+  .university-info-card {
+    flex-basis: 100%;
+  }
+
+  .user-events {
+    padding: 0 16px 44px;
+  }
+
+  .tab-panel {
+    padding: 18px 14px;
+  }
+
+  .tabset > label {
+    width: 50%;
+    padding: 12px 6px;
+    font-size: 0.88rem;
+    gap: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uni-hero-photo,
+  .uni-hero-content {
+    animation: none;
+  }
+}
 </style>
