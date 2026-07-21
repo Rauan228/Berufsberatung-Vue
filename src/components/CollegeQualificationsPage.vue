@@ -1,21 +1,23 @@
 <template>
   <div class="spec-page">
     <header class="page-hero">
+      <div class="hero-glow hero-glow-blue"></div>
+      <div class="hero-glow hero-glow-gold"></div>
       <div class="page-hero-inner">
-        <div class="page-hero-text">
-          <span class="page-badge">Квалификации</span>
-          <h1>{{ currentSpecialtyName || 'Направление' }}</h1>
-          <p class="page-sub">
-            Выберите квалификацию и специальность, чтобы узнать подробности и колледжи
-          </p>
-        </div>
-        <div class="page-hero-meta">
-          <div class="found-pill">
-            <i class="bi bi-list-check"></i>
-            <span>
-              <strong>{{ qualifications.length }}</strong>
-              {{ qualWord(qualifications.length) }}
-            </span>
+        <span class="hero-kicker">Направление</span>
+        <h1>{{ heroTitle.main }}<template v-if="heroTitle.accent"> <span class="hero-accent">{{ heroTitle.accent }}</span></template></h1>
+        <p class="page-sub">
+          Выберите квалификацию и специальность, чтобы узнать подробности и колледжи
+        </p>
+        <div class="hero-facts">
+          <div class="hero-fact">
+            <span class="hero-fact-value">{{ qualifications.length || '—' }}</span>
+            <span class="hero-fact-label">{{ qualWord(qualifications.length) }}</span>
+          </div>
+          <span class="hero-fact-divider"></span>
+          <div class="hero-fact">
+            <span class="hero-fact-value">{{ totalSpecs || '—' }}</span>
+            <span class="hero-fact-label">{{ specWord(totalSpecs) }}</span>
           </div>
         </div>
       </div>
@@ -163,6 +165,22 @@ export default {
     };
   },
   computed: {
+    totalSpecs() {
+      return this.qualifications.reduce(
+        (sum, q) => sum + (q.specializations ? q.specializations.length : 0),
+        0
+      );
+    },
+    // Разбиваем название: последнее «чистое» слово уходит в золотой акцент.
+    // Слова со скобками/латиницей не акцентируем — «мазок» под ними смотрится криво.
+    heroTitle() {
+      const name = (this.currentSpecialtyName || 'Направление').trim();
+      const words = name.split(/\s+/);
+      const last = words[words.length - 1] || '';
+      const clean = /^[А-Яа-яЁё-]{4,}$/.test(last);
+      if (words.length < 2 || !clean) return { main: name, accent: '' };
+      return { main: words.slice(0, -1).join(' '), accent: last };
+    },
     filteredQualifications() {
       const q = this.searchQuery.trim().toLowerCase();
       if (!q) return this.qualifications;
@@ -285,66 +303,137 @@ export default {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
-  padding-top: 72px;
   width: 100%;
   box-sizing: border-box;
 }
 
 .page-hero {
-  background: linear-gradient(120deg, #0b1f2a 0%, #14384a 55%, #1795c0 160%);
+  position: relative;
+  overflow: hidden;
+  background: #0b1f2a;
   color: #fff;
-  padding: 32px 20px 28px;
+  /* верхний отступ учитывает прозрачный навбар, «плывущий» поверх блока */
+  padding: 102px 20px 32px;
+}
+
+/* Волнистые линии в фирменных голубом и золотом, растворяются к правому краю */
+.page-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400' fill='none'%3E%3Cpath d='M0 60 Q150 10 300 60 T600 60' stroke='%231795c0' stroke-opacity='0.22' stroke-width='1.3'/%3E%3Cpath d='M0 120 Q150 66 300 120 T600 120' stroke='%231795c0' stroke-opacity='0.14' stroke-width='1.3'/%3E%3Cpath d='M0 180 Q150 122 300 180 T600 180' stroke='%23d4af37' stroke-opacity='0.16' stroke-width='1.3'/%3E%3Cpath d='M0 240 Q150 182 300 240 T600 240' stroke='%231795c0' stroke-opacity='0.11' stroke-width='1.3'/%3E%3Cpath d='M0 300 Q150 244 300 300 T600 300' stroke='%231795c0' stroke-opacity='0.17' stroke-width='1.3'/%3E%3Cpath d='M0 360 Q150 304 300 360 T600 360' stroke='%23d4af37' stroke-opacity='0.10' stroke-width='1.3'/%3E%3C/svg%3E") repeat;
+  background-size: 600px 400px;
+  -webkit-mask-image: linear-gradient(115deg, #000 30%, transparent 78%);
+  mask-image: linear-gradient(115deg, #000 30%, transparent 78%);
+  pointer-events: none;
+}
+
+.hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.hero-glow-blue {
+  width: 560px;
+  height: 560px;
+  right: -140px;
+  top: -300px;
+  background: rgba(23, 149, 192, 0.42);
+}
+
+.hero-glow-gold {
+  width: 460px;
+  height: 460px;
+  left: 30%;
+  bottom: -340px;
+  background: rgba(176, 141, 79, 0.22);
 }
 
 .page-hero-inner {
+  position: relative;
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
 }
 
-.page-badge {
+.hero-kicker {
   display: inline-block;
-  padding: 6px 12px;
-  border: 1px solid var(--gold);
-  border-radius: 999px;
-  color: var(--gold);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--gold-bright, #d4af37);
   margin-bottom: 10px;
 }
 
 .page-hero h1 {
-  font-size: clamp(1.45rem, 4vw, 2.15rem);
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
   font-weight: 800;
-  margin: 0 0 8px;
-  line-height: 1.2;
+  margin: 0 0 10px;
+  line-height: 1.18;
   color: #fff;
   word-break: break-word;
 }
 
-.page-sub {
-  margin: 0;
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 1rem;
-  max-width: 560px;
-  line-height: 1.5;
+/* Ключевое слово — золотое, с «мазком» под ним */
+.hero-accent {
+  position: relative;
+  color: #d4af37;
+  margin-left: 0.3em;
 }
 
-.found-pill {
-  display: inline-flex;
+.hero-accent::after {
+  content: '';
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  bottom: -0.16em;
+  height: 0.22em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 10' preserveAspectRatio='none'%3E%3Cpath d='M2 8 Q 60 -2 118 6' fill='none' stroke='%23b08d4f' stroke-width='3' stroke-linecap='round' opacity='0.75'/%3E%3C/svg%3E") no-repeat center / 100% 100%;
+}
+
+.page-sub {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 1rem;
+  max-width: 560px;
+  line-height: 1.55;
+}
+
+/* Живые цифры */
+.hero-facts {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-size: 0.95rem;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-top: 22px;
+}
+
+.hero-fact {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-fact-value {
+  font-family: var(--torap-font-display, inherit);
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #d4af37;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-fact-label {
+  margin-top: 3px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.hero-fact-divider {
+  width: 1px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .page-layout {
@@ -762,12 +851,8 @@ export default {
 }
 
 @media (max-width: 640px) {
-  .spec-page {
-    padding-top: 64px;
-  }
-
   .page-hero {
-    padding: 24px 16px 22px;
+    padding: 84px 16px 24px;
   }
 
   .toolbar {

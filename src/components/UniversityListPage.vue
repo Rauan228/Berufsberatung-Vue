@@ -5,10 +5,12 @@
       <div class="hero-glow hero-glow-blue"></div>
       <div class="hero-glow hero-glow-gold"></div>
       <div class="page-hero-inner">
-        <h1>Университеты <span class="hero-accent">Казахстана</span></h1>
-        <p class="page-sub">
-          Карта, фильтры, сравнение и отзывы студентов — всё, чтобы выбрать вуз осознанно.
-        </p>
+        <div class="hero-copy">
+          <h1>Университеты <span class="hero-accent">Казахстана</span></h1>
+          <p class="page-sub">
+            Карта, фильтры, сравнение и отзывы студентов — всё, чтобы выбрать вуз осознанно.
+          </p>
+        </div>
         <div class="hero-facts">
           <div class="hero-fact">
             <span class="hero-fact-value">{{ totalUniversities || '—' }}</span>
@@ -1777,7 +1779,7 @@ export default {
   background: #0b1f2a;
   color: #fff;
   /* верхний отступ учитывает прозрачный навбар, «плывущий» поверх блока */
-  padding: 108px 24px 38px;
+  padding: 96px 24px 22px;
 }
 
 /* Волнистые линии в фирменных голубом и золотом, растворяются к правому краю */
@@ -1820,12 +1822,22 @@ export default {
   position: relative;
   max-width: 1400px;
   margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px 48px;
+  flex-wrap: wrap;
+}
+
+.hero-copy {
+  flex: 1 1 280px;
+  min-width: 0;
 }
 
 .page-hero h1 {
   font-size: clamp(1.8rem, 4vw, 2.6rem);
   font-weight: 800;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   line-height: 1.15;
   color: #fff;
 }
@@ -1852,21 +1864,23 @@ export default {
   color: rgba(255, 255, 255, 0.72);
   font-size: 1.05rem;
   max-width: 560px;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
-/* Живые цифры каталога */
+/* Живые цифры каталога — справа от заголовка */
 .hero-facts {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 22px;
-  margin-top: 26px;
+  flex-wrap: nowrap;
+  gap: 20px;
+  margin-top: 0;
+  flex: 0 0 auto;
 }
 
 .hero-fact {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
 
 .hero-fact-value {
@@ -1882,12 +1896,14 @@ export default {
   margin-top: 3px;
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
 }
 
 .hero-fact-divider {
   width: 1px;
   height: 36px;
   background: rgba(255, 255, 255, 0.16);
+  flex-shrink: 0;
 }
 
 /* Счётчик в заголовке списка */
@@ -2971,9 +2987,29 @@ export default {
   }
 }
 
+@media (max-width: 720px) {
+  .page-hero-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .hero-facts {
+    gap: 16px;
+  }
+}
+
 @media (max-width: 575px) {
   .page-hero {
-    padding: 88px 16px 24px;
+    padding: 88px 16px 18px;
+  }
+
+  .hero-fact-value {
+    font-size: 1.4rem;
+  }
+
+  .hero-facts {
+    gap: 12px;
   }
 
   .page-layout {
